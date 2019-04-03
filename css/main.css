@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.004em;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+canvas {
+  width: 90%;
+  height: 90%;
+}
+#loadtext {
+  font-family: 'Merriweather', serif;
+  font-weight: 300;
+  font-size: 50px;
+  line-height: 1.5;
+  letter-spacing: -0.004em;
+  color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+nav {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  z-index: 1001;
+}
+nav > div {
+  padding-left: 30px;
+  color: #484848;
+  cursor: pointer;
+}
+nav > div:hover {
+  color: #45a5fa;
+}
+#mainContainer {
+  position: fixed;
+  width: calc(100% - 40px);
+  height: calc(100% - 80px);
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20px;
+}
+#container {
+  width: 100%;
+  height: 100%;
+  background-color: #dddddd;
+}
+#container .echart-box {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30%;
+  height: 60%;
+  background-color: rgba(230, 230, 230, 0.8);
+  border-radius: 10px;
+}
+#container .echart-box > div {
+  width: 100%;
+}
+#container .echart-box > div.water {
+  height: 48%;
+}
+#container .echart-box > div.electric {
+  height: 52%;
+}
+#container .state-box {
+  width: 120px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+#container .state-box > .build-tab {
+  display: flex;
+  width: 100%;
+  height: 30px;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 5px;
+}
+#container .state-box > .build-tab > span {
+  display: flex;
+  height: 100%;
+  width: 33.33%;
+  justify-content: center;
+  align-items: center;
+  color: #484848;
+  cursor: pointer;
+}
+#container .state-box > .build-tab > span.active {
+  background-color: #45a5fa;
+  color: #ffffff;
+}

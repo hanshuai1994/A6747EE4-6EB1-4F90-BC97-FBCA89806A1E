@@ -1,0 +1,66 @@
+<html>
+
+<head>
+	<meta charset=utf-8>
+	<title>深圳建科院</title>
+	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<link href='https://fonts.googleapis.com/css?family=Merriweather:300' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./css/main.css">
+</head>
+
+<body>
+	<!-- 主菜单 -->
+	<nav>
+		<div class="home">首页</div>
+		<div class="energy">能耗统计</div>
+		<div class="manage">运维管理</div>
+		<div class="monitor">监控系统</div>
+	</nav>
+
+
+
+	<!-- 主要程序容器 -->
+	<div id="mainContainer">
+		<!-- 加载容器 -->
+		<div id="introContainer">
+			<div id="loadtext">载入中...</div>
+		</div>
+
+		<!-- canvas绘图容器 -->
+		<div id="container">
+			<div class="echart-box">
+				<div class="water"></div>
+				<div class="electric"></div>
+			</div>
+			<div class="state-box">
+				<div class="build-tab">
+					<span class="north-build active" data-mark="north">北楼</span>
+					<span class="middle-build active" data-mark="middle">亭廊</span>
+					<span class="south-build active" data-mark="south">南楼</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 基础依赖 -->
+	<script src="./js/build/three.js"></script>
+	<script src="./js/build/jquery.min.js"></script>
+	<script src="./js/build/echarts.min.js"></script>
+
+	<!-- 控制器依赖 -->
+	<script src="./js/controls/OrbitControls.js"></script>
+
+	<!-- 拓展依赖 -->
+	<script src="./js/extend/SubdivisionModifier.js"></script>
+	<script src='./js/extend/BufferGeometryUtils.js'></script>
+
+	<!-- 工具库依赖 -->
+	<script src="./js/utils.js"></script>
+
+	<!-- 程序入口 -->
+	<script src="./js/showConsumption.js"></script>
+	<script src='./js/main.js'></script>
+</body>
+
+</html>
