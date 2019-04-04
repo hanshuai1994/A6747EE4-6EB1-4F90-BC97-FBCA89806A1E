@@ -3,15 +3,7 @@ $(function () {
     var idM;
     var camera, scene, renderer;
     var controls;
-    var loader;
     var ambient, directional;
-
-    const merge_builds = {
-        north: undefined,
-        middle: undefined,
-        south: undefined,
-    };
-
 
     init();
     //animate();
@@ -28,6 +20,8 @@ $(function () {
             alpha: true
         });
         renderer.setSize(width, height);
+        renderer.localClippingEnabled = true;
+        // renderer.logarithmicDepthBuffer = true;
 
         container.appendChild(renderer.domElement);
 
@@ -52,60 +46,83 @@ $(function () {
 
         mouse();
 
-
-        let builds = {
-            south: [],
-            north: [],
-            middle: [],
+        // clip平面
+        const clipPlanes = {
+            '北楼': [
+                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
+                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
+            ],
+            '亭廊': [
+                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
+                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
+            ],
+            '南楼': [
+                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
+                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
+            ],
         }
 
-        loader = new THREE.ObjectLoader();
+        const plane_geometry = new THREE.PlaneGeometry(50000, 50000, 1, 1);
+        const plane_material = new THREE.MeshBasicMaterial();
+        const plane_cut = new THREE.Mesh(plane_geometry, plane_material);
+
+        var helpers = new THREE.Group();
+        helpers.add(new THREE.AxesHelper(20));
+        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 30000, 0xff0000));
+        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 30000, 0x00ff00));
+        helpers.visible = true;
+        scene.add(helpers);
 
         const paths = ['./models/north.js', './models/south.js', './models/tinglang.js'];
-        // const paths = ['./models/zzz.js'];
-        // const paths = [];
 
-        let name_map = [];
+        analysisRevit(paths, function (group) {
+            scene.add(group);
 
-        // 使用 promise 进行多个异步处理
-        const promises = paths.map(function (path) {
-            return new Promise(function (resolve, reject) {
-                loader.load(path, function (object) {
-                    console.log('object', object);
+            // merge 后的建筑组索引
+            const merge_builds = {
+                '北楼': undefined,
+                '亭廊': undefined,
+                '南楼': undefined,
+            };
 
-                    let objects = [];
-                    if (object.name.includes("亭廊")) {
-                        objects = builds.middle;
-                    } else if (object.name.includes("北楼")) {
-                        objects = builds.north;
-                    } else if (object.name.includes("南楼")) {
-                        objects = builds.south;
-                    }
+            // clipPlanes 高度对应索引
+            const constant_map = {
+                '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
+                '亭廊': [-0.45, 4.5, 7.8],
+                '南楼': [-0.45, 3.82, 7.02, 10.22, 13.42, 16.62, 19.82, 23.02, 26.62],
+            }
 
-                    object.traverse(function (mesh) {
-                        if (mesh instanceof THREE.Mesh) {
-                            objects.push(mesh);
+            // 材质索引
+            const material_map = {
+                '北楼': [],
+                '亭廊': [],
+                '南楼': [],
+            }
+
+            // 遍历最外层 group 的 children, 获取三栋楼
+            for (const child of group.children) {
+                const key = child.name;
+
+                merge_builds[key] = child;
+
+                // 遍历三栋楼的 children, 获取 mesh组 和 线框组
+                for (const group of child.children) {
+
+                    // 遍历 mesh组 和 线框组, 获取mesh
+                    for (const mesh of group.children) {
+                        const material = mesh.material;
+                        if (!material_map[key].includes(material)) {
+                            material.clippingPlanes = clipPlanes[key];
+                            material.clipIntersection = false;
+                            material_map[key].push(material);
                         }
-                    })
-
-                    resolve();
-                })
-            })
-        })
-
-        Promise.all(promises).then(function (posts) {
-            for (const key in builds) {
-                if (builds.hasOwnProperty(key)) {
-                    const objects = builds[key];
-                    let mergeArray = merge_obj_children(objects);
-                    scene.add(...mergeArray);
-
-                    merge_builds[key] = mergeArray;
+                    }
                 }
             }
 
 
             let box3 = new THREE.Box3().expandByObject(scene);
+
             controls.target = box3.getCenter(new THREE.Vector3());
 
             let diagonal = Math.sqrt(
@@ -115,7 +132,6 @@ $(function () {
             );
 
             controls.object.position.set(controls.target.x - diagonal * 0.5, controls.target.y + diagonal * 0.5, controls.target.z + diagonal * 0.5);
-            // console.log(controls.object.position);
 
             controls.update();
             console.log(scene);
@@ -127,7 +143,46 @@ $(function () {
                 render()
                 $('#mainContainer').fadeIn("slow", function () {});
             });
+
+            // 绑定三栋楼的显示/隐藏按钮
+            $('#container').on('click', '.state-box>.build-tab>span', function () {
+                $(this).toggleClass('active');
+                const key = $(this).attr('data-name');
+
+                merge_builds[key].visible = $(this).hasClass('active');
+                render();
+            });
+
+            // 绑定楼层切换按钮
+            $('#container').on('click', '.floor-switch>span', function () {
+                $(this).addClass('active').siblings().removeClass('active');
+                let index = $(this).attr('data-index');
+
+                for (const key in clipPlanes) {
+                    const plane_array = clipPlanes[key];
+                    if (index == 'all') {
+                        plane_array[0].constant = 50000; // 向下
+                        plane_array[1].constant = 10000; // 向上
+                    } else {
+                        index = Number(index);
+                        if (!constant_map[key][index - 1]) {
+                            plane_array[0].constant = -10000 // 向下
+                        } else {
+                            plane_array[0].constant = constant_map[key][index] * 1000 - 1 // 向下
+                            plane_array[1].constant = -constant_map[key][index - 1] * 1000 + 1 // 向上
+                        }
+                    }
+
+                    if (key == '北楼') {
+                        console.log('plane_array[0]', plane_array[0]);
+                        console.log('plane_array[1]', plane_array[1]);
+                    }
+                }
+
+                render();
+            })
         })
+
 
         controls.addEventListener('change', function () {
             if (animLoop == false) {
@@ -144,6 +199,7 @@ $(function () {
 
     function render() {
         renderer.render(scene, camera);
+        console.log('renderer', renderer);
     }
 
 
@@ -161,17 +217,4 @@ $(function () {
     function stopAnim(renderTarget) {
         cancelAnimationFrame(renderTarget);
     }
-
-    $('#container').on('click', '.state-box>.build-tab>span', function () {
-        $(this).toggleClass('active');
-        const mark = $(this).attr('data-mark');
-
-        if (merge_builds[mark]) {
-            for (const group of merge_builds[mark]) {
-                group.visible = $(this).hasClass('active');
-            }
-
-            render();
-        } 
-    })
 })

@@ -7,12 +7,20 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
         const geometry = object.geometry;
         const material = object.material;
 
+        for (const vector of geometry.vertices) {
+            vector.x = Math.round(vector.x);
+            vector.y = Math.round(vector.y);
+            vector.z = Math.round(vector.z);
+        }
+
+        const new_geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+
         var index = material_array.indexOf(material); // 进行一次基于指针的存在判断
         if (index == -1) {
             material_array.push(material);
-            geometry_array.push([new THREE.BufferGeometry().fromGeometry(geometry)]);
+            geometry_array.push([new_geometry]);
         } else { // 已经出现过的材质
-            geometry_array[index].push(new THREE.BufferGeometry().fromGeometry(geometry));
+            geometry_array[index].push(new_geometry);
         }
     }
 
@@ -23,10 +31,18 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
     }
 
     //合并完成，进行分组
-    var group = new THREE.Group();
-    var group1 = new THREE.Group();
+    const group = new THREE.Group();
+
+    const group_mesh = new THREE.Group();
+    group_mesh.name = '融合后的mesh'
+
+    const group_edge = new THREE.Group();
+    group_edge.name = '融合后的线框'
+
+    group.add(group_mesh, group_edge);
+
     for (var i = 0; i < geometry_array.length; i++) {
-        var obj = new THREE.Mesh(geometry_array[i], material_array[i]);
+        const mesh = new THREE.Mesh(geometry_array[i], material_array[i]);
         var geo = new THREE.EdgesGeometry(geometry_array[i], 30); // or WireframeGeometry( geometry )
         var mat = new THREE.LineBasicMaterial({
             color: 0x0d0d0d,
@@ -34,10 +50,15 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
             opacity: 0.3
         });
         var wireframe = new THREE.LineSegments(geo, mat);
-        group.add(obj);
-        group1.add(wireframe);
+        group_mesh.add(mesh);
+        group_edge.add(wireframe);
 
     }
 
-    return [group, group1];
+    return group;
 }
+
+
+// module.exports = {
+//     merge_obj_children
+// };
