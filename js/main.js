@@ -62,19 +62,19 @@ $(function () {
             ],
         }
 
-        const plane_geometry = new THREE.PlaneGeometry(50000, 50000, 1, 1);
-        const plane_material = new THREE.MeshBasicMaterial();
-        const plane_cut = new THREE.Mesh(plane_geometry, plane_material);
 
-        var helpers = new THREE.Group();
+        const helpers = new THREE.Group();
+        helpers.name = 'clip helpers'
         helpers.add(new THREE.AxesHelper(20));
-        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 30000, 0xff0000));
-        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 30000, 0x00ff00));
+        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 150000, 0xff0000));
+        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 150000, 0x00ff00));
         helpers.visible = true;
-        scene.add(helpers);
+        // scene.add(helpers);
 
+        // 待解析的 revit 文件路径数组
         const paths = ['./models/north.js', './models/south.js', './models/tinglang.js'];
 
+        // 解析 revit 文件
         analysisRevit(paths, function (group) {
             scene.add(group);
 
@@ -92,29 +92,34 @@ $(function () {
                 '南楼': [-0.45, 3.82, 7.02, 10.22, 13.42, 16.62, 19.82, 23.02, 26.62],
             }
 
-            // 材质索引
-            const material_map = {
+            // clip 材质索引
+            const clip_material_map = {
                 '北楼': [],
                 '亭廊': [],
                 '南楼': [],
             }
 
-            // 遍历最外层 group 的 children, 获取三栋楼
+
+            // 遍历最外层 group, 获取三栋楼
             for (const child of group.children) {
                 const key = child.name;
-
                 merge_builds[key] = child;
 
-                // 遍历三栋楼的 children, 获取 mesh组 和 线框组
+                // 遍历每栋楼，获取 clip 组与楼层组
                 for (const group of child.children) {
+                    if (group.name == 'clip组') {
+                        
+                        // 遍历 clip 组，获取融合 mesh 组与线框组
+                        for (const clip_item of group.children) {
 
-                    // 遍历 mesh组 和 线框组, 获取mesh
-                    for (const mesh of group.children) {
-                        const material = mesh.material;
-                        if (!material_map[key].includes(material)) {
-                            material.clippingPlanes = clipPlanes[key];
-                            material.clipIntersection = false;
-                            material_map[key].push(material);
+                            // 遍历融合 mesh 组与线框组，获取每个融合后的 mesh
+                            for (const mesh of clip_item.children) {
+                                const material = mesh.material;
+                                material.clippingPlanes = clipPlanes[key];
+                                material.clipIntersection = false;
+
+                                clip_material_map[key].push(material);
+                            }
                         }
                     }
                 }
@@ -158,31 +163,61 @@ $(function () {
                 $(this).addClass('active').siblings().removeClass('active');
                 let index = $(this).attr('data-index');
 
+                // clearBSP(); // 清空 bsp
+
                 for (const key in clipPlanes) {
                     const plane_array = clipPlanes[key];
                     if (index == 'all') {
                         plane_array[0].constant = 50000; // 向下
                         plane_array[1].constant = 10000; // 向上
+
+                        // 显示所有楼层
+                        for (const child of merge_builds[key].children) {
+                            if (child.name == '楼层组') {
+                                for (const floor of child.children) {
+                                    floor.visible = true;
+                                }
+                            }
+                        }
                     } else {
                         index = Number(index);
                         if (!constant_map[key][index - 1]) {
                             plane_array[0].constant = -10000 // 向下
                         } else {
-                            plane_array[0].constant = constant_map[key][index] * 1000 - 1 // 向下
-                            plane_array[1].constant = -constant_map[key][index - 1] * 1000 + 1 // 向上
-                        }
-                    }
+                            const y_0 = constant_map[key][index] * 1000;
+                            const y_1 = constant_map[key][index - 1] * 1000;
 
-                    if (key == '北楼') {
-                        console.log('plane_array[0]', plane_array[0]);
-                        console.log('plane_array[1]', plane_array[1]);
+                            plane_array[0].constant = y_0 - 1 // 向下
+                            plane_array[1].constant = -y_1 + 1 // 向上
+
+                            for (const child of merge_builds[key].children) {
+                                if (child.name == '楼层组') {
+                                    for (const floor of child.children) {
+                                        if (floor.name && floor.name == index + '楼') {
+                                            floor.visible = true;
+                                        } else {
+                                            if (key == '亭廊') {
+                                                console.log('index', index, floor.name);
+                                                if ((index == 1 && floor.name == '2楼') || (index == 2 && floor.name == '1楼')) {
+                                                    floor.visible = true;
+                                                } else {
+                                                    console.log('hide');
+                                                    floor.visible = false;
+                                                }
+                                            } else {
+                                                floor.visible = false;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
                 render();
             })
         })
-
 
         controls.addEventListener('change', function () {
             if (animLoop == false) {
@@ -199,7 +234,7 @@ $(function () {
 
     function render() {
         renderer.render(scene, camera);
-        console.log('renderer', renderer);
+        // console.log('renderer', renderer);
     }
 
 

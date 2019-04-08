@@ -2,16 +2,11 @@
 function merge_obj_children(array) { //merge外部导入模型的同材质到一个数组
     var material_array = [];
     var geometry_array = [];
+    const name_array = [];
 
     for (const object of array) { // 遍历所有object
         const geometry = object.geometry;
         const material = object.material;
-
-        for (const vector of geometry.vertices) {
-            vector.x = Math.round(vector.x);
-            vector.y = Math.round(vector.y);
-            vector.z = Math.round(vector.z);
-        }
 
         const new_geometry = new THREE.BufferGeometry().fromGeometry(geometry);
 
@@ -57,8 +52,3 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
 
     return group;
 }
-
-
-// module.exports = {
-//     merge_obj_children
-// };
