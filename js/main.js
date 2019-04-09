@@ -69,7 +69,7 @@ $(function () {
         helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 150000, 0xff0000));
         helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 150000, 0x00ff00));
         helpers.visible = true;
-        // scene.add(helpers);
+        scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
         const paths = ['./models/north.js', './models/south.js', './models/tinglang.js'];
@@ -168,6 +168,8 @@ $(function () {
                 for (const key in clipPlanes) {
                     const plane_array = clipPlanes[key];
                     if (index == 'all') {
+
+                        // clip 划分
                         plane_array[0].constant = 50000; // 向下
                         plane_array[1].constant = 10000; // 向上
 
@@ -192,6 +194,8 @@ $(function () {
                             plane_array[0].constant = y_0 - 1 // 向下
                             plane_array[1].constant = -y_1 + 1 // 向上
                         }
+
+                        console.log(key, plane_array);
 
                         // 遍历获取每栋楼的楼层组
                         for (const child of merge_builds[key].children) {

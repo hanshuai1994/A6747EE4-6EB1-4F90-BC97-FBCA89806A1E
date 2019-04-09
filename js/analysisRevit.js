@@ -1,4 +1,4 @@
-const getDividedFloor = (build, key) => {
+const getDividedFloor = (build, key, materials) => {
     // 用于区分楼层的预设高度
     const preHeight = {
         '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
@@ -18,7 +18,7 @@ const getDividedFloor = (build, key) => {
     for (const obj3d of build.children) {
         let target = objects.box;
 
-        // if (obj3d.userData.revit_id == 'addc58cd-5e25-4a28-96d8-7f33c4e689ad-0020d475') {
+        // if (obj3d.userData.revit_id == 'addc58cd-5e25-4a28-96d8-7f33c4e689ad-0020b68d') {
         //     console.log('obj3d', obj3d);
         // }
 
@@ -33,9 +33,21 @@ const getDividedFloor = (build, key) => {
             target = objects.clip;
         }
 
+        // 遍历获取所有 mesh
+        outer:
         for (const mesh of obj3d.children) {
             if (mesh instanceof THREE.Mesh) {
                 target.push(...obj3d.children);
+
+                const material = mesh.material;
+
+                for (const mat of materials) {
+                    if (mat.uuid == material.uuid) { // 若当前材质已经保存，则替换材质，回到外循环
+                        mesh.material = mat;
+                        continue outer;
+                    }
+                }
+                materials.push(material);
             }
         }
     }
@@ -108,6 +120,12 @@ const analysisRevit = (paths, callback) => {
         const group = new THREE.Group();
         group.name = '模型整体';
 
+        const materials = {
+            '北楼': [],
+            '亭廊': [],
+            '南楼': [],
+        };
+
         for (const build of builds) { // 对每栋楼进行处理
             let key = '北楼';
             if (build.name.includes("亭廊")) {
@@ -116,12 +134,14 @@ const analysisRevit = (paths, callback) => {
                 key = "南楼";
             }
 
-            const result = getDividedFloor(build, key)
+            const result = getDividedFloor(build, key, materials[key]);
 
             group.add(result);
 
             console.log(key, result);
         }
+
+        console.log('materials', materials);
 
         callback(group);
     })
