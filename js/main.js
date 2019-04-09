@@ -108,7 +108,7 @@ $(function () {
                 // 遍历每栋楼，获取 clip 组与楼层组
                 for (const group of child.children) {
                     if (group.name == 'clip组') {
-                        
+
                         // 遍历 clip 组，获取融合 mesh 组与线框组
                         for (const clip_item of group.children) {
 
@@ -181,6 +181,8 @@ $(function () {
                         }
                     } else {
                         index = Number(index);
+
+                        // 进行 clip 位置调整
                         if (!constant_map[key][index - 1]) {
                             plane_array[0].constant = -10000 // 向下
                         } else {
@@ -189,24 +191,25 @@ $(function () {
 
                             plane_array[0].constant = y_0 - 1 // 向下
                             plane_array[1].constant = -y_1 + 1 // 向上
+                        }
 
-                            for (const child of merge_builds[key].children) {
-                                if (child.name == '楼层组') {
-                                    for (const floor of child.children) {
-                                        if (floor.name && floor.name == index + '楼') {
-                                            floor.visible = true;
-                                        } else {
-                                            if (key == '亭廊') {
-                                                console.log('index', index, floor.name);
-                                                if ((index == 1 && floor.name == '2楼') || (index == 2 && floor.name == '1楼')) {
-                                                    floor.visible = true;
-                                                } else {
-                                                    console.log('hide');
-                                                    floor.visible = false;
-                                                }
+                        // 遍历获取每栋楼的楼层组
+                        for (const child of merge_builds[key].children) {
+                            if (child.name == '楼层组') {
+
+                                const floors = child.children;
+                                for (const floor of floors) { // 遍历获取每层楼
+                                    if (floor.name && floor.name == index + '楼') { // 显示目标楼层
+                                        floor.visible = true;
+                                    } else {
+                                        if (key == '亭廊') { // 亭廊的一楼和二楼同时显示
+                                            if ((index == 1 && floor.name == '2楼') || (index == 2 && floor.name == '1楼')) {
+                                                floor.visible = true;
                                             } else {
                                                 floor.visible = false;
                                             }
+                                        } else { // 隐藏其他楼层
+                                            floor.visible = false;
                                         }
                                     }
                                 }
