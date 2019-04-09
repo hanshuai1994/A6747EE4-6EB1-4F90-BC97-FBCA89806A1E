@@ -1,4 +1,9 @@
 $(function () {
+    // ======================== 插入 dom =======================
+    importDom();
+
+
+    
     var animLoop = false;
     var idM;
     var camera, scene, renderer;
