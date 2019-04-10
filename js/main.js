@@ -1,9 +1,125 @@
 $(function () {
-    // ======================== 插入 dom =======================
+    // ======================= 插入 dom =======================
     importDom();
 
+    // ======================= 触发函数 =======================
+    // 选择一个房间时，dom 匹配
+    const dom_room_select = (data) => {
+        // const {
+        //     build,
+        //     floor,
+        //     room
+        // } = data;
 
-    
+        // 更新房间显示
+        $('.select-wrap .room-switch').show();
+
+        // 显示运维按钮
+        $('.operate-btn').show();
+
+        // 更新并显示空调与新风
+        $('.air-system').show();
+    }
+
+    // 清空选择的房间时，dom 匹配
+    const dom_room_clear = () => {
+        // 隐藏房间显示
+        $('.select-wrap .room-switch').hide();
+
+        // 隐藏运维按钮
+        $('.operate-btn').hide();
+
+        // 隐藏空调与新风
+        $('.air-system').hide();
+    }
+
+    // ======================= 绑定事件 =======================
+
+    // 切换楼层按钮事件
+    $('.select-wrap .floor-switch').on('click', '.dropdown-menu a', function () {
+        const $floor_text = $('.select-wrap .floor-switch .floor-text');
+
+        let index = $(this).attr('data-index');
+
+        if (index == $floor_text.attr('data-index')) {
+            return
+        }
+
+        $floor_text.attr('data-index', index);
+        $floor_text.text($(this).text());
+
+        dom_room_clear();
+
+        if (index != 'all') {
+            index = Number(index);
+            $('.select-wrap .room-switch').show();
+        }
+    })
+
+    // 房间切换按钮事件
+    $('.select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
+        const $room_text = $('.select-wrap .room-switch .room-text');
+
+        let index = $(this).attr('data-index');
+
+        if (index == $room_text.attr('data-index')) {
+            return
+        }
+
+        $room_text.attr('data-index', index);
+        $room_text.text($(this).text());
+
+        dom_room_select();
+    })
+
+    // 首页运维入口按钮事件
+    $('#tab-home .operate-btn').click(function () {
+        $('.operate-mask').show();
+    })
+
+    // 首页运维项目表单切换事件
+    $('#tab-home .operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
+        $(this).addClass('active').siblings().removeClass('active');
+    })
+
+    // 运维修改按钮
+    $('#tab-home .operate-wrap .modify-btn').on('click', function () {
+        $(this).parent().hide();
+
+        $(this).parent().siblings('.edit-area').show();
+    })
+
+    // 首页运维界面关闭
+    $('.operate-mask .operate-wrap .shut').click(function () {
+        $('.operate-mask').hide();
+    })
+
+    // 隐藏空调/新风编辑框
+    $(document).on('mouseup', function () {
+        $('.air-edit').hide();
+    })
+
+    // 空调设置点击事件
+    $('#tab-air-conditioner').on('click', '>.set', function () {
+        $('.air-edit.air-conditioner').show();
+    })
+
+    // 阻止冒泡
+    $('.air-edit').on('mouseup', function (e) {
+        e.stopPropagation();
+    })
+
+    // 空调/新风编辑框关闭事件
+    $('.air-edit').on('click', '.shut', function () {
+        $(this).parents('.air-edit').hide();
+    })
+
+    // 新风设置点击事件
+    $('#tab-fresh-air').on('click', '>.set', function () {
+        $('.air-edit.fresh-air').show();
+    })
+
+    // ======================= 渲染逻辑 =======================
     var animLoop = false;
     var idM;
     var camera, scene, renderer;

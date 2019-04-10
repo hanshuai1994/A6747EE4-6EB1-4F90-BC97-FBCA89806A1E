@@ -1,6 +1,6 @@
 
 /**
- * @name 创建空气系统单个标签
+ * @name 根据单个数据创建空气系统标签
  * @param {*} data 空气系统单个标签数据
  */
 const createAirStateItem = (data) => {
@@ -11,7 +11,7 @@ const createAirStateItem = (data) => {
 }
 
 /**
- * @根据数据组生成dom
+ * @name 根据数据组生成dom
  * @param {array} array 空气系统数据数组
  */
 const createAirStateList = (array) => {
@@ -26,7 +26,7 @@ const createAirStateList = (array) => {
 
 
 /**
- * @根据数据组生成房间项目dom
+ * @name 根据单个数据生成房间项目dom
  * @param {string} data 房间号数据
  */
 const createRoomItem = (data) => {
@@ -34,7 +34,7 @@ const createRoomItem = (data) => {
 } 
 
 /**
- * @根据数据组生成房间列表dom
+ * @name 根据数据组生成房间列表dom
  * @param {array} array 房间号数据数组
  */
 const createRoomList = (array) => {
@@ -42,6 +42,27 @@ const createRoomList = (array) => {
 
     for (const data of array) {
         result += createRoomItem(data);
+    }
+
+    return result
+}
+
+/**
+ * @name 根据单个数据生成首页单个运维项目
+ * @param {*} data 单个运维数据
+ */
+const createHomeOperItem = (data) => {
+    return
+}
+
+/**
+ * @name 根据数据组生成首页运维项目列表
+ * @param {*} array 
+ */
+const createHomeOperList = (array) => {
+    let result = ''
+    for (const data of array) {
+        result += createHomeOperItem(data);
     }
 
     return result
