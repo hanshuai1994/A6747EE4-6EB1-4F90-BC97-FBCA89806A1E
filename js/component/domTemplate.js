@@ -1,4 +1,3 @@
-
 /**
  * @name 根据单个数据创建空气系统标签
  * @param {*} data 空气系统单个标签数据
@@ -31,7 +30,7 @@ const createAirStateList = (array) => {
  */
 const createRoomItem = (data) => {
     return `<li><a href="#" data-index="${data}">${data}室</a></li>`
-} 
+}
 
 /**
  * @name 根据数据组生成房间列表dom
@@ -52,7 +51,12 @@ const createRoomList = (array) => {
  * @param {*} data 单个运维数据
  */
 const createHomeOperItem = (data) => {
-    return
+    return `
+    <div class="operate-item" data-id=${data.id?data.id:''} data-state=${data.state}>
+        <span class="title">${data.title}</span>
+        <span class="date">${data.time}</span>
+    </div>
+    `
 }
 
 /**

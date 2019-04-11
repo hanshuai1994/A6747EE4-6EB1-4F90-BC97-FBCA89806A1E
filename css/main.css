@@ -367,7 +367,7 @@ canvas {
   padding-right: 41px;
   background: url(../img/icon/btn_switch_off.png) right center no-repeat;
 }
-#container > .view-wrap.air-system > .air-edit > .content-box .attr-line.set-state .attr-set.on {
+#container > .view-wrap.air-system > .air-edit > .content-box .attr-line.set-state .attr-set[data-state="on"] {
   background-image: url(../img/icon/btn_switch_on.png);
 }
 #container > .view-wrap.air-system > .air-edit > .content-box .attr-line.set-temperature > .attr-set > input[type=number]::-webkit-inner-spin-button,

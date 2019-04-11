@@ -1,7 +1,4 @@
 $(function () {
-    // ======================= 插入 dom =======================
-    importDom();
-
     // ======================= 触发函数 =======================
     // 选择一个房间时，dom 匹配
     const dom_room_select = (data) => {
@@ -33,10 +30,91 @@ $(function () {
         $('.air-system').hide();
     }
 
+    // 选择首页运维单项时
+    const dom_oper_select = (element) => {
+        const id = Number($(element).attr('data-id'));
+
+        let this_data;
+        for (const data of home_oper_data) {
+            if (data.id == id) {
+                this_data = data;
+                update_home_oper_view_dom(this_data);
+                break;
+            }
+        }
+
+        const $wrap_right = $('#tab-home .operate-mask .wrap-right');
+        $wrap_right.find('.edit-area').hide();
+        $wrap_right.find('.view-area').show();
+
+        $(element).addClass('active').siblings().removeClass('active');
+    }
+
+    // 更新首页运维展示界面信息
+    const update_home_oper_view_dom = (data) => {
+        const {
+            title,
+            time,
+            state,
+            content
+        } = data
+
+        const $edit_area = $('#tab-home .operate-mask .wrap-right .view-area');
+
+        $edit_area.find('>.title>.text').text(title); // 更新标题
+        $edit_area.find('>.time>.text').text(time); // 更新时间
+        $edit_area.find(`>.state>.text`).attr('data-state', state); // 更新状态
+        $edit_area.find('>.content>textarea').val(content); // 更新内容
+    }
+
+    // 获取首页运维编辑界面信息
+    const get_home_oper_edit_data = () => {
+        const $edit_area = $('#tab-home .operate-mask .wrap-right .edit-area');
+        const title = $edit_area.find('>.title>input').val();
+        // const time = $edit_area.find('>.time>.calendar').val(); 
+        const state = $edit_area.find('>.state>.radio-box>span.selected').attr('date-state');
+        const content = $edit_area.find('>.content>textarea').val();
+
+        return {
+            title,
+            // time,
+            state,
+            content,
+        }
+    }
+
+    // 更新首页运维编辑界面信息
+    const update_home_oper_edit_dom = (data) => {
+        const {
+            title,
+            time,
+            state,
+            content
+        } = data
+        const $edit_area = $('#tab-home .operate-mask .wrap-right .edit-area');
+        $edit_area.find('>.title>input').val(title); // 更新标题
+        // 清空时间/设置为当前时间
+        $edit_area.find(`>.state>.radio-box>span[data-state=${state}]`).addClass('selected').siblings().removeClass('selected'); // 更新状态
+        $edit_area.find('>.content>textarea').val(content); // 更新内容
+    }
+
+    // ======================= 插入 dom =======================
+    importDom();
+
+    // 切换显示第一个运维项目
+    const first_oper_item = $('#tab-home .operate-mask .wrap-left>.content').children()[0];
+    dom_oper_select(first_oper_item);
+
+
     // ======================= 绑定事件 =======================
+    // ----------------------- 左侧切换 -----------------------
+    // 楼栋显示/隐藏按钮
+    $('#tab-home .select-wrap .build-tab>span').on('click', function () {
+        $(this).toggleClass('active');
+    })
 
     // 切换楼层按钮事件
-    $('.select-wrap .floor-switch').on('click', '.dropdown-menu a', function () {
+    $('#tab-home .select-wrap .floor-switch').on('click', '.dropdown-menu a', function () {
         const $floor_text = $('.select-wrap .floor-switch .floor-text');
 
         let index = $(this).attr('data-index');
@@ -52,12 +130,15 @@ $(function () {
 
         if (index != 'all') {
             index = Number(index);
-            $('.select-wrap .room-switch').show();
+
+            if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
+                $('.select-wrap .room-switch').show();
+            }
         }
     })
 
     // 房间切换按钮事件
-    $('.select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
+    $('#tab-home .select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
         const $room_text = $('.select-wrap .room-switch .room-text');
 
         let index = $(this).attr('data-index');
@@ -72,6 +153,7 @@ $(function () {
         dom_room_select();
     })
 
+    // ----------------------- 首页运维 -----------------------
     // 首页运维入口按钮事件
     $('#tab-home .operate-btn').click(function () {
         $('.operate-mask').show();
@@ -79,21 +161,80 @@ $(function () {
 
     // 首页运维项目表单切换事件
     $('#tab-home .operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
-        $(this).addClass('active').siblings().removeClass('active');
-    })
+        dom_oper_select(this);
+    });
 
     // 运维修改按钮
     $('#tab-home .operate-wrap .modify-btn').on('click', function () {
-        $(this).parent().hide();
+        const $wrap_right = $('#tab-home .operate-mask .wrap-right');
+        $wrap_right.find('.view-area').hide();
+        $wrap_right.find('.edit-area').show();
 
-        $(this).parent().siblings('.edit-area').show();
-    })
+        const id = Number($('#tab-home .operate-mask .wrap-left>.content>.operate-item.active').attr('data-id'));
+
+        let this_data;
+        for (const data of home_oper_data) {
+            if (data.id == id) {
+                this_data = data;
+                update_home_oper_edit_dom(this_data);
+                break;
+            }
+        }
+    });
 
     // 首页运维界面关闭
     $('.operate-mask .operate-wrap .shut').click(function () {
         $('.operate-mask').hide();
+    });
+
+    // 修改界面状态切换
+    $('#tab-home .operate-mask .wrap-right').on('click', '.edit-area .state>.radio-box>span', function () {
+        $(this).addClass('selected').siblings().removeClass('selected');
+    });
+
+    // 修改界面保存/取消按钮
+    $('#tab-home .operate-mask .wrap-right').on('click', '.edit-area .btn-box>span', function () {
+        const $wrap_right = $('#tab-home .operate-mask .wrap-right');
+        $wrap_right.find('.edit-area').hide();
+        $wrap_right.find('.view-area').show();
+
+        if ($(this).hasClass('save')) {
+            const data = get_home_oper_edit_data();
+        }
+    });
+
+    // 新建按钮
+    $('#tab-home .operate-mask .wrap-left').on('click', '.bottom-area>.add-btn', function () {
+        // 左侧添加新建条目
+        const newData = {
+            title: '新建',
+            time: '',
+            state: 'unfinished',
+            content: '',
+        };
+
+        const newDom = createHomeOperItem(newData);
+
+        const $content = $('#tab-home .operate-mask .wrap-left>.content');
+        $content.prepend(newDom);
+        $content.children().removeClass('active');
+        $content.children(':first-child').addClass('active');
+
+        // 右侧打开编辑区域
+        const $wrap_right = $('#tab-home .operate-mask .wrap-right');
+        $wrap_right.find('.view-area').hide();
+        $wrap_right.find('.edit-area').show();
+
+        // 初始化编辑区域
+        update_home_oper_edit_dom({
+            title: '',
+            time: '',
+            state: 'unfinished',
+            content: '',
+        });
     })
 
+    // ----------------------- 空调新风 -----------------------
     // 隐藏空调/新风编辑框
     $(document).on('mouseup', function () {
         $('.air-edit').hide();
@@ -117,6 +258,22 @@ $(function () {
     // 新风设置点击事件
     $('#tab-fresh-air').on('click', '>.set', function () {
         $('.air-edit.fresh-air').show();
+    })
+
+    // 空调/新风编辑框内状态修改
+    $('.air-edit .set-state>.attr-set').click(function () {
+        const state = $(this).attr('data-state');
+
+        let newState;
+
+        if (state == 'off') {
+            newState = 'on';
+        } else {
+            newState = 'off';
+        }
+
+        $(this).attr('data-state', newState);
+        $(this).text(newState);
     })
 
     // ======================= 渲染逻辑 =======================

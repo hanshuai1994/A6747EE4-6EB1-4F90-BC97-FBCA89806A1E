@@ -16,7 +16,13 @@ const importDom = () => {
     
     // 导入房间列表 dom
     const room_list_dom = createRoomList(room_data);
-    $('.select-wrap>.room-switch>.dropdown-menu').append(room_list_dom);
+    $('#tab-home .select-wrap>.room-switch>.dropdown-menu').html(room_list_dom);
+
+
+    // 导入首页运维列表
+    const $home_oper_wrap = $('#tab-home .operate-mask .wrap-left>.content');
+    const home_oper_list_dom = createHomeOperList(home_oper_data);
+    $home_oper_wrap.html(home_oper_list_dom);
 
     return
 }
