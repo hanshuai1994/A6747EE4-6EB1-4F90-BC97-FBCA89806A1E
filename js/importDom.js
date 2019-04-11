@@ -20,9 +20,14 @@ const importDom = () => {
 
 
     // 导入首页运维列表
-    const $home_oper_wrap = $('#tab-home .operate-mask .wrap-left>.content');
+    const $home_oper_wrap = $('#tab-home .operate-wrap .wrap-left>.content');
     const home_oper_list_dom = createHomeOperList(home_oper_data);
     $home_oper_wrap.html(home_oper_list_dom);
+
+    // 导入管理也运维列表
+    const $manage_oper_wrap = $('#tab-manage .operate-wrap .wrap-left>.content');
+    const manage_oper_list_dom = createHomeOperList(home_oper_data);
+    $manage_oper_wrap.html(manage_oper_list_dom);
 
     return
 }
