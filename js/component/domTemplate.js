@@ -85,9 +85,9 @@ const createFloorList = (floors, firstData) => {
  * @name 根据单个数据生成首页单个运维项目
  * @param {*} data 单个运维数据
  */
-const createHomeOperItem = (data) => {
+const createOperItem = (data) => {
     return `
-    <div class="operate-item" data-id=${data.id?data.id:''} data-state=${data.state}>
+    <div class="operate-item" data-id=${data.id?data.id:"new"} data-state=${data.state}>
         <span class="title">${data.title}</span>
         <span class="date">${data.time}</span>
     </div>
@@ -101,7 +101,7 @@ const createHomeOperItem = (data) => {
 const createHomeOperList = (array) => {
     let result = ''
     for (const data of array) {
-        result += createHomeOperItem(data);
+        result += createOperItem(data);
     }
 
     return result

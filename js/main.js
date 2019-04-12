@@ -216,6 +216,17 @@ $(function () {
 
         if ($(this).hasClass('save')) {
             const data = get_oper_edit_data($edit_area);
+        } else {
+            const $wrap_right = $edit_area.parent();
+            const $wrap_left = $wrap_right.siblings('.wrap-left');
+            const $active_item = $wrap_left.find('>.content>.operate-item.active');
+
+            const active_id = $active_item.attr('data-id');
+            if (active_id == 'new') {
+                const other_first_item = $active_item.siblings()[0];
+                dom_oper_select(other_first_item);
+                $active_item.remove();
+            }
         }
     });
 
@@ -229,7 +240,7 @@ $(function () {
             content: '',
         };
 
-        const newDom = createHomeOperItem(newData);
+        const newDom = createOperItem(newData);
 
         const $wrap_left = $(this).parents('.wrap-left');
         const $wrap_right = $wrap_left.siblings('.wrap-right');
