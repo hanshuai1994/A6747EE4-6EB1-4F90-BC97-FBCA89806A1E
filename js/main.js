@@ -100,6 +100,61 @@ $(function () {
         $edit_area.find('>.content>textarea').val(content); // 更新内容
     }
 
+    // 管理页切换楼栋
+    const manage_switch_build = (element) => {
+        const build_name = $(element).attr('data-name');
+        const floors = build_data[build_name];
+
+        // 楼层下拉列表更新 ----------------------
+        const firstData = {
+            index: 'all',
+            floorName: '所有楼层'
+        }
+        const floors_dom = createFloorList(floors, firstData);
+
+        const $floor_sitch = $(element).parent().siblings('.floor-switch');
+
+        $floor_sitch.find('>.floor-text').text(firstData.floorName).attr('data-index', firstData.index);
+        $floor_sitch.find('>.dropdown-menu').html(floors_dom);
+
+        // 房间下拉列表更新 ----------------------
+        const $room_switch = $floor_sitch.siblings('.room-switch');
+
+        const rooms = [];
+        for (const floor of floors) {
+            rooms.push(...floor.rooms);
+        }
+        const rooms_dom = createRoomList(rooms, true);
+        $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
+        $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    }
+
+    // 管理页切换楼层
+    const manage_switch_floor = (element) => {
+        const $floor_sitch = $(element).parents('.floor-switch');
+        const $build_tab = $floor_sitch.siblings('.build-tab');
+        const $room_switch = $floor_sitch.siblings('.room-switch');
+
+        const $active_build = $build_tab.find('>span.active');
+        const build_name = $active_build.attr('data-name');
+
+        const active_floors = build_data[build_name];
+        const active_floor_index = $(element).attr('data-index');
+
+        const rooms = [];
+        if (active_floor_index == 'all') {
+            for (const floor of active_floors) {
+                rooms.push(...floor.rooms);
+            }
+        } else {
+            rooms.push(...active_floors[active_floor_index].rooms);
+        }
+
+        const rooms_dom = createRoomList(rooms, true);
+        $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
+        $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    }
+
     // ======================= 插入 dom =======================
     importDom();
 
@@ -111,10 +166,13 @@ $(function () {
     const manage_first_oper_item = $('#tab-manage .operate-wrap .wrap-left>.content').children()[0];
     dom_oper_select(manage_first_oper_item);
 
+    // 触发一次运维页的楼栋切换
+    const manage_first_build_tab = $('#tab-manage .operate-menu .build-tab').children()[0];
+    manage_switch_build(manage_first_build_tab);
 
 
     // ======================= 绑定事件 =======================
-    // +++++++++++++++++++++++ 首页与运维共用事件 +++++++++++++++++++++++
+    // +++++++++++++++++++++++ 运维共用事件 +++++++++++++++++++++++
     // 运维项目表单切换事件
     $('.operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
         dom_oper_select(this);
@@ -299,9 +357,41 @@ $(function () {
 
     // +++++++++++++++++++++++ 管理页面 +++++++++++++++++++++++
     // ----------------------- 上部切换 -----------------------
+    // 楼栋切换
     $('#tab-manage>.operate-menu>.build-tab>span').click(function () {
         if (!$(this).hasClass('active')) {
             $(this).addClass('active').siblings().removeClass('active');
+            manage_switch_build(this);
+        }
+    })
+
+    // 楼层切换
+    $('#tab-manage>.operate-menu>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
+        const $floor_switch = $(this).parents('.floor-switch');
+        const $floor_text = $floor_switch.find('>.floor-text');
+
+        const active_index = $floor_text.attr('data-index');
+        const this_index = $(this).attr('data-index');
+
+        if (active_index != this_index) {
+            manage_switch_floor(this);
+            $floor_text.attr('data-index', this_index);
+            $floor_text.text($(this).text());
+        }
+    })
+
+    // 房间切换
+    $('#tab-manage>.operate-menu>.room-switch>.dropdown-menu').on('click', '>li>a', function() {
+        const $room_switch = $(this).parents('.room-switch');
+        const $room_text = $room_switch.find('>.room-text');
+
+        const active_index = $room_text.attr('data-index');
+        const this_index = $(this).attr('data-index');
+
+        if (active_index != this_index) {
+            // manage_switch_floor(this);
+            $room_text.attr('data-index', this_index);
+            $room_text.text($(this).text());
         }
     })
 
