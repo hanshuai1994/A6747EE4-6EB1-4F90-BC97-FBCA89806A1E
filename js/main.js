@@ -678,7 +678,7 @@ $(function () {
 
     // $.ajax({
     //     type: 'get',
-    //     url: '/js/data/roomName1.js',
+    //     url: '/js/data/roomName.js',
     //     dataType: "json",
     //     success: function(data) {
     //         console.log('data', data);
@@ -692,7 +692,7 @@ $(function () {
     //     console.log('data', data);
     // })
 
-    $.getJSON('/js/data/roomName1.js', function(data) {
-        console.log('data', data);
-    })
+    // $.getJSON('/js/data/roomName.js', function(data) {
+    //     console.log('data', data);
+    // })
 })
