@@ -900,3 +900,53 @@ canvas {
   left: 93px;
   bottom: 30px;
 }
+#tab-statistics {
+  height: 100%;
+  overflow-y: scroll;
+  padding: 0 30px;
+}
+#tab-statistics::-webkit-scrollbar {
+  display: none;
+}
+#tab-statistics > div {
+  padding-top: 20px;
+  padding-bottom: 22px;
+  border-top: 1px solid #e6e6e6;
+}
+#tab-statistics > div > .title {
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: bold;
+}
+#tab-statistics > div > .content {
+  display: flex;
+}
+#tab-statistics > div > .content > .info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 20px;
+}
+#tab-statistics > div > .content > .info > div {
+  display: flex;
+  width: 85px;
+  height: 85px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #324157;
+  border-radius: 5px;
+}
+#tab-statistics > div > .content > .info > div > span {
+  color: #525d70;
+}
+#tab-statistics > div > .content > .info > div > span:first-child {
+  margin-bottom: 7px;
+}
+#tab-statistics > div > .content > .chart {
+  width: 887px;
+  height: 279px;
+  background-color: #f2f3f5;
+  border-radius: 5px;
+}

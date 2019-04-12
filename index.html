@@ -16,10 +16,10 @@
 		<li class="home ">
 			<a href="#tab-home" data-toggle="tab">首页</a>
 		</li>
-		<li class="statistics">
+		<li class="statistics active">
 			<a href="#tab-statistics" data-toggle="tab">能耗统计</a>
 		</li>
-		<li class="manage active">
+		<li class="manage ">
 			<a href="#tab-manage" data-toggle="tab">运维管理</a>
 		</li>
 		<li class="monitor">
@@ -303,12 +303,69 @@
 				</div>
 			</div>
 		</div>
-		<div class="tab-pane" id="tab-statistics">
-			<div class="water-box"></div>
-			<div class="electric-box"></div>
-			<div class="light-box"></div>
+		<div class="tab-pane active" id="tab-statistics">
+			<div class="water-box">
+				<div class="title">水表</div>
+				<div class="content">
+					<div class="info">
+						<div class="immediate">
+							<span class="label-l">即时水量</span>
+							<span class="text">0.5t/h</span>
+						</div>
+						<div class="monthly">
+							<span class="label-l">每月水量</span>
+							<span class="text">5t/h</span>
+						</div>
+						<div class="total">
+							<span class="label-l">历史总水量</span>
+							<span class="text">29t/h</span>
+						</div>
+					</div>
+					<div class="chart"></div>
+				</div>
+			</div>
+			<div class="electric-box">
+				<div class="title">电表</div>
+				<div class="content">
+					<div class="info">
+						<div class="immediate">
+							<span class="label-l">即时电量</span>
+							<span class="text">3kW</span>
+						</div>
+						<div class="monthly">
+							<span class="label-l">每月电量</span>
+							<span class="text">10kW</span>
+						</div>
+						<div class="total">
+							<span class="label-l">历史总电量</span>
+							<span class="text">200kW</span>
+						</div>
+					</div>
+					<div class="chart"></div>
+				</div>
+			</div>
+			<div class="light-box">
+				<div class="title">光伏</div>
+				<div class="content">
+					<div class="info">
+						<div class="immediate">
+							<span class="label-l">即时发电量</span>
+							<span class="text">3kW</span>
+						</div>
+						<div class="monthly">
+							<span class="label-l">每月发电量</span>
+							<span class="text">25kW</span>
+						</div>
+						<div class="total">
+							<span class="label-l">历史总发电量</span>
+							<span class="text">598kW</span>
+						</div>
+					</div>
+					<div class="chart"></div>
+				</div>
+			</div>
 		</div>
-		<div class="tab-pane active" id="tab-manage">
+		<div class="tab-pane " id="tab-manage">
 			<div class="operate-menu">
 				<div class="build-tab">
 					<span class="north-build active" data-name="北楼">北楼</span>
@@ -435,16 +492,19 @@
 	<script src='./js/extend/BufferGeometryUtils.js'></script>
 
 	<!-- dom数据与组件 -->
-	<script src="./js/domData.js"></script>
+	<script src="./js/data/domData.js"></script>
 	<script src="./js/component/domTemplate.js"></script>
 	<script src="./js/importDom.js"></script>
 
 	<!-- 工具库依赖 -->
-	<script src="./js/utils.js"></script>
-	<script src="./js//analysisRevit.js"></script>
+	<script src="./js/utils/utils.js"></script>
+	<script src="./js/utils/analysisRevit.js"></script>
 
 	<!-- 程序入口 -->
 	<script src='./js/main.js'></script>
+
+	<!-- echarts 设置 -->
+	<script src="./js/echarts/setCharts.js"></script>
 </body>
 
 </html>

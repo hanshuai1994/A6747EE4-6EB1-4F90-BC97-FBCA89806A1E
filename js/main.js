@@ -675,4 +675,24 @@ $(function () {
     function stopAnim(renderTarget) {
         cancelAnimationFrame(renderTarget);
     }
+
+    // $.ajax({
+    //     type: 'get',
+    //     url: '/js/data/roomName1.js',
+    //     dataType: "json",
+    //     success: function(data) {
+    //         console.log('data', data);
+    //     },
+    //     error: function(e) {
+    //         console.log('e', e);
+    //     }
+    // })
+
+    // $.getJSON('/models/tinglang.js', function(data) {
+    //     console.log('data', data);
+    // })
+
+    $.getJSON('/js/data/roomName1.js', function(data) {
+        console.log('data', data);
+    })
 })
