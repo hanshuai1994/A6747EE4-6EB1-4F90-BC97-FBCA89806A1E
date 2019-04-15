@@ -269,9 +269,9 @@ $(function () {
     // +++++++++++++++++++++++ 首页页面事件 +++++++++++++++++++++++
     // ----------------------- 左侧切换事件 -----------------------
     // 楼栋显示/隐藏按钮
-    $('#tab-home .select-wrap .build-tab>span').on('click', function () {
-        $(this).toggleClass('active');
-    })
+    // $('#tab-home .select-wrap .build-tab>span').on('click', function () {
+    //     $(this).toggleClass('active');
+    // })
 
     // 切换楼层按钮事件
     $('#tab-home .select-wrap .floor-switch').on('click', '.dropdown-menu a', function () {
@@ -485,7 +485,7 @@ $(function () {
         helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 150000, 0xff0000));
         helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 150000, 0x00ff00));
         helpers.visible = true;
-        scene.add(helpers);
+        // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
         const paths = ['./models/north.js', './models/south.js', './models/tinglang.js'];
@@ -566,7 +566,7 @@ $(function () {
             });
 
             // 绑定三栋楼的显示/隐藏按钮
-            $('#container').on('click', '.state-box>.build-tab>span', function () {
+            $('#container').on('click', '.select-wrap>.build-tab>span', function () {
                 $(this).toggleClass('active');
                 const key = $(this).attr('data-name');
 
@@ -575,7 +575,7 @@ $(function () {
             });
 
             // 绑定楼层切换按钮
-            $('#container').on('click', '.floor-switch>span', function () {
+            $('#container>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
                 $(this).addClass('active').siblings().removeClass('active');
                 let index = $(this).attr('data-index');
 
@@ -600,6 +600,7 @@ $(function () {
                     } else {
                         index = Number(index);
 
+                        console.log('index', index);
                         // 进行 clip 位置调整
                         if (!constant_map[key][index - 1]) {
                             plane_array[0].constant = -10000 // 向下

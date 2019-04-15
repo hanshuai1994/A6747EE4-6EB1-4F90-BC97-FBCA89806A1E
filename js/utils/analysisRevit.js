@@ -105,7 +105,7 @@ const analysisRevit = (paths, callback) => {
 
     const loader = new THREE.ObjectLoader();
 
-    return
+    // return
     // 使用 promise 进行多个异步处理
     const promises = paths.map(function (path) {
         return new Promise(function (resolve, reject) {
