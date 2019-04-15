@@ -35,17 +35,12 @@ const createRoomItem = (roomName) => {
 /**
  * @name 根据数据组生成房间列表dom
  * @param {array} rooms 房间号数据数组
- * @param {boolean} hasAllRoom 是否含有所有房间项
  */
-const createRoomList = (rooms, hasAllRoom) => {
-    let result = '';
-
-    if (hasAllRoom) {
-        result = `<li><a href="#" data-index="all">所有房间</a></li>`
-    }
+const createRoomList = (rooms) => {
+    let result = `<li><a href="#" data-index="all">所有房间</a></li>`;
 
     for (const data of rooms) {
-        result += createRoomItem(data);
+        result += createRoomItem(data.roomName);
     }
 
     return result

@@ -1,4 +1,5 @@
 $(function () {
+    // ####################### 定义 #######################
     // ======================= 触发函数 =======================
     // 选择一个房间时，dom 匹配
     const dom_room_select = (data) => {
@@ -28,6 +29,59 @@ $(function () {
 
         // 隐藏空调与新风
         $('.air-system').hide();
+    }
+
+    // 更新首页楼层选择下拉菜单
+    const update_home_floor_dom = () => {
+        const $build_tab = $('#container>.select-wrap>.build-tab');
+        const $floor_switch = $build_tab.siblings('.floor-switch');
+
+        const $active_build = $build_tab.find('>span.active');
+
+        let floors = [];
+
+        if ($active_build.length == 1) {
+            const active_build_name = $active_build.attr('data-name');
+            floors = build_data[active_build_name];
+        }
+
+        const firstData = {
+            index: 'all',
+            floorName: '全景'
+        }
+        const floors_dom = createFloorList(floors, firstData);
+
+        $floor_switch.find('>.floor-text').text(firstData.floorName).attr('data-index', firstData.index);
+        $floor_switch.find('>.dropdown-menu').html(floors_dom);
+
+    }
+
+    // 更新首页房间选择下拉菜单
+    const update_home_room_dom = ($build_tab, $floor_switch, $room_switch) => {
+        const $active_build = $build_tab.find('>span.active');
+
+        const active_build_name = $active_build.attr('data-name');
+        const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
+        const active_floors = build_data[active_build_name];
+
+        const rooms = active_floors[active_floor_index].rooms;
+
+        const rooms_dom = createRoomList(rooms);
+        $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
+        $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    }
+
+    // 显示首页房间选择下拉菜单
+    const show_home_room_dom = () => {
+        const $build_tab = $('#container>.select-wrap>.build-tab');
+        const $floor_switch = $build_tab.siblings('.floor-switch');
+        const $room_switch = $build_tab.siblings('.room-switch');
+
+        // 更新下拉菜单
+        update_home_room_dom($build_tab, $floor_switch, $room_switch);
+
+        // 下拉菜单显示
+        $room_switch.show();
     }
 
     // 选择运维单项时
@@ -112,28 +166,28 @@ $(function () {
         }
         const floors_dom = createFloorList(floors, firstData);
 
-        const $floor_sitch = $(element).parent().siblings('.floor-switch');
+        const $floor_switch = $(element).parent().siblings('.floor-switch');
 
-        $floor_sitch.find('>.floor-text').text(firstData.floorName).attr('data-index', firstData.index);
-        $floor_sitch.find('>.dropdown-menu').html(floors_dom);
+        $floor_switch.find('>.floor-text').text(firstData.floorName).attr('data-index', firstData.index);
+        $floor_switch.find('>.dropdown-menu').html(floors_dom);
 
         // 房间下拉列表更新 ----------------------
-        const $room_switch = $floor_sitch.siblings('.room-switch');
+        const $room_switch = $floor_switch.siblings('.room-switch');
 
         const rooms = [];
         for (const floor of floors) {
             rooms.push(...floor.rooms);
         }
-        const rooms_dom = createRoomList(rooms, true);
+        const rooms_dom = createRoomList(rooms);
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
     }
 
     // 管理页切换楼层
     const manage_switch_floor = (element) => {
-        const $floor_sitch = $(element).parents('.floor-switch');
-        const $build_tab = $floor_sitch.siblings('.build-tab');
-        const $room_switch = $floor_sitch.siblings('.room-switch');
+        const $floor_switch = $(element).parents('.floor-switch');
+        const $build_tab = $floor_switch.siblings('.build-tab');
+        const $room_switch = $floor_switch.siblings('.room-switch');
 
         const $active_build = $build_tab.find('>span.active');
         const build_name = $active_build.attr('data-name');
@@ -150,9 +204,15 @@ $(function () {
             rooms.push(...active_floors[active_floor_index].rooms);
         }
 
-        const rooms_dom = createRoomList(rooms, true);
+        const rooms_dom = createRoomList(rooms);
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    }
+
+
+    // ####################### 运行 #######################
+    document.oncontextmenu = function () {
+        return false;
     }
 
     // ======================= 插入 dom =======================
@@ -165,10 +225,6 @@ $(function () {
     // 切换显示管理页第一个运维项目
     const manage_first_oper_item = $('#tab-manage .operate-wrap .wrap-left>.content').children()[0];
     dom_oper_select(manage_first_oper_item);
-
-    // 触发一次运维页的楼栋切换
-    const manage_first_build_tab = $('#tab-manage .operate-menu .build-tab').children()[0];
-    manage_switch_build(manage_first_build_tab);
 
 
     // ======================= 绑定事件 =======================
@@ -274,28 +330,28 @@ $(function () {
     // })
 
     // 切换楼层按钮事件
-    $('#tab-home .select-wrap .floor-switch').on('click', '.dropdown-menu a', function () {
-        const $floor_text = $('.select-wrap .floor-switch .floor-text');
+    // $('#tab-home>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
+    //     const $floor_text = $('.select-wrap .floor-switch .floor-text');
 
-        let index = $(this).attr('data-index');
+    //     let index = $(this).attr('data-index');
 
-        if (index == $floor_text.attr('data-index')) {
-            return
-        }
+    //     if (index == $floor_text.attr('data-index')) {
+    //         return
+    //     }
 
-        $floor_text.attr('data-index', index);
-        $floor_text.text($(this).text());
+    //     $floor_text.attr('data-index', index);
+    //     $floor_text.text($(this).text());
 
-        dom_room_clear();
+    //     dom_room_clear();
 
-        if (index != 'all') {
-            index = Number(index);
+    //     if (index != 'all') {
+    //         index = Number(index);
 
-            if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
-                $('.select-wrap .room-switch').show();
-            }
-        }
-    })
+    //         if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
+    //             $('.select-wrap .room-switch').show();
+    //         }
+    //     }
+    // })
 
     // 房间切换按钮事件
     $('#tab-home .select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
@@ -366,6 +422,19 @@ $(function () {
         $(this).text(newState);
     })
 
+    // 空调/新风的模式/风速修改
+    $('.air-edit .set-mode>.attr-set>.dropdown-menu, .air-edit .set-cloud>.attr-set>.dropdown-menu').on('click', '>li>a', function () {
+        const text = $(this).text();
+
+        const $btn_menu = $(this).parents('.dropdown-menu').siblings('.btn-menu');
+        $btn_menu.text(text);
+    })
+
+    // 空调/新风控制修改的确定按钮
+    $('.air-edit>.content-box>.ensure').click(function() {
+        $(this).parents('.air-edit').hide();
+    })
+
     // +++++++++++++++++++++++ 管理页面 +++++++++++++++++++++++
     // ----------------------- 上部切换 -----------------------
     // 楼栋切换
@@ -392,7 +461,7 @@ $(function () {
     })
 
     // 房间切换
-    $('#tab-manage>.operate-menu>.room-switch>.dropdown-menu').on('click', '>li>a', function() {
+    $('#tab-manage>.operate-menu>.room-switch>.dropdown-menu').on('click', '>li>a', function () {
         const $room_switch = $(this).parents('.room-switch');
         const $room_text = $room_switch.find('>.room-text');
 
@@ -488,7 +557,13 @@ $(function () {
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
-        const paths = ['./models/north.js', './models/south.js', './models/tinglang.js'];
+        const paths = [];
+        // const paths = [
+        //     './models/north.js',
+        //     './models/south.js',
+        //     './models/tinglang.js',
+        //     './models/land.js',
+        // ];
 
         // 解析 revit 文件
         analysisRevit(paths, function (group) {
@@ -570,16 +645,36 @@ $(function () {
                 $(this).toggleClass('active');
                 const key = $(this).attr('data-name');
 
+                const $build_tab = $(this).parent();
+                const $floor_switch = $build_tab.siblings('.floor-switch');
+
+                const $active_build = $build_tab.find('>span.active');
+
+                const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
+
+                update_home_floor_dom(); // 更新楼层切换下拉菜单
+
+                if ($active_build.length == 1 && active_floor_index != 'all') {
+                    show_home_room_dom(); // 出现房间选择下拉界面
+                } else {
+                    dom_room_clear(); // 收起房间下拉等多个界面
+                }
+
                 merge_builds[key].visible = $(this).hasClass('active');
                 render();
             });
 
             // 绑定楼层切换按钮
             $('#container>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
-                $(this).addClass('active').siblings().removeClass('active');
+                // $(this).addClass('active').siblings().removeClass('active');
                 let index = $(this).attr('data-index');
 
-                // clearBSP(); // 清空 bsp
+                const $floor_text = $(this).parents('.floor-switch').find('>.floor-text');
+
+                $floor_text.attr('data-index', index);
+                $floor_text.text($(this).text());
+
+                dom_room_clear();
 
                 for (const key in clipPlanes) {
                     const plane_array = clipPlanes[key];
@@ -600,7 +695,10 @@ $(function () {
                     } else {
                         index = Number(index);
 
-                        console.log('index', index);
+                        if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
+                            show_home_room_dom(); // 出现房间选择下拉界面
+                        }
+
                         // 进行 clip 位置调整
                         if (!constant_map[key][index - 1]) {
                             plane_array[0].constant = -10000 // 向下
@@ -641,6 +739,57 @@ $(function () {
 
                 render();
             })
+        })
+
+        // 解析房间信息
+        $.getJSON('/js/data/roomName.js', function (data) {
+            // console.log('data', data);
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    const points = data[key];
+
+                    const build_room = key.split(' ')[1];
+                    const split_arr = build_room.split('-');
+
+                    if (split_arr.length == 2 && split_arr[1] != '') { // 既有楼栋，又有房间名时
+                        const build_name = split_arr[0];
+                        const room_name = split_arr[1];
+
+                        // 一个房间的数据
+                        const roomData = {
+                            roomName: room_name,
+                            roomPoints: points
+                        };
+
+                        // 房间后首位数字减 1
+                        const index = Number(room_name.slice(0, 1)) - 1;
+
+                        let build;
+                        if (build_name == 'N') {
+                            build = build_data['北楼'];
+                        } else if (build_name == 'S') {
+                            build = build_data['南楼'];
+                        } else {
+                            build = build_data['亭廊'];
+                        }
+
+                        if (!build[index]) { // 未有该楼层
+                            build[index] = {
+                                floorName: `${index + 1}楼`,
+                                rooms: [roomData],
+                            }
+                        } else { // 已有该楼层
+                            build[index].rooms.push(roomData);
+                        }
+                    }
+                }
+            }
+
+            // 触发一次运维页的楼栋切换
+            const manage_first_build_tab = $('#tab-manage .operate-menu .build-tab').children()[0];
+            manage_switch_build(manage_first_build_tab);
+
+            console.log('build_data', build_data);
         })
 
         controls.addEventListener('change', function () {
