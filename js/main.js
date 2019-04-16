@@ -1,6 +1,54 @@
 $(function () {
     // ####################### 定义 #######################
     // ======================= 触发函数 =======================
+    const createRoomMesh = (roomData) => {
+        const result = [];
+
+        const {
+            roomName,
+            roomPoints
+        } = roomData;
+
+        const scale = 300;
+
+        for (const array of roomPoints) {
+            const shape = new THREE.Shape();
+            const length = array.length;
+
+            for (let i = 0; i < length; i++) {
+                const point = array[i];
+
+                if (i == 0) {
+                    shape.moveTo(point.X * scale, point.Y * scale);
+                } else {
+                    shape.lineTo(point.X * scale, point.Y * scale)
+                }
+
+            }
+            const firstPoint = array[0];
+            shape.lineTo(firstPoint.X * scale, firstPoint.Y * scale);
+
+            console.log('shape', shape);
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+                side: THREE.DoubleSide
+            });
+            const geometry = new THREE.ShapeGeometry(shape);
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.x = Math.PI / 2;
+            mesh.rotation.y = Math.PI;
+
+            mesh.position.y = firstPoint.Z * scale;
+
+            mesh.name = '房间';
+            mesh.roomName = roomName;
+
+            result.push(mesh);
+        }
+
+        return result
+    }
     // 初始化 clip 的 constant 值
     const initClipConstant = (plane_array, build) => {
         // clip 划分
@@ -22,8 +70,7 @@ $(function () {
         let center = new THREE.Vector3();
 
         if (Array.isArray(target)) { // 存在多个楼栋时
-            let x = y = z = 0;
-            let count = 0;
+            let x = y = z = count = 0;
 
             for (const group of target) {
                 const box3 = new THREE.Box3();
@@ -625,7 +672,7 @@ $(function () {
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
-        // const paths = [];
+        // const paths = ['./models/land.js'];
         const paths = [
             './models/north.js',
             './models/south.js',
@@ -818,15 +865,6 @@ $(function () {
                     }
                 }
 
-                // for (const key in clipPlanes) {
-                //     const plane_array = clipPlanes[key];
-                //     if (index == 'all') {
-                //         initClipConstant(plane_array, merge_builds[key]);
-                //     } else {
-
-                //     }
-                // }
-
                 render();
             })
         })
@@ -850,6 +888,12 @@ $(function () {
                             roomName: room_name,
                             roomPoints: points
                         };
+
+                        const meshs = createRoomMesh(roomData);
+                        // console.log('meshs', meshs);
+                        for (const mesh of meshs) {
+                            scene.add(mesh);
+                        }
 
                         // 房间后首位数字减 1
                         const index = Number(room_name.slice(0, 1)) - 1;

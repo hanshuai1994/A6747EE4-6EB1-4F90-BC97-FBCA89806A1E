@@ -128,18 +128,26 @@ const analysisRevit = (paths, callback) => {
         };
 
         for (const build of builds) { // 对每栋楼进行处理
-            let key = '北楼';
-            if (build.name.includes("亭廊")) {
+            let key = '地面';
+            if (build.name.includes("北楼")) {
+                key = "北楼";
+            } else if (build.name.includes("亭廊")) {
                 key = "亭廊";
             } else if (build.name.includes("南楼")) {
                 key = "南楼";
             }
 
-            const result = getDividedFloor(build, key, materials[key]);
-
-            group.add(result);
-
-            console.log(key, result);
+            if (key == '地面') {
+                for (const obj3d of build.children) {
+                    if (!obj3d.name.includes('相机')) {
+                        group.add(obj3d);
+                    }
+                }
+            } else {
+                const result = getDividedFloor(build, key, materials[key]);
+                group.add(result);
+                console.log(key, result);
+            }
         }
 
         console.log('materials', materials);
