@@ -62,7 +62,11 @@ const createFloorItem = (index, floorName) => {
  * @param {array} floors 一栋楼的楼层信息数据数组
  */
 const createFloorList = (floors, firstData) => {
-    let result = createFloorItem(firstData.index, firstData.floorName);
+    let result = '';
+
+    if (firstData) {
+        result += createFloorItem(firstData.index, firstData.floorName);
+    }
 
     const length = floors.length;
 
@@ -80,23 +84,29 @@ const createFloorList = (floors, firstData) => {
  * @name 根据单个数据生成首页单个运维项目
  * @param {*} data 单个运维数据
  */
-const createOperItem = (data) => {
+const createOperItem = (data, hasName) => {
     return `
-    <div class="operate-item" data-id=${data.id?data.id:"new"} data-state=${data.state}>
-        <span class="title">${data.title}</span>
-        <span class="date">${data.time}</span>
+    <div class="operate-item" data-id=${data.id?data.id:"new"}>
+        <div class="item-left">
+            ${hasName?`<span class="room-name">${data.roomName}</span>`:''}
+            <span class="title">${data.title}</span>
+        </div>
+        <div class="item-right">
+            <span class="state" data-state=${data.state}></span>
+            <span class="date">${data.time}</span>
+        </div>
     </div>
     `
 }
 
 /**
- * @name 根据数据组生成首页运维项目列表
+ * @name 根据数据组生成运维项目列表
  * @param {array} array 运维数据数组
  */
-const createHomeOperList = (array) => {
+const createOperList = (array, hasName) => {
     let result = ''
     for (const data of array) {
-        result += createOperItem(data);
+        result += createOperItem(data, hasName);
     }
 
     return result

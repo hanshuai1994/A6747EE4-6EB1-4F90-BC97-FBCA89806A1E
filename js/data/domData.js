@@ -51,6 +51,7 @@ const room_data = [
 // 首页运维项目数据
 const home_oper_data = [{
         id: 2,
+        roomName: 102,
         title: '下水道堵住',
         time: '2019/4/10',
         state: 'finished',
@@ -58,6 +59,7 @@ const home_oper_data = [{
     },
     {
         id: 1,
+        roomName: 103,
         title: '空调无法制冷',
         time: '2019/4/10',
         state: 'unfinished',

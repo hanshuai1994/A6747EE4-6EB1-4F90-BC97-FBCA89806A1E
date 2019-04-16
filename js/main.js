@@ -245,6 +245,16 @@ $(function () {
         $view_area.hide();
         $edit_area.show();
 
+        // 更新编辑页的楼层选择下拉菜单
+        const $floor_switch = $edit_area.find('>.room>.room-area .floor-switch');
+        if ($floor_switch.length > 0) {
+            const active_build_name = $('#tab-manage>.operate-menu>.build-tab>span.active').attr('data-name');
+            const floors = build_data[active_build_name];
+
+            const floors_dom = createFloorList(floors);
+            $floor_switch.find('>.dropdown-menu').html(floors_dom);
+        }
+
         const id = Number($wrap_left.find('>.content>.operate-item.active').attr('data-id'));
 
         let this_data;
@@ -324,35 +334,6 @@ $(function () {
 
     // +++++++++++++++++++++++ 首页页面事件 +++++++++++++++++++++++
     // ----------------------- 左侧切换事件 -----------------------
-    // 楼栋显示/隐藏按钮
-    // $('#tab-home .select-wrap .build-tab>span').on('click', function () {
-    //     $(this).toggleClass('active');
-    // })
-
-    // 切换楼层按钮事件
-    // $('#tab-home>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
-    //     const $floor_text = $('.select-wrap .floor-switch .floor-text');
-
-    //     let index = $(this).attr('data-index');
-
-    //     if (index == $floor_text.attr('data-index')) {
-    //         return
-    //     }
-
-    //     $floor_text.attr('data-index', index);
-    //     $floor_text.text($(this).text());
-
-    //     dom_room_clear();
-
-    //     if (index != 'all') {
-    //         index = Number(index);
-
-    //         if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
-    //             $('.select-wrap .room-switch').show();
-    //         }
-    //     }
-    // })
-
     // 房间切换按钮事件
     $('#tab-home .select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
         const $room_text = $('.select-wrap .room-switch .room-text');
@@ -431,7 +412,7 @@ $(function () {
     })
 
     // 空调/新风控制修改的确定按钮
-    $('.air-edit>.content-box>.ensure').click(function() {
+    $('.air-edit>.content-box>.ensure').click(function () {
         $(this).parents('.air-edit').hide();
     })
 
@@ -473,6 +454,11 @@ $(function () {
             $room_text.attr('data-index', this_index);
             $room_text.text($(this).text());
         }
+    })
+
+    // 编辑界面的楼层切换
+    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area>div>.floor-switch').on('click', function() {
+
     })
 
     // ----------------------- 运维列表项切换 -----------------------
@@ -557,13 +543,13 @@ $(function () {
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
-        const paths = [];
-        // const paths = [
-        //     './models/north.js',
-        //     './models/south.js',
-        //     './models/tinglang.js',
-        //     './models/land.js',
-        // ];
+        // const paths = [];
+        const paths = [
+            './models/north.js',
+            './models/south.js',
+            './models/tinglang.js',
+            './models/land.js',
+        ];
 
         // 解析 revit 文件
         analysisRevit(paths, function (group) {
@@ -700,29 +686,30 @@ $(function () {
                         }
 
                         // 进行 clip 位置调整
-                        if (!constant_map[key][index - 1]) {
+                        if (!constant_map[key][index]) {
                             plane_array[0].constant = -10000 // 向下
                         } else {
-                            const y_0 = constant_map[key][index] * 1000;
-                            const y_1 = constant_map[key][index - 1] * 1000;
+                            const y_0 = constant_map[key][index + 1] * 1000;
+                            const y_1 = constant_map[key][index] * 1000;
 
                             plane_array[0].constant = y_0 - 1 // 向下
                             plane_array[1].constant = -y_1 + 1 // 向上
                         }
 
-                        console.log(key, plane_array);
+                        // console.log(key, plane_array);
 
+                        const floor_index = index + 1;
                         // 遍历获取每栋楼的楼层组
                         for (const child of merge_builds[key].children) {
                             if (child.name == '楼层组') {
 
                                 const floors = child.children;
                                 for (const floor of floors) { // 遍历获取每层楼
-                                    if (floor.name && floor.name == index + '楼') { // 显示目标楼层
+                                    if (floor.name && floor.name == floor_index + '楼') { // 显示目标楼层
                                         floor.visible = true;
                                     } else {
                                         if (key == '亭廊') { // 亭廊的一楼和二楼同时显示
-                                            if ((index == 1 && floor.name == '2楼') || (index == 2 && floor.name == '1楼')) {
+                                            if ((floor_index == 1 && floor.name == '2楼') || (floor_index == 2 && floor.name == '1楼')) {
                                                 floor.visible = true;
                                             } else {
                                                 floor.visible = false;
