@@ -66,7 +66,7 @@ $(function () {
 
         const rooms = active_floors[active_floor_index].rooms;
 
-        const rooms_dom = createRoomList(rooms);
+        const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
     }
@@ -178,7 +178,7 @@ $(function () {
         for (const floor of floors) {
             rooms.push(...floor.rooms);
         }
-        const rooms_dom = createRoomList(rooms);
+        const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
     }
@@ -204,7 +204,7 @@ $(function () {
             rooms.push(...active_floors[active_floor_index].rooms);
         }
 
-        const rooms_dom = createRoomList(rooms);
+        const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
     }
@@ -457,8 +457,39 @@ $(function () {
     })
 
     // 编辑界面的楼层切换
-    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area>div>.floor-switch').on('click', function() {
+    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .floor-switch>.dropdown-menu').on('click', '>li>a',  function() {
+        let index = $(this).attr('data-index');
 
+        const $floor_text = $(this).parents('.floor-switch').find('>.floor-text');
+
+        $floor_text.attr('data-index', index);
+        $floor_text.text($(this).text());
+
+        // 更新房间选择下拉菜单
+        const $room_switch = $(this).parents('.floor-box').siblings('.room-box').find('>.room-switch')
+        const active_build_name = $('#tab-manage>.operate-menu>.build-tab>span.active').attr('data-name');
+        const active_floors = build_data[active_build_name];
+        const rooms = active_floors[index].rooms;
+
+        const rooms_dom = createRoomList(rooms, false, '');
+        $room_switch.find('>.room-text').text('请选择');
+        $room_switch.find('>.room-text').attr('data-index', 'none');
+        $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    })
+
+    // 编辑界面的房间切换
+    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .room-switch>.dropdown-menu').on('click', '>li>a',  function() {
+        const $room_switch = $(this).parents('.room-switch');
+        const $room_text = $room_switch.find('>.room-text');
+
+        const active_index = $room_text.attr('data-index');
+        const this_index = $(this).attr('data-index');
+
+        if (active_index != this_index) {
+            // manage_switch_floor(this);
+            $room_text.attr('data-index', this_index);
+            $room_text.text($(this).text());
+        }
     })
 
     // ----------------------- 运维列表项切换 -----------------------
@@ -543,13 +574,13 @@ $(function () {
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
-        // const paths = [];
-        const paths = [
-            './models/north.js',
-            './models/south.js',
-            './models/tinglang.js',
-            './models/land.js',
-        ];
+        const paths = [];
+        // const paths = [
+        //     './models/north.js',
+        //     './models/south.js',
+        //     './models/tinglang.js',
+        //     './models/land.js',
+        // ];
 
         // 解析 revit 文件
         analysisRevit(paths, function (group) {

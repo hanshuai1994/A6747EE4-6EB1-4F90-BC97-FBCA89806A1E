@@ -27,20 +27,25 @@ const createAirStateList = (array) => {
 /**
  * @name 根据单个数据生成房间项目dom
  * @param {string} roomName 房间号数据
+ * @param {string} mark 房间号后缀标记
  */
-const createRoomItem = (roomName) => {
-    return `<li><a href="#" data-index="${roomName}">${roomName}室</a></li>`
+const createRoomItem = (roomName, mark) => {
+    return `<li><a href="#" data-index="${roomName}">${roomName}${mark}</a></li>`
 }
 
 /**
  * @name 根据数据组生成房间列表dom
  * @param {array} rooms 房间号数据数组
+ * @param {boolean} hasAllRoom 是否含有所有房间的选项
  */
-const createRoomList = (rooms) => {
-    let result = `<li><a href="#" data-index="all">所有房间</a></li>`;
+const createRoomList = (rooms, hasAllRoom, mark) => {
+    let result = '';
 
+    if (hasAllRoom) {
+        result = `<li><a href="#" data-index="all">所有房间</a></li>`;
+    }
     for (const data of rooms) {
-        result += createRoomItem(data.roomName);
+        result += createRoomItem(data.roomName, mark);
     }
 
     return result

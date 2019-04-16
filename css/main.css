@@ -927,7 +927,7 @@ canvas {
   margin-bottom: 36px;
 }
 #tab-manage > .operate-wrap > .wrap-right > .view-area > .content > .text {
-  width: calc(100% - 67px);
+  width: calc(100% - 112px);
 }
 #tab-manage > .operate-wrap > .wrap-right > .view-area > .modify-btn,
 #tab-manage > .operate-wrap > .wrap-right > .view-area > .delete-btn {
@@ -943,8 +943,11 @@ canvas {
   padding-right: 40px;
   height: 100%;
 }
+#tab-manage > .operate-wrap > .wrap-right > .edit-area > .time {
+  margin-bottom: 27px;
+}
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .room {
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .room > .room-area {
   margin-left: 26px;
@@ -986,10 +989,13 @@ canvas {
   background-image: url(../img/icon/btn_select_selected.png);
 }
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .room > .room-area > div > .switch-box > .dropdown-menu {
+  background-color: #fafafa;
   min-width: 0;
   width: 100%;
 }
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .room > .room-area > div > .switch-box > .dropdown-menu > li > a {
+  font-size: 12px;
+  line-height: 12px;
   padding-left: 8px;
   color: #484848;
 }
@@ -997,7 +1003,7 @@ canvas {
   margin-left: 28px;
 }
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .content {
-  height: calc(100% - 240px);
+  height: calc(100% - 295px);
 }
 #tab-manage > .operate-wrap > .wrap-right > .edit-area > .content > .text {
   width: calc(100% - 53px);

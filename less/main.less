@@ -1210,7 +1210,7 @@ canvas {
 
                 >.content {
                     >.text {
-                        width: calc(100% - 67px);
+                        width: calc(100% - 112px);
                     }
                 }
 
@@ -1230,8 +1230,12 @@ canvas {
                 padding-right: 40px;
                 height: 100%;
 
+                >.time {
+                    margin-bottom: 27px;
+                }
+
                 >.room {
-                    margin-bottom: 36px;
+                    margin-bottom: 32px;
 
                     >.room-area {
                         margin-left: 26px;
@@ -1279,10 +1283,13 @@ canvas {
                                 }
 
                                 >.dropdown-menu {
+                                    background-color: @normalBackColor;
+
                                     min-width: 0;
                                     width: 100%;
                                     >li {
                                         >a {
+                                            .font(12px);
                                             padding-left: 8px;
                                             color: @normalColor;
                                         }
@@ -1298,7 +1305,7 @@ canvas {
                 }
 
                 >.content {
-                    height: calc(100% - 240px);
+                    height: calc(100% - 295px);
 
                     >.text {
                         width: calc(100% - 53px);
