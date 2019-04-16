@@ -1,6 +1,56 @@
 $(function () {
     // ####################### 定义 #######################
     // ======================= 触发函数 =======================
+    // 初始化 clip 的 constant 值
+    const initClipConstant = (plane_array, build) => {
+        // clip 划分
+        plane_array[0].constant = 50000; // 向下
+        plane_array[1].constant = 10000; // 向上
+
+        // 显示所有楼层
+        for (const child of build.children) {
+            if (child.name == '楼层组') {
+                for (const floor of child.children) {
+                    floor.visible = true;
+                }
+            }
+        }
+    }
+
+    // 根据传入参数设置控制器位置
+    const setControlsByFloor = (controls, target) => {
+        let center = new THREE.Vector3();
+
+        if (Array.isArray(target)) { // 存在多个楼栋时
+            let x = y = z = 0;
+            let count = 0;
+
+            for (const group of target) {
+                const box3 = new THREE.Box3();
+                box3.expandByObject(group);
+                const _center = box3.getCenter(new THREE.Vector3());
+
+                x += _center.x;
+                y += _center.y;
+                z += _center.z;
+
+                count++
+            }
+
+            center.x = x / count;
+            center.y = y / count;
+            center.z = z / count;
+        } else {
+            const box3 = new THREE.Box3();
+            box3.expandByObject(target);
+            center = box3.getCenter(center);
+        }
+
+        controls.object.position.y = center.y;
+        controls.target.copy(center);
+        controls.update();
+    }
+
     // 选择一个房间时，dom 匹配
     const dom_room_select = (data) => {
         // const {
@@ -457,7 +507,7 @@ $(function () {
     })
 
     // 编辑界面的楼层切换
-    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .floor-switch>.dropdown-menu').on('click', '>li>a',  function() {
+    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .floor-switch>.dropdown-menu').on('click', '>li>a', function () {
         let index = $(this).attr('data-index');
 
         const $floor_text = $(this).parents('.floor-switch').find('>.floor-text');
@@ -478,7 +528,7 @@ $(function () {
     })
 
     // 编辑界面的房间切换
-    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .room-switch>.dropdown-menu').on('click', '>li>a',  function() {
+    $('#tab-manage>.operate-wrap>.wrap-right>.edit-area>.room>.room-area .room-switch>.dropdown-menu').on('click', '>li>a', function () {
         const $room_switch = $(this).parents('.room-switch');
         const $room_text = $room_switch.find('>.room-text');
 
@@ -512,8 +562,9 @@ $(function () {
 
     function init() {
         const container = document.querySelector('#container');
-        const width = container.clientWidth,
-            height = container.clientHeight;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        // console.log('height', height);
 
         scene = new THREE.Scene();
 
@@ -574,13 +625,13 @@ $(function () {
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
-        const paths = [];
-        // const paths = [
-        //     './models/north.js',
-        //     './models/south.js',
-        //     './models/tinglang.js',
-        //     './models/land.js',
-        // ];
+        // const paths = [];
+        const paths = [
+            './models/north.js',
+            './models/south.js',
+            './models/tinglang.js',
+            './models/land.js',
+        ];
 
         // 解析 revit 文件
         analysisRevit(paths, function (group) {
@@ -675,6 +726,22 @@ $(function () {
                     show_home_room_dom(); // 出现房间选择下拉界面
                 } else {
                     dom_room_clear(); // 收起房间下拉等多个界面
+                    for (const key in clipPlanes) {
+                        if (clipPlanes.hasOwnProperty(key)) {
+                            const plane_array = clipPlanes[key];
+                            initClipConstant(plane_array, merge_builds[key]);
+                        }
+                    }
+                }
+
+                if ($active_build.length > 0) {
+                    const target = [];
+                    for (const active_build of $active_build) {
+                        const active_build_name = $(active_build).attr('data-name');
+                        const build = merge_builds[active_build_name];
+                        target.push(build);
+                    }
+                    setControlsByFloor(controls, target);
                 }
 
                 merge_builds[key].visible = $(this).hasClass('active');
@@ -693,35 +760,30 @@ $(function () {
 
                 dom_room_clear();
 
-                for (const key in clipPlanes) {
-                    const plane_array = clipPlanes[key];
+                const $active_build = $('#tab-home .select-wrap .build-tab>span.active');
+
+                if ($active_build.length == 1) {
+                    const active_build_name = $active_build.attr('data-name');
+                    const build = merge_builds[active_build_name];
+                    const plane_array = clipPlanes[active_build_name];
+
                     if (index == 'all') {
-
-                        // clip 划分
-                        plane_array[0].constant = 50000; // 向下
-                        plane_array[1].constant = 10000; // 向上
-
-                        // 显示所有楼层
-                        for (const child of merge_builds[key].children) {
-                            if (child.name == '楼层组') {
-                                for (const floor of child.children) {
-                                    floor.visible = true;
-                                }
-                            }
-                        }
+                        initClipConstant(plane_array, build);
+                        setControlsByFloor(controls, build);
                     } else {
                         index = Number(index);
 
-                        if ($('#tab-home .select-wrap .build-tab>span.active').length == 1) {
+                        if ($active_build.length == 1) {
                             show_home_room_dom(); // 出现房间选择下拉界面
                         }
 
                         // 进行 clip 位置调整
-                        if (!constant_map[key][index]) {
+                        const build_constant = constant_map[active_build_name];
+                        if (!build_constant[index]) {
                             plane_array[0].constant = -10000 // 向下
                         } else {
-                            const y_0 = constant_map[key][index + 1] * 1000;
-                            const y_1 = constant_map[key][index] * 1000;
+                            const y_0 = build_constant[index + 1] * 1000;
+                            const y_1 = build_constant[index] * 1000;
 
                             plane_array[0].constant = y_0 - 1 // 向下
                             plane_array[1].constant = -y_1 + 1 // 向上
@@ -731,15 +793,16 @@ $(function () {
 
                         const floor_index = index + 1;
                         // 遍历获取每栋楼的楼层组
-                        for (const child of merge_builds[key].children) {
+                        for (const child of build.children) {
                             if (child.name == '楼层组') {
 
                                 const floors = child.children;
                                 for (const floor of floors) { // 遍历获取每层楼
                                     if (floor.name && floor.name == floor_index + '楼') { // 显示目标楼层
                                         floor.visible = true;
+                                        setControlsByFloor(controls, floor);
                                     } else {
-                                        if (key == '亭廊') { // 亭廊的一楼和二楼同时显示
+                                        if (active_build_name == '亭廊') { // 亭廊的一楼和二楼同时显示
                                             if ((floor_index == 1 && floor.name == '2楼') || (floor_index == 2 && floor.name == '1楼')) {
                                                 floor.visible = true;
                                             } else {
@@ -754,6 +817,15 @@ $(function () {
                         }
                     }
                 }
+
+                // for (const key in clipPlanes) {
+                //     const plane_array = clipPlanes[key];
+                //     if (index == 'all') {
+                //         initClipConstant(plane_array, merge_builds[key]);
+                //     } else {
+
+                //     }
+                // }
 
                 render();
             })
@@ -843,24 +915,4 @@ $(function () {
     function stopAnim(renderTarget) {
         cancelAnimationFrame(renderTarget);
     }
-
-    // $.ajax({
-    //     type: 'get',
-    //     url: '/js/data/roomName.js',
-    //     dataType: "json",
-    //     success: function(data) {
-    //         console.log('data', data);
-    //     },
-    //     error: function(e) {
-    //         console.log('e', e);
-    //     }
-    // })
-
-    // $.getJSON('/models/tinglang.js', function(data) {
-    //     console.log('data', data);
-    // })
-
-    // $.getJSON('/js/data/roomName.js', function(data) {
-    //     console.log('data', data);
-    // })
 })
