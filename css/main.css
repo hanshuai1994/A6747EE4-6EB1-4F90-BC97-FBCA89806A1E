@@ -601,6 +601,7 @@ canvas {
   right: calc(-20px - 83px);
   cursor: pointer;
   background: url(../img/icon/btn_oper_normal.png) center no-repeat;
+  background-color: #fafafa;
 }
 #container > .view-wrap.select-wrap > .operate-btn:hover {
   background-image: url(../img/icon/btn_oper_normal_pressed.png);
@@ -789,6 +790,20 @@ canvas {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
+}
+#container > .init-btn {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  width: 83px;
+  height: 34px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #e6e6e6;
+  background-color: #fafafa;
+  border-radius: 5px;
 }
 #tab-manage {
   height: 100%;
