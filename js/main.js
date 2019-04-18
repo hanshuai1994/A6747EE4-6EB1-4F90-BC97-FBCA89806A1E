@@ -9,6 +9,11 @@ $(function () {
     let mousedown_point;
     let mouseup_point;
 
+    let position_m = undefined; // 存储的外侧相机位置
+    let target_m = undefined; // 存储的外侧控制器 target
+
+    let selected_room = undefined; // 已选中的房间地板
+
     const raycaster = new THREE.Raycaster(); //射线
     const mouse = new THREE.Vector2(); //鼠标位置
 
@@ -19,8 +24,15 @@ $(function () {
         '南楼': undefined,
     };
 
-    // clipPlanes 高度对应索引
-    const constant_map = {
+    // 房间划分
+    const room_mesh_map = {
+        '北楼': [],
+        '亭廊': [],
+        '南楼': [],
+    }
+
+    // 楼层高度
+    const floor_heights = {
         '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
         '亭廊': [-0.45, 4.5, 7.8],
         '南楼': [-0.45, 3.82, 7.02, 10.22, 13.42, 16.62, 19.82, 23.02, 26.62],
@@ -34,6 +46,149 @@ $(function () {
     }
 
     // ======================= 触发函数 =======================
+    const walkToTarget = (start, end) => {
+        const {
+            position,
+            target
+        } = start;
+
+        const {
+            new_position,
+            new_target
+        } = end;
+
+        // 计算控制器相机移动距离和控制器 target 移动距离
+        const distance_p = new_position.distanceTo(position);
+        const distance_t = new_target.distanceTo(target);
+
+        // 获取控制器相机移动距离和控制器 target 移动距离中更大的那个
+        let max_distance = distance_p;
+        if (distance_p < distance_t) {
+            max_distance = distance_t
+        }
+
+        const tween_p = new TWEEN.Tween(position);
+        tween_p.to(new_position, max_distance / 40).start();
+
+        // 更新控制器target
+        const tween_t = new TWEEN.Tween(target);
+        tween_t.to(new_target, max_distance / 40).start();
+    };
+
+    // 添加高亮
+    const addHightLight = (mesh) => {
+        mesh.material.opacity = 1;
+        selected_room = mesh;
+    }
+
+    // 清除高亮
+    const clearHightLight = () => {
+        if (selected_room) {
+            selected_room.material.opacity = 0;
+            selected_room = undefined;
+        }
+    }
+
+    // 视角移动到物体的右上角
+    const walkToObjects = (group) => {
+        let box3;
+
+        // 获取控制器当前相机位置和 target
+        const position = controls.object.position;
+        const target = controls.target;
+
+        if (Array.isArray(group)) { // 存在多个楼栋时
+            for (const _group of group) {
+                if (box3) {
+                    box3 = box3.union(new THREE.Box3().expandByObject(_group));
+                } else {
+                    box3 = new THREE.Box3().expandByObject(_group);
+                }
+            }
+        } else {
+            box3 = new THREE.Box3().expandByObject(group);
+        }
+
+        // 计算包围盒对角线
+        const diagonal = box3.max.distanceTo(box3.min);
+
+        // 设定镜头目标
+        const new_target = box3.getCenter(new THREE.Vector3());
+
+        // 设定镜头位置
+        const new_position = new THREE.Vector3();
+        new_position.x = new_target.x - diagonal * 0.5;
+        new_position.y = new_target.y + diagonal * 0.5;
+        new_position.z = new_target.z + diagonal * 0.5;
+
+
+        const start = {
+            position,
+            target,
+        };
+
+        const end = {
+            new_position,
+            new_target,
+        }
+
+        walkToTarget(start, end)
+    }
+
+    // 视角移动到 room 上
+    const walkToRoom = (mesh) => {
+        // 清除地板高亮
+        clearHightLight();
+
+        // 显现底板mesh
+        addHightLight(mesh);
+
+        const box3 = new THREE.Box3();
+        box3.expandByObject(mesh);
+
+        const center = box3.getCenter(new THREE.Vector3());
+        center.y += 1500;
+
+        // 获取控制器当前相机位置和 target
+        const position = controls.object.position;
+        const target = controls.target;
+
+        if (!position_m) {
+            position_m = position.clone();
+            target_m = target.clone();
+        }
+
+        // 计算出控制器相机移动的目标位置
+        const new_position = center.clone();
+
+        // 计算相机位置指向target的方向
+        const direction = new THREE.Vector3();
+        direction.x = target.x - position.x;
+        direction.y = target.y - position.y;
+        direction.z = target.z - position.z;
+        direction.normalize();
+
+        const offset = 100; // 移动后 target 与相机的距离
+
+        // 计算出控制器 target 移动的目标
+        const new_target = new THREE.Vector3();
+        new_target.x = direction.x * offset + new_position.x;
+        new_target.y = direction.y * offset + new_position.y;
+        new_target.z = direction.z * offset + new_position.z;
+
+        const start = {
+            position,
+            target
+        };
+
+        const end = {
+            new_position,
+            new_target
+        }
+
+        walkToTarget(start, end)
+    }
+
     // 创建房间地面的 mesh
     const createRoomMesh = (roomData) => {
         const result = [];
@@ -66,7 +221,8 @@ $(function () {
 
             const material = new THREE.MeshBasicMaterial({
                 color: 0x00ff00,
-                side: THREE.DoubleSide
+                transparent: true,
+                opacity: 0,
             });
             const geometry = new THREE.ShapeGeometry(shape);
 
@@ -74,8 +230,9 @@ $(function () {
             mesh.rotation.x = Math.PI / 2;
             mesh.rotation.y = Math.PI;
 
-            mesh.position.y = firstPoint.Z * scale;
-
+            // mesh.position.y = firstPoint.Z * scale + 5;
+            mesh.position.y = floor_heights[buildName][floorIndex] * 1000 + 250;
+            
             mesh.name = '房间';
             mesh.roomName = roomName;
             mesh.buildName = buildName;
@@ -102,73 +259,29 @@ $(function () {
         }
     }
 
-    // 根据传入参数设置控制器位置
-    const setControlsByFloor = (controls, target) => {
-        let center = new THREE.Vector3();
-
-        if (Array.isArray(target)) { // 存在多个楼栋时
-            let x = y = z = count = 0;
-
-            for (const group of target) {
-                const box3 = new THREE.Box3();
-                box3.expandByObject(group);
-                const _center = box3.getCenter(new THREE.Vector3());
-
-                x += _center.x;
-                y += _center.y;
-                z += _center.z;
-
-                count++
-            }
-
-            center.x = x / count;
-            center.y = y / count;
-            center.z = z / count;
-        } else {
-            const box3 = new THREE.Box3();
-            box3.expandByObject(target);
-            center = box3.getCenter(center);
-        }
-
-        controls.object.position.y = center.y;
-        controls.target.copy(center);
-        controls.update();
-    }
-
     // 选择一个房间时，dom 匹配
-    const dom_room_select = (data) => {
-        const {
-            buildName,
-            floorIndex,
-            roomName
-        } = data;
-
+    const dom_room_select = (roomName) => {
         const $build_tab = $('#container>.select-wrap>.build-tab');
-        const $floor_switch = $build_tab.siblings('.floor-switch');
         const $room_switch = $build_tab.siblings('.room-switch');
 
-        // 切换楼栋dom显示
-        const $other_build = $build_tab.find(`>span[data-name=${buildName}]`).siblings();
-        for (const build of $other_build) {
-            const buildName = $(build).attr('data-name');
-            merge_builds[buildName].visible = false;
-            $(build).removeClass('active');
+        const $room_item = $room_switch.find(`>.dropdown-menu>li>a[data-index=${roomName}]`);
+
+        const room_text = $room_item.text();
+
+        // 更新房间显示与下拉菜单
+        $room_switch.find('>.room-text').text(room_text).attr('data-index', roomName);
+
+        if (roomName == 'all') {
+            // 显示运维按钮
+            $('.operate-btn').hide();
+            // 更新并显示空调与新风
+            $('.air-system').hide();
+        } else {
+            // 显示运维按钮
+            $('.operate-btn').show();
+            // 更新并显示空调与新风
+            $('.air-system').show();
         }
-
-        // 更新房间显示与下拉菜单
-        $('.select-wrap .room-switch').show();
-        update_home_floor_dom();
-        $floor_switch.find('>.floor-text').text(floorIndex + 1 + '楼').attr('data-index', floorIndex);
-
-        // 更新房间显示与下拉菜单
-        show_home_room_dom();
-        $room_switch.find('>.room-text').text(roomName + '室').attr('data-index', roomName);
-
-        // 显示运维按钮
-        $('.operate-btn').show();
-
-        // 更新并显示空调与新风
-        $('.air-system').show();
     }
 
     // 清空选择的房间时，dom 匹配
@@ -488,18 +601,45 @@ $(function () {
     // ----------------------- 左侧切换事件 -----------------------
     // 房间切换按钮事件
     $('#tab-home .select-wrap .room-switch').on('click', '.dropdown-menu a', function () {
-        const $room_text = $('.select-wrap .room-switch .room-text');
+        const $build_tab = $('#container>.select-wrap>.build-tab');
+        const $floor_switch = $build_tab.siblings('.floor-switch');
+        const $room_switch = $build_tab.siblings('.room-switch');
 
-        let index = $(this).attr('data-index');
+        const $room_text = $room_switch.find('>.room-text');
 
-        if (index == $room_text.attr('data-index')) {
+        let roomName = $(this).attr('data-index');
+
+        if (roomName == $room_text.attr('data-index')) {
             return
         }
 
-        $room_text.attr('data-index', index);
-        $room_text.text($(this).text());
+        dom_room_select(roomName);
 
-        dom_room_select();
+        const build_name = $build_tab.find('>span.active').attr('data-name');
+        const floor_index = Number($floor_switch.find('>.floor-text').attr('data-index'));
+
+        if (roomName == 'all') {
+            clearHightLight();
+            const build = merge_builds[build_name]
+            for (const child of build.children) {
+                if (child.name == '楼层组') {
+                    const floors = child.children;
+                    for (const floor of floors) { // 遍历获取每层楼
+                        if (floor.name && floor.name == floor_index + '楼') { // 目标楼层
+                            walkToObjects(floor);
+                        }
+                    }
+                }
+            }
+        } else {
+            const meshs = room_mesh_map[build_name][floor_index];
+            for (const mesh of meshs) {
+                if (mesh.roomName == roomName) {
+                    walkToRoom(mesh);
+                    break
+                }
+            }
+        }
     })
 
     // ----------------------- 首页运维事件 -----------------------
@@ -566,6 +706,28 @@ $(function () {
     // 空调/新风控制修改的确定按钮
     $('.air-edit>.content-box>.ensure').click(function () {
         $(this).parents('.air-edit').hide();
+    })
+
+    $('#tab-home .init-btn').on('click', function () {
+        if (position_m && target_m) {
+            const start = {
+                position: controls.object.position,
+                target: controls.target,
+            }
+
+            const end = {
+                new_position: position_m,
+                new_target: target_m,
+            }
+            walkToTarget(start, end);
+
+            position_m = undefined;
+            target_m = undefined;
+
+            dom_room_select('all')
+        }
+
+        clearHightLight();
     })
 
     // +++++++++++++++++++++++ 管理页面 +++++++++++++++++++++++
@@ -778,24 +940,8 @@ $(function () {
                 }
             }
 
-
-            let box3 = new THREE.Box3().expandByObject(scene);
-
-            controls.target = box3.getCenter(new THREE.Vector3());
-
-            let diagonal = Math.sqrt(
-                Math.pow(box3.max.x - box3.min.x, 2) +
-                Math.pow(box3.max.y - box3.min.y, 2) +
-                Math.pow(box3.max.z - box3.min.z, 2)
-            );
-
-            controls.object.position.set(controls.target.x - diagonal * 0.5, controls.target.y + diagonal * 0.5, controls.target.z + diagonal * 0.5);
-
-            controls.update();
+            walkToObjects(scene);
             console.log(scene);
-
-            // computeNormalsAndFaces();
-            // THREEx.WindowResize(renderer, camera);
 
             $('#introContainer').fadeOut("slow", function () {
                 render()
@@ -835,7 +981,7 @@ $(function () {
                         const build = merge_builds[active_build_name];
                         target.push(build);
                     }
-                    setControlsByFloor(controls, target);
+                    walkToObjects(target);
                 }
 
                 merge_builds[key].visible = $(this).hasClass('active');
@@ -862,7 +1008,7 @@ $(function () {
 
                     if (index == 'all') {
                         initClipConstant(plane_array, build);
-                        setControlsByFloor(controls, build);
+                        walkToObjects(build);
                     } else {
                         index = Number(index);
 
@@ -871,7 +1017,7 @@ $(function () {
                         }
 
                         // 进行 clip 位置调整
-                        const build_constant = constant_map[active_build_name];
+                        const build_constant = floor_heights[active_build_name];
                         if (!build_constant[index]) {
                             plane_array[0].constant = -10000 // 向下
                         } else {
@@ -893,7 +1039,7 @@ $(function () {
                                 for (const floor of floors) { // 遍历获取每层楼
                                     if (floor.name && floor.name == floor_index + '楼') { // 显示目标楼层
                                         floor.visible = true;
-                                        setControlsByFloor(controls, floor);
+                                        walkToObjects(floor);
                                     } else {
                                         if (active_build_name == '亭廊') { // 亭廊的一楼和二楼同时显示
                                             if ((floor_index == 1 && floor.name == '2楼') || (floor_index == 2 && floor.name == '1楼')) {
@@ -914,11 +1060,11 @@ $(function () {
         })
 
         // 解析房间信息
-        $.getJSON('/js/data/roomName.js', function (data) {
+        $.getJSON('/js/data/roomData.js', function (data) {
             // console.log('data', data);
             const roomGroup = new THREE.Group();
             roomGroup.name = '房间地面组';
-            roomGroup.visible = false;
+            // roomGroup.visible = false;
             scene.add(roomGroup);
 
             for (const key in data) {
@@ -963,6 +1109,20 @@ $(function () {
                             roomPoints: newPoints
                         };
 
+                        let room_build = room_mesh_map[build_name];
+
+                        // 向场景中添加房间地板的mesh
+                        const meshs = createRoomMesh(roomData);
+                        for (const mesh of meshs) {
+                            roomGroup.add(mesh);
+
+                            if (!room_build[index]) { // 未有该楼层
+                                room_build[index] = [mesh]
+                            } else {
+                                room_build[index].push(mesh);
+                            }
+                        }
+
                         // 向变量放入数据
                         let build = build_data[build_name];
                         if (!build[index]) { // 未有该楼层
@@ -973,26 +1133,38 @@ $(function () {
                         } else { // 已有该楼层
                             build[index].rooms.push(roomData);
                         }
-
-                        // 向场景中添加房间地板的mesh
-                        const meshs = createRoomMesh(roomData);
-                        for (const mesh of meshs) {
-                            roomGroup.add(mesh);
-                        }
                     }
                 }
             }
+
+            console.log('build_data', build_data);
+            console.log('room_mesh_map', room_mesh_map)
 
             // 触发一次运维页的楼栋切换
             const manage_first_build_tab = $('#tab-manage .operate-menu .build-tab').children()[0];
             manage_switch_build(manage_first_build_tab);
 
-            console.log('build_data', build_data);
-
             // 添加房间选择的射线函数绑定
             $(container).on('mousedown', '>canvas', function (event) {
+                const $build_tab = $('#container>.select-wrap>.build-tab');
+                const $floor_switch = $build_tab.siblings('.floor-switch');
+
+                if ($build_tab.length != 1) {
+                    return
+                }
+
+                let floor_index = $floor_switch.find('>.floor-text').attr('data-index')
+                if (floor_index == 'all') {
+                    return
+                }
+
+                const build_name = $build_tab.find('>span.active').attr('data-name');
+                floor_index = Number(floor_index);
+
+                const target_array = room_mesh_map[build_name][floor_index];
+
                 const raycaster = getRaycaster(event);
-                const intersects = raycaster.intersectObjects(roomGroup.children);
+                const intersects = raycaster.intersectObjects(target_array);
 
                 if (intersects.length > 0) {
                     mousedown_point = intersects[0].point;
@@ -1000,62 +1172,46 @@ $(function () {
             })
 
             $(container).on('mouseup', '>canvas', function (event) {
+                // 未在画布内按下，则返回
                 if (!mousedown_point) {
                     return
                 }
 
+                const $build_tab = $('#container>.select-wrap>.build-tab');
+                const $floor_switch = $build_tab.siblings('.floor-switch');
+
+                if ($build_tab.length != 1) {
+                    return
+                }
+
+                let floor_index = $floor_switch.find('>.floor-text').attr('data-index')
+                if (floor_index == 'all') {
+                    return
+                }
+
+                const build_name = $build_tab.find('>span.active').attr('data-name');
+                floor_index = Number(floor_index);
+
+                const target_array = room_mesh_map[build_name][floor_index];
+
                 const raycaster = getRaycaster(event);
-                const intersects = raycaster.intersectObjects(roomGroup.children);
+                const intersects = raycaster.intersectObjects(target_array);
 
                 if (intersects.length > 0) {
-                    const mouseup_point = intersects[0].point;
+                    mouseup_point = intersects[0].point;
                     const mesh = intersects[0].object;
 
+                    // 鼠标按下时和松开时距离太远则返回
                     if (mouseup_point.distanceTo(mousedown_point) > 5) {
                         mousedown_point = undefined;
                         mouseup_point = undefined;
                         return
                     }
 
-                    const object = intersects[0].object;
-
-                    console.log('room', object.buildName, object.floorIndex, object.roomName);
-                    const roomData = {
-                        buildName: object.buildName,
-                        floorIndex: object.floorIndex,
-                        roomName: object.roomName
-                    }
+                    walkToRoom(mesh);
 
                     // dom 匹配所选房间
-                    dom_room_select(roomData);
-
-                    const position = controls.object.position;
-                    const target = controls.target;
-
-                    const new_position = mouseup_point.clone();
-                    new_position.y += 1500;
-
-                    // 计算相机位置指向target的方向
-                    const direction = new THREE.Vector3();
-                    direction.x = target.x - position.x;
-                    direction.y = target.y - position.y;
-                    direction.z = target.z - position.z;
-                    direction.normalize();
-
-                    const offset = 100;
-
-                    const new_target = {
-                        x: direction.x * offset + new_position.x,
-                        y: direction.y * offset + new_position.y,
-                        z: direction.z * offset + new_position.z,
-                    }
-
-                    // 更新相机位置
-                    const tween_p = new TWEEN.Tween(position);
-                    tween_p.to(new_position, 2000).start();
-
-                    const tween_t = new TWEEN.Tween(target);
-                    tween_t.to(new_target, 2000).start();
+                    dom_room_select(mesh.roomName);
                 }
             })
         })
