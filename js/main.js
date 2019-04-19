@@ -232,7 +232,7 @@ $(function () {
 
             // mesh.position.y = firstPoint.Z * scale + 5;
             mesh.position.y = floor_heights[buildName][floorIndex] * 1000 + 250;
-            
+
             mesh.name = '房间';
             mesh.roomName = roomName;
             mesh.buildName = buildName;
@@ -479,6 +479,86 @@ $(function () {
     document.oncontextmenu = function () {
         return false;
     }
+
+    // 首页左栏日历
+    laydate.render({
+        elem: '#tab-home .operate-wrap>.wrap-left>.top-area>.calendar',
+        type: 'datetime',
+        isInitValue: false,
+        btns: ['clear', 'confirm'],
+        theme: '#324157',
+        calendar: true,
+        done: function(value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    });
+
+    // 首页右栏日历
+    laydate.render({
+        elem: '#tab-home .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
+        type: 'datetime',
+        isInitValue: false,
+        btns: ['clear', 'confirm'],
+        theme: '#324157',
+        calendar: true,
+        done: function(value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    })
+
+    // 管理页左栏日历
+    laydate.render({
+        elem: '#tab-manage .operate-wrap>.wrap-left>.top-area>.calendar',
+        type: 'datetime',
+        isInitValue: false,
+        btns: ['clear', 'confirm'],
+        theme: '#324157',
+        calendar: true,
+        done: function(value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    })
+
+    // 管理页右栏日历
+    laydate.render({
+        elem: '#tab-manage .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
+        type: 'datetime',
+        isInitValue: false,
+        btns: ['clear', 'confirm'],
+        theme: '#324157',
+        calendar: true,
+        done: function(value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    })
 
     // ======================= 插入 dom =======================
     importDom();
@@ -1216,25 +1296,6 @@ $(function () {
             })
         })
 
-        // controls.addEventListener('change', function () {
-        //     if (animLoop == false) {
-        //         render();
-        //     }
-        // });
+
     }
-
-    // function mouse() {
-    //     if (animLoop == true) {
-    //         stopAnim(idM);
-    //     }
-    //     animLoop = false;
-    //     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    //     controls.enableDamping = true;
-    //     controls.dampingFactor = .75;
-    //     controls.enableZoom = true;
-    // }
-
-    // function stopAnim(renderTarget) {
-    //     cancelAnimationFrame(renderTarget);
-    // }
 })

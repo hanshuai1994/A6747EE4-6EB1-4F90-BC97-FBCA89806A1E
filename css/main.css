@@ -102,6 +102,9 @@ canvas {
   border-bottom-right-radius: 5px;
   border-left: 1px solid #e6e6e6;
 }
+.calendar {
+  font-size: 0;
+}
 .operate-wrap {
   position: absolute;
   top: 20px;
