@@ -1298,4 +1298,16 @@ $(function () {
 
 
     }
+
+    // 适应窗口大小变化
+    $(window).on('resize', function () {
+        container = document.querySelector('#container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        // console.log('height', height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(width, height);
+    })
 })
