@@ -488,7 +488,7 @@ $(function () {
         btns: ['clear', 'confirm'],
         theme: '#324157',
         calendar: true,
-        done: function(value, date) {
+        done: function (value, date) {
             console.log('value', value);
             console.log('date', date);
             if (date.year) {
@@ -508,7 +508,7 @@ $(function () {
         btns: ['clear', 'confirm'],
         theme: '#324157',
         calendar: true,
-        done: function(value, date) {
+        done: function (value, date) {
             console.log('value', value);
             console.log('date', date);
             if (date.year) {
@@ -528,7 +528,7 @@ $(function () {
         btns: ['clear', 'confirm'],
         theme: '#324157',
         calendar: true,
-        done: function(value, date) {
+        done: function (value, date) {
             console.log('value', value);
             console.log('date', date);
             if (date.year) {
@@ -548,7 +548,7 @@ $(function () {
         btns: ['clear', 'confirm'],
         theme: '#324157',
         calendar: true,
-        done: function(value, date) {
+        done: function (value, date) {
             console.log('value', value);
             console.log('date', date);
             if (date.year) {
@@ -1140,7 +1140,7 @@ $(function () {
         })
 
         // 解析房间信息
-        $.getJSON('/js/data/roomData.js', function (data) {
+        $.getJSON('./js/data/roomData.js', function (data) {
             // console.log('data', data);
             const roomGroup = new THREE.Group();
             roomGroup.name = '房间地面组';
