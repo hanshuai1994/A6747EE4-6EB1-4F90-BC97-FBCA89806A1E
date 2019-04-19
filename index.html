@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset=utf-8>
-	<title>深圳建科院</title>
+	<title>深圳市住房和建设局办公大楼智控系统</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="./css/bootstrap.min.css">
@@ -22,9 +22,9 @@
 		<li class="manage ">
 			<a href="#tab-manage" data-toggle="tab">运维管理</a>
 		</li>
-		<li class="monitor">
+		<!-- <li class="monitor">
 			<a href="#tab-monitor" data-toggle="tab">监控系统</a>
-		</li>
+		</li> -->
 	</ul>
 
 	<!-- 主体容器 -->
@@ -503,7 +503,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="tab-pane" id="tab-monitor"></div>
+		<!-- <div class="tab-pane" id="tab-monitor"></div> -->
 	</div>
 
 
@@ -522,6 +522,10 @@
 	<script src="./js/extend/SubdivisionModifier.js"></script>
 	<script src='./js/extend/BufferGeometryUtils.js'></script>
 
+	<!-- 加载器与导出器 -->
+	<script src="./js/loaders/GLTFLoader.js"></script>
+	<script src="./js/exporters/GLTFExporter.js"></script>
+
 	<!-- 插件 -->
 	<script src="./js/laydate/laydate.js"></script>
 
@@ -531,8 +535,8 @@
 	<script src="./js/importDom.js"></script>
 
 	<!-- 工具库依赖 -->
-	<script src="./js/utils/utils.x.js"></script>
-	<script src="./js/utils/analysisRevit.x.js"></script>
+	<script src="./js/utils/utils.js"></script>
+	<script src="./js/utils/analysisRevit.js"></script>
 
 	<!-- 程序入口 -->
 	<script src='./js/main.js'></script>
