@@ -155,3 +155,39 @@ const analysisRevit = (paths, callback) => {
         callback(group);
     })
 }
+
+// 下载模型
+function downloadModel(model, fileName) {
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    
+
+    const exporter = new THREE.GLTFExporter();
+
+    exporter.parse(model, (result) => {
+
+        let blob;
+
+        if (result instanceof ArrayBuffer) {
+            blob = new Blob([result], {
+                type: 'application/octet-stream'
+            })
+            link.download = fileName + '.glb';
+        } else {
+            const text = JSON.stringify(result);
+
+            blob = new Blob([text], {
+                type: 'text/plain'
+            })
+
+            link.download = fileName + '.gltf';
+        }
+
+        link.href = URL.createObjectURL(blob);
+
+        link.click();
+    }, {
+        binary: true
+    })
+}
