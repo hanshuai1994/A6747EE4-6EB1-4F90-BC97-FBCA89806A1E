@@ -46,7 +46,7 @@ $(function () {
     }
 
     // ======================= 触发函数 =======================
-    const walkToTarget = (start, end, immediately = false) => {
+    const walkToTarget = (start, end, instant = false) => {
         const {
             position,
             target
@@ -67,7 +67,7 @@ $(function () {
             max_distance = distance_t
         }
 
-        if (immediately) {
+        if (instant) {
             position.copy(new_position);
             target.copy(new_target);
         } else {
@@ -94,8 +94,12 @@ $(function () {
         }
     }
 
-    // 视角移动到物体的右上角
-    const walkToObjects = (group, immediately = false) => {
+    /**
+     * @name 视角移动到物体的右上角
+     * @param {*} group 视角目标对象
+     * @param {boolean} instant 是否瞬间切换到
+     */
+    const walkToObjects = (group, instant = false) => {
         let box3;
 
         // 获取控制器当前相机位置和 target
@@ -137,7 +141,7 @@ $(function () {
             new_target,
         }
 
-        walkToTarget(start, end, immediately)
+        walkToTarget(start, end, instant)
     }
 
     // 视角移动到 room 上
@@ -397,13 +401,13 @@ $(function () {
     // 获取运维编辑界面信息
     const get_oper_edit_data = ($edit_area) => {
         const title = $edit_area.find('>.title>input').val();
-        // const time = $edit_area.find('>.time>.calendar').val(); 
+        const time = Number($edit_area.find('>.time>.calendar').attr('data-time')); 
         const state = $edit_area.find('>.state>.radio-box>span.selected').attr('date-state');
         const content = $edit_area.find('>.content>textarea').val();
 
         return {
             title,
-            // time,
+            time,
             state,
             content,
         }
@@ -428,6 +432,8 @@ $(function () {
     const manage_switch_build = (element) => {
         const build_name = $(element).attr('data-name');
         const floors = build_data[build_name];
+
+        // 根据 build_name 向后台获取信息
 
         // 楼层下拉列表更新 ----------------------
         const firstData = {
@@ -463,7 +469,7 @@ $(function () {
         const build_name = $active_build.attr('data-name');
 
         const active_floors = build_data[build_name];
-        const active_floor_index = $(element).attr('data-index');
+        let active_floor_index = $(element).attr('data-index');
 
         const rooms = [];
         if (active_floor_index == 'all') {
@@ -471,12 +477,31 @@ $(function () {
                 rooms.push(...floor.rooms);
             }
         } else {
+            active_floor_index = Number(active_floor_index);
+
+            // 根据 build_name active_floor_index 向后台获取信息
             rooms.push(...active_floors[active_floor_index].rooms);
         }
 
         const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
+    }
+
+    // 管理页切换房间
+    const manage_switch_room = (element) => {
+        const $room_switch = $(element).parents('.room-switch');
+        const $build_tab = $room_switch.siblings('.build-tab');
+        const $floor_switch = $room_switch.siblings('.room-switch');
+
+        const $active_build = $build_tab.find('>span.active');
+
+        const build_name = $active_build.attr('data-name');
+        const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
+        const active_room_index = $(element).attr('data-index');
+
+        // 根据 build_name active_floor_index active_room_index 向后台获取信息
+
     }
 
 
@@ -556,12 +581,15 @@ $(function () {
         done: function (value, date) {
             console.log('value', value);
             console.log('date', date);
+
             if (date.year) {
                 // 执行修改命令
+                
             } else {
                 // 执行清空命令
             }
-            console.log('this.elem', this.elem);
+
+            $(this.elem).attr('data-time', Date.parse(value));
         }
     })
 
@@ -585,7 +613,7 @@ $(function () {
     });
 
     // 运维修改按钮
-    $('.operate-wrap .modify-btn').on('click', function () {
+    $('.operate-wrap .wrap-right').on('click', '.view-area .modify-btn', function () {
         const $wrap_right = $(this).parents('.wrap-right');
         const $wrap_left = $wrap_right.siblings('.wrap-left');
 
@@ -617,6 +645,19 @@ $(function () {
         }
     });
 
+    // 运维删除按钮
+    $('.operate-wrap .wrap-right').on('click', '.view-area .delete-btn', function () {
+        const $wrap_right = $(this).parents('.wrap-right');
+        const $wrap_left = $wrap_right.siblings('.wrap-left');
+
+        const $view_area = $wrap_right.find('.view-area');
+        const $edit_area = $wrap_right.find('.edit-area');
+
+        const this_id = Number($wrap_left.find('>.content>.operate-item.active').attr('data-id'));
+
+        // 向后台发送需要删除的数据的 id
+    })
+
     // 修改界面状态切换
     $('.operate-wrap .wrap-right').on('click', '.edit-area .state>.radio-box>span', function () {
         $(this).addClass('selected').siblings().removeClass('selected');
@@ -631,7 +672,18 @@ $(function () {
         $edit_area.hide();
 
         if ($(this).hasClass('save')) {
-            const data = get_oper_edit_data($edit_area);
+            const data = get_oper_edit_data($edit_area); // 获取编辑框内的信息
+
+            const $operate_wrap = $(this).parents('.operate-wrap');
+            const $active_item = $operate_wrap.find('>.wrap-left>.content>.operate-item.active')
+            
+            let this_id = $active_item.attr('data-id');
+            if (this_id == 'new') {
+                // 向后台发送新建的 data
+            } else {
+                this_id = Number(this_id);
+                // 向后台发送修改后的 data
+            }
         } else {
             const $wrap_right = $edit_area.parent();
             const $wrap_left = $wrap_right.siblings('.wrap-left');
@@ -849,7 +901,7 @@ $(function () {
         const this_index = $(this).attr('data-index');
 
         if (active_index != this_index) {
-            // manage_switch_floor(this);
+            manage_switch_room(this);
             $room_text.attr('data-index', this_index);
             $room_text.text($(this).text());
         }
