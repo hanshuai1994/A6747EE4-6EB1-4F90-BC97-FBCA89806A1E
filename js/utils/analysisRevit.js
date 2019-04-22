@@ -157,7 +157,7 @@ const analysisRevit = (paths, callback) => {
 }
 
 // 下载模型
-function downloadModel(model, fileName) {
+function downloadGLTF(model, fileName) {
     var link = document.createElement('a');
     link.style.display = 'none';
     document.body.appendChild(link);
@@ -190,4 +190,24 @@ function downloadModel(model, fileName) {
     }, {
         binary: true
     })
+}
+
+function downloadOBJ(model, fileName) {
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.download = fileName + '.obj';
+
+    const exporter = new THREE.OBJExporter();
+
+    const result = exporter.parse(model);
+    const text = JSON.stringify(result);
+
+    const blob = new Blob([text], {
+        type: 'text/plain'
+    })
+
+    link.href = URL.createObjectURL(blob);
+
+    link.click();
 }
