@@ -35,21 +35,21 @@ const getDividedFloor = (build, key, materials) => {
 
         // 遍历获取所有 mesh
         outer:
-        for (const mesh of obj3d.children) {
-            if (mesh instanceof THREE.Mesh) {
-                target.push(...obj3d.children);
+            for (const mesh of obj3d.children) {
+                if (mesh instanceof THREE.Mesh) {
+                    target.push(...obj3d.children);
 
-                const material = mesh.material;
+                    const material = mesh.material;
 
-                for (const mat of materials) {
-                    if (mat.uuid == material.uuid) { // 若当前材质已经保存，则替换材质，回到外循环
-                        mesh.material = mat;
-                        continue outer;
+                    for (const mat of materials) {
+                        if (mat.uuid == material.uuid) { // 若当前材质已经保存，则替换材质，回到外循环
+                            mesh.material = mat;
+                            continue outer;
+                        }
                     }
+                    materials.push(material);
                 }
-                materials.push(material);
             }
-        }
     }
 
     const build_heights = preHeight[key]; // 一栋楼的楼层高度数组
@@ -104,17 +104,43 @@ const analysisRevit = (paths, callback) => {
     let builds = [];
 
     const loader = new THREE.ObjectLoader();
+    const promises = [];
 
+    let total = 0;
+    let loaded_map = {};
     // return
+
     // 使用 promise 进行多个异步处理
-    const promises = paths.map(function (path) {
-        return new Promise(function (resolve, reject) {
-            loader.load(path, function (object) {
-                builds.push(object);
-                resolve();
-            })
+    let length = paths.length;
+    for (let i = 0; i < length; i++) {
+        const path = paths[i];
+        const promise = new Promise(function (resolve, reject) {
+            loader.load(
+                path,
+                function (object) { // onLoad
+                    builds.push(object);
+                    resolve();
+                },
+                (xhr) => { // onProgress
+                    const loaded_keys = Object.keys(loaded_map);
+
+                    loaded_map[path] = xhr.loaded;
+                    if (loaded_keys.length == length) { // 全部含有数据时
+                        let loaded_all = 0;
+
+                        for (const key of loaded_keys) {
+                            loaded_all += loaded_map[key];
+                        }
+
+                        $('#loading>.text').text(`载入中...${parseInt((loaded_all / total * 100))}%`)
+                    } else {
+                        total += xhr.total;
+                    }
+                }
+            )
         })
-    })
+        promises.push(promise);
+    }
 
     // 异步全部结束后对获取的楼进行处理
     Promise.all(promises).then(function (posts) {
@@ -161,7 +187,7 @@ function downloadGLTF(model, fileName) {
     var link = document.createElement('a');
     link.style.display = 'none';
     document.body.appendChild(link);
-    
+
 
     const exporter = new THREE.GLTFExporter();
 
