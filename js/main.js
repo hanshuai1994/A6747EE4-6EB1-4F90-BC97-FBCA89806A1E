@@ -45,6 +45,78 @@ $(function () {
         '南楼': [],
     }
 
+    // ======================= 日期时间 =======================
+    laydate.set({
+        type: 'datetime',
+        isInitValue: false,
+        btns: ['clear', 'confirm'],
+        theme: '#324157',
+        calendar: true,
+    })
+
+    // 首页左栏日历
+    laydate.render({
+        elem: '#tab-home .operate-wrap>.wrap-left>.top-area>.calendar',
+        done: function (value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    });
+
+    // 首页右栏日历
+    laydate.render({
+        elem: '#tab-home .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
+        done: function (value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    })
+
+    // 管理页左栏日历
+    laydate.render({
+        elem: '#tab-manage .operate-wrap>.wrap-left>.top-area>.calendar',
+        done: function (value, date) {
+            console.log('value', value);
+            console.log('date', date);
+            if (date.year) {
+                // 执行修改命令
+            } else {
+                // 执行清空命令
+            }
+            console.log('this.elem', this.elem);
+        }
+    })
+
+    // 管理页右栏日历
+    laydate.render({
+        elem: '#tab-manage .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
+        done: function (value, date) {
+            console.log('value', value);
+            console.log('date', date);
+
+            if (date.year) {
+                // 执行修改命令
+
+            } else {
+                // 执行清空命令
+            }
+
+            $(this.elem).attr('data-time', Date.parse(value));
+        }
+    })
+
     // ======================= 触发函数 =======================
     const walkToTarget = (start, end, instant = false) => {
         const {
@@ -359,7 +431,7 @@ $(function () {
     }
 
     // 选择运维单项时
-    const dom_oper_select = (element) => {
+    const dom_oper_item_select = (element) => {
         const id = Number($(element).attr('data-id'));
 
         const $wrap_left = $(element).parents('.wrap-left');
@@ -383,6 +455,14 @@ $(function () {
         }
     }
 
+    // 删除运维单项时
+    const dom_oper_item_delete = (element) => {
+        const $content = $(element).parent();
+        $(element).remove();
+
+        dom_oper_item_select($content.children()[0]);
+    }
+
     // 更新运维展示界面信息
     const dom_update_oper_view = ($view_area, data) => {
         const {
@@ -393,7 +473,7 @@ $(function () {
         } = data
 
         $view_area.find('>.title>.text').text(title); // 更新标题
-        $view_area.find('>.time>.text').text(time); // 更新时间
+        $view_area.find('>.time>.text').text(getDateByTime(time)); // 更新时间
         $view_area.find(`>.state>.text`).attr('data-state', state); // 更新状态
         $view_area.find('>.content>textarea').val(content); // 更新内容
     }
@@ -401,7 +481,7 @@ $(function () {
     // 获取运维编辑界面信息
     const get_oper_edit_data = ($edit_area) => {
         const title = $edit_area.find('>.title>input').val();
-        const time = Number($edit_area.find('>.time>.calendar').attr('data-time')); 
+        const time = Number($edit_area.find('>.time>.calendar').attr('data-time'));
         const state = $edit_area.find('>.state>.radio-box>span.selected').attr('date-state');
         const content = $edit_area.find('>.content>textarea').val();
 
@@ -423,7 +503,10 @@ $(function () {
         } = data
 
         $edit_area.find('>.title>input').val(title); // 更新标题
-        // 清空时间/设置为当前时间
+        laydate.render({
+            elem: $edit_area.find('>.time>.calendar')[0],
+            value: getDateByTime(time),
+        }); // 清空时间/设置为当前时间
         $edit_area.find(`>.state>.radio-box>span[data-state=${state}]`).addClass('selected').siblings().removeClass('selected'); // 更新状态
         $edit_area.find('>.content>textarea').val(content); // 更新内容
     }
@@ -510,106 +593,23 @@ $(function () {
         return false;
     }
 
-    // 首页左栏日历
-    laydate.render({
-        elem: '#tab-home .operate-wrap>.wrap-left>.top-area>.calendar',
-        type: 'datetime',
-        isInitValue: false,
-        btns: ['clear', 'confirm'],
-        theme: '#324157',
-        calendar: true,
-        done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
-            if (date.year) {
-                // 执行修改命令
-            } else {
-                // 执行清空命令
-            }
-            console.log('this.elem', this.elem);
-        }
-    });
-
-    // 首页右栏日历
-    laydate.render({
-        elem: '#tab-home .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
-        type: 'datetime',
-        isInitValue: false,
-        btns: ['clear', 'confirm'],
-        theme: '#324157',
-        calendar: true,
-        done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
-            if (date.year) {
-                // 执行修改命令
-            } else {
-                // 执行清空命令
-            }
-            console.log('this.elem', this.elem);
-        }
-    })
-
-    // 管理页左栏日历
-    laydate.render({
-        elem: '#tab-manage .operate-wrap>.wrap-left>.top-area>.calendar',
-        type: 'datetime',
-        isInitValue: false,
-        btns: ['clear', 'confirm'],
-        theme: '#324157',
-        calendar: true,
-        done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
-            if (date.year) {
-                // 执行修改命令
-            } else {
-                // 执行清空命令
-            }
-            console.log('this.elem', this.elem);
-        }
-    })
-
-    // 管理页右栏日历
-    laydate.render({
-        elem: '#tab-manage .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
-        type: 'datetime',
-        isInitValue: false,
-        btns: ['clear', 'confirm'],
-        theme: '#324157',
-        calendar: true,
-        done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
-
-            if (date.year) {
-                // 执行修改命令
-                
-            } else {
-                // 执行清空命令
-            }
-
-            $(this.elem).attr('data-time', Date.parse(value));
-        }
-    })
-
     // ======================= 插入 dom =======================
     importDom();
 
     // 切换显示首页第一个运维项目
     const home_first_oper_item = $('#tab-home .operate-wrap .wrap-left>.content').children()[0];
-    dom_oper_select(home_first_oper_item);
+    dom_oper_item_select(home_first_oper_item);
 
     // 切换显示管理页第一个运维项目
     const manage_first_oper_item = $('#tab-manage .operate-wrap .wrap-left>.content').children()[0];
-    dom_oper_select(manage_first_oper_item);
+    dom_oper_item_select(manage_first_oper_item);
 
 
     // ======================= 绑定事件 =======================
     // +++++++++++++++++++++++ 运维共用事件 +++++++++++++++++++++++
     // 运维项目表单切换事件
     $('.operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
-        dom_oper_select(this);
+        dom_oper_item_select(this);
     });
 
     // 运维修改按钮
@@ -653,9 +653,11 @@ $(function () {
         const $view_area = $wrap_right.find('.view-area');
         const $edit_area = $wrap_right.find('.edit-area');
 
-        const this_id = Number($wrap_left.find('>.content>.operate-item.active').attr('data-id'));
+        const $active_item = $wrap_left.find('>.content>.operate-item.active');
+        const this_id = Number($active_item.attr('data-id'));
 
         // 向后台发送需要删除的数据的 id
+        dom_oper_item_delete($active_item[0]); // ajax成功后执行此行
     })
 
     // 修改界面状态切换
@@ -676,10 +678,12 @@ $(function () {
 
             const $operate_wrap = $(this).parents('.operate-wrap');
             const $active_item = $operate_wrap.find('>.wrap-left>.content>.operate-item.active')
-            
+
             let this_id = $active_item.attr('data-id');
             if (this_id == 'new') {
                 // 向后台发送新建的 data
+                const dom = createOperItem(newData, true);
+                $active_item.html(dom);
             } else {
                 this_id = Number(this_id);
                 // 向后台发送修改后的 data
@@ -692,7 +696,7 @@ $(function () {
             const active_id = $active_item.attr('data-id');
             if (active_id == 'new') {
                 const other_first_item = $active_item.siblings()[0];
-                dom_oper_select(other_first_item);
+                dom_oper_item_select(other_first_item);
                 $active_item.remove();
             }
         }
@@ -703,7 +707,7 @@ $(function () {
         // 左侧添加新建条目
         const newData = {
             title: '新建',
-            time: '',
+            time: new Date().getTime(),
             state: 'unfinished',
             content: '',
         };
@@ -726,12 +730,8 @@ $(function () {
         $edit_area.show();
 
         // 初始化编辑区域
-        update_oper_edit_dom($edit_area, {
-            title: '',
-            time: '',
-            state: 'unfinished',
-            content: '',
-        });
+        newData.title = '';
+        update_oper_edit_dom($edit_area, newData);
     })
 
     // +++++++++++++++++++++++ 首页页面事件 +++++++++++++++++++++++

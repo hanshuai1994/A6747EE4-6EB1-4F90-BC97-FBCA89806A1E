@@ -98,7 +98,7 @@ const createOperItem = (data, hasName) => {
         </div>
         <div class="item-right">
             <span class="state" data-state=${data.state}></span>
-            <span class="date">${data.time}</span>
+            <span class="date">${getDateByTime(data.time, true)}</span>
         </div>
     </div>
     `

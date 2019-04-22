@@ -52,3 +52,37 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
 
     return group;
 }
+
+// 补全时间
+const fixTime = (num) => {
+    if (num < 10) {
+        return '0' + num
+    } else {
+        return num
+    }
+}
+
+// 根据距离1970的时间数字获得日期时间字符串
+const getDateByTime = (time, onlyDate) => {
+    let new_time = new Date();
+    new_time.setTime(time);
+
+    let year = new_time.getFullYear();
+    let month = new_time.getMonth();
+    let day = new_time.getDate();
+    let hour = new_time.getHours();
+    let minute = new_time.getMinutes();
+    let second = new_time.getSeconds();
+
+    hour = fixTime(hour);
+    minute = fixTime(minute);
+    second = fixTime(second);
+
+    let result = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+
+    if (onlyDate) {
+        result = `${year}-${month}-${day}`;
+    }
+
+    return result
+}
