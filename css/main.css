@@ -69,6 +69,26 @@ canvas {
 .dropdown-menu::-webkit-scrollbar {
   display: none;
 }
+#loading {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 10001;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #ececec;
+}
+#loading.active {
+  display: flex;
+}
+#loading > .text {
+  font-size: 16px;
+  font-weight: bold;
+  color: #484848;
+  margin-top: 20px;
+}
 .build-tab {
   display: flex;
   width: 100%;
@@ -442,21 +462,6 @@ canvas {
   margin-left: 20px;
   background: url(../img/icon/btn_cancel.png) center no-repeat;
 }
-#loadtext {
-  font-family: 'Merriweather', serif;
-  font-weight: 300;
-  font-size: 50px;
-  line-height: 1.5;
-  letter-spacing: -0.004em;
-  color: rgba(0, 0, 0, 0.8);
-  text-align: center;
-  position: fixed;
-  width: 100%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-}
 #top-menu {
   width: 100%;
   padding: 30px 0 28px 27px;
@@ -506,6 +511,9 @@ canvas {
   width: 100%;
   height: calc(100% - 30px - 28px - 16px);
   margin: 0 auto;
+}
+#main-container > .tab-pane {
+  position: relative;
 }
 #tab-home {
   width: calc(100% - 40px);

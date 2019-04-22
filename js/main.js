@@ -46,7 +46,7 @@ $(function () {
     }
 
     // ======================= 触发函数 =======================
-    const walkToTarget = (start, end) => {
+    const walkToTarget = (start, end, immediately = false) => {
         const {
             position,
             target
@@ -67,12 +67,17 @@ $(function () {
             max_distance = distance_t
         }
 
-        const tween_p = new TWEEN.Tween(position);
-        tween_p.to(new_position, max_distance / 40).start();
+        if (immediately) {
+            position.copy(new_position);
+            target.copy(new_target);
+        } else {
+            const tween_p = new TWEEN.Tween(position);
+            tween_p.to(new_position, max_distance / 40).start();
 
-        // 更新控制器target
-        const tween_t = new TWEEN.Tween(target);
-        tween_t.to(new_target, max_distance / 40).start();
+            // 更新控制器target
+            const tween_t = new TWEEN.Tween(target);
+            tween_t.to(new_target, max_distance / 40).start();
+        }
     };
 
     // 添加高亮
@@ -90,7 +95,7 @@ $(function () {
     }
 
     // 视角移动到物体的右上角
-    const walkToObjects = (group) => {
+    const walkToObjects = (group, immediately = false) => {
         let box3;
 
         // 获取控制器当前相机位置和 target
@@ -132,7 +137,7 @@ $(function () {
             new_target,
         }
 
-        walkToTarget(start, end)
+        walkToTarget(start, end, immediately)
     }
 
     // 视角移动到 room 上
@@ -1020,13 +1025,10 @@ $(function () {
                 }
             }
 
-            walkToObjects(scene);
+            walkToObjects(scene, true);
             console.log(scene);
 
-            $('#introContainer').fadeOut("slow", function () {
-                render()
-                $('#mainContainer').fadeIn("slow", function () {});
-            });
+            $('#loading').removeClass("active");
 
             // 绑定三栋楼的显示/隐藏按钮
             $('#container').on('click', '.select-wrap>.build-tab>span', function () {
