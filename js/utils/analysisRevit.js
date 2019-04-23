@@ -1,13 +1,94 @@
-const getDividedFloor = (build, key, materials) => {
+
+/**
+ * @name 统一材质
+ * @param {array} material_lib 材质库
+ * @param {array | object} mesh 匹配的 mesh
+ */
+const unifyMaterial = (material_lib, mesh) => {
+    const mesh_materials = mesh.material;
+
+    if (Array.isArray(mesh_materials)) { // 若有多个材质
+        const length = mesh_materials.length;
+        outer:
+            for (let i = 0; i < length; i++) { // 遍历自身的材质
+                for (const material of material_lib) { // 遍历材质库内的材质
+                    if (mesh_materials[i].name == material.name) { // 当在材质库中找到相等的材质时
+                        mesh_materials[i] = material; // 替换为材质库内的材质
+                        continue outer // 调到下一次循环
+                    }
+                }
+                if (mesh_materials[i].name =='') {
+                    console.log('mesh', mesh);
+                }
+                material_lib.push(mesh_materials[i]); // 在材质库中未找到，则放入材质库
+            }
+    } else {
+        let has_material = false;
+
+        for (const material of material_lib) { // 遍历材质库内的材质
+            if (mesh_materials.name == material.name) { // 当在材质库中找到相等的材质时
+                mesh.material = material; // 替换为材质库内的材质
+                has_material = true; // 标记已找到
+                break;
+            }
+        }
+
+        if (!has_material) {
+            if (mesh_materials.name =='') {
+                console.log('mesh', mesh);
+            }
+            material_lib.push(mesh_materials); // 在材质库中未找到，则放入材质库
+        }
+    }
+}
+
+/**
+ * @name  在group内新建 mesh 组与线框组，并将 mesh 添加到 mesh 组，新建线框添加到线框组
+ * @param {*} group 目标容器
+ * @param {*} meshes 将要被分配的 meshes
+ * @param {*} line_material 线框的材质
+ * @param {*} material_lib 融合材质库
+ */
+const divideGroup = (group, meshes, line_material, material_lib) => {
+    const mesh_group = new THREE.Group();
+    mesh_group.name = 'mesh组';
+
+    const edge_group = new THREE.Group();
+    edge_group.name = '线框组';
+
+    group.add(mesh_group, edge_group);
+
+    for (const mesh of meshes) {
+        if (mesh instanceof THREE.Mesh) {
+            mesh_group.add(mesh);
+
+            const geometry = new THREE.EdgesGeometry(mesh.geometry, 30);
+            mesh.updateMatrixWorld();
+            geometry.applyMatrix(mesh.matrixWorld);
+            const wireframe = new THREE.LineSegments(geometry, line_material);
+            unifyMaterial(material_lib, wireframe);
+            edge_group.add(wireframe);
+        }
+    }
+}
+
+/**
+ * @name 楼层划分
+ * @param {*} build 楼栋 group
+ * @param {string} build_name 楼栋名称
+ * @param {array} material_lib_box  box 材质库
+ * @param {array} material_lib_clip clip 材质库
+ */
+const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip) => {
     // 用于区分楼层的预设高度
     const preHeight = {
-        '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
         '亭廊': [-0.45, 4.5, 7.8],
+        '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
         '南楼': [-0.45, 3.82, 7.02, 10.22, 13.42, 16.62, 19.82, 23.02, 26.62],
     }
 
     const result = new THREE.Group();
-    result.name = key;
+    result.name = build_name;
 
     // 将一栋楼的模型分为 clip 切割与 box 划分两个部分
     const objects = {
@@ -15,44 +96,28 @@ const getDividedFloor = (build, key, materials) => {
         box: [],
         floor: [],
     }
-    for (const obj3d of build.children) {
-        let target = objects.box;
 
-        // if (obj3d.userData.revit_id == 'addc58cd-5e25-4a28-96d8-7f33c4e689ad-0020b68d') {
-        //     console.log('obj3d', obj3d);
-        // }
-
-        if (
-            obj3d.name.includes('2144203 北楼楼梯柱子') ||
-            obj3d.name.includes('<2243475 柱 1>') ||
-            obj3d.name.includes('<2144206 工业装配楼梯>') ||
-            obj3d.name.includes('<2144249 1100 mm>') ||
-            obj3d.name.includes('<2144245 1100 mm>') ||
-            obj3d.name.includes('<2151541 ZJKJ_窗_MQ2>')
-        ) {
-            target = objects.clip;
-        }
-
+    for (const mesh of build.children) {
         // 遍历获取所有 mesh
-        outer:
-            for (const mesh of obj3d.children) {
-                if (mesh instanceof THREE.Mesh) {
-                    target.push(...obj3d.children);
-
-                    const material = mesh.material;
-
-                    for (const mat of materials) {
-                        if (mat.uuid == material.uuid) { // 若当前材质已经保存，则替换材质，回到外循环
-                            mesh.material = mat;
-                            continue outer;
-                        }
-                    }
-                    materials.push(material);
-                }
+        if (mesh instanceof THREE.Mesh && mesh.geometry) {
+            if (
+                mesh.name.includes('2144203') || // 北楼楼梯柱子
+                mesh.name.includes('2243475') || // 柱 1
+                mesh.name.includes('2144206') || // 工业装配楼梯
+                mesh.name.includes('2144249') || // 1100 mm
+                mesh.name.includes('2144245') || // 1100 mm
+                mesh.name.includes('2151541') // ZJKJ_窗_MQ2
+            ) {
+                objects.clip.push(mesh);
+                unifyMaterial(material_lib_clip, mesh);
+            } else {
+                objects.box.push(mesh);
+                unifyMaterial(material_lib_box, mesh);
             }
+        }
     }
 
-    const build_heights = preHeight[key]; // 一栋楼的楼层高度数组
+    const build_heights = preHeight[build_name]; // 一栋楼的楼层高度数组
 
     outer:
         for (const mesh of objects.box) { // 遍历 box 组的所有 mesh
@@ -81,29 +146,51 @@ const getDividedFloor = (build, key, materials) => {
         }
 
 
+    // 楼层组
     const floor_group = new THREE.Group();
     floor_group.name = '楼层组';
     result.add(floor_group);
 
-    for (let i = 0; i < objects.floor.length; i++) {
-        const floor = merge_obj_children(objects.floor[i]);
-        floor.name = i + 1 + '楼';
+    let line_material = new THREE.LineBasicMaterial({
+        color: 0x0d0d0d,
+        transparent: true,
+        opacity: 0.3
+    });
+    line_material.name = '附加线框材质_box';
 
+    // 将每一层添加进楼层组
+    for (let i = 0; i < objects.floor.length; i++) {
+        const floor = new THREE.Group();
+        floor.name = i + 1 + '楼';
         floor_group.add(floor);
+
+        divideGroup(floor, objects.floor[i], line_material, material_lib_box);
     }
 
-    const clip_group = merge_obj_children(objects.clip);
+    // clip组
+    const clip_group = new THREE.Group();
     clip_group.name = 'clip组';
     result.add(clip_group);
+
+    line_material = new THREE.LineBasicMaterial({
+        color: 0x0d0d0d,
+        transparent: true,
+        opacity: 0.3
+    });
+    line_material.name = '附加线框材质_clip';
+
+    divideGroup(clip_group, objects.clip, line_material, material_lib_clip);
 
     return result
 }
 
 
 const analysisRevit = (paths, callback) => {
-    let builds = [];
+    // let builds = [];
+    let builds = {};
 
-    const loader = new THREE.ObjectLoader();
+    // const loader = new THREE.ObjectLoader();
+    const loader = new THREE.FBXLoader();
     const promises = [];
 
     let total = 0;
@@ -118,7 +205,8 @@ const analysisRevit = (paths, callback) => {
             loader.load(
                 path,
                 function (object) { // onLoad
-                    builds.push(object);
+                    builds[path] = object;
+                    // builds.push(object);
                     resolve();
                 },
                 (xhr) => { // onProgress
@@ -147,38 +235,33 @@ const analysisRevit = (paths, callback) => {
         const group = new THREE.Group();
         group.name = '模型整体';
 
-        const materials = {
-            '北楼': [],
-            '亭廊': [],
-            '南楼': [],
-        };
+        const material_lib_box = [];
+        const material_lib_clip = [];
 
-        for (const build of builds) { // 对每栋楼进行处理
-            let key = '地面';
-            if (build.name.includes("北楼")) {
-                key = "北楼";
-            } else if (build.name.includes("亭廊")) {
-                key = "亭廊";
-            } else if (build.name.includes("南楼")) {
-                key = "南楼";
-            }
+        for (const key in builds) {
+            if (builds.hasOwnProperty(key)) {
+                const build = builds[key];
 
-            if (key == '地面') {
-                for (const obj3d of build.children) {
-                    if (!obj3d.name.includes('相机')) {
-                        group.add(obj3d);
-                    }
+                let build_name = '地面';
+                if (key.includes("north")) {
+                    build_name = "北楼";
+                } else if (key.includes("west")) {
+                    build_name = "亭廊";
+                } else if (key.includes("south")) {
+                    build_name = "南楼";
                 }
-            } else {
-                const result = getDividedFloor(build, key, materials[key]);
-                group.add(result);
-                console.log(key, result);
+
+                if (key.includes('land')) { // 地面
+                    build.name = build_name
+                    group.add(build);
+                } else {
+                    const result = getDividedFloor(build, build_name, material_lib_box, material_lib_clip);
+                    group.add(result);
+                }
             }
         }
 
-        console.log('materials', materials);
-
-        callback(group);
+        callback(group, material_lib_box, material_lib_clip);
     })
 }
 

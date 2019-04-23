@@ -24,6 +24,13 @@ $(function () {
         '南楼': undefined,
     };
 
+    // 建筑索引
+    const builds_map = {
+        '北楼': undefined,
+        '亭廊': undefined,
+        '南楼': undefined,
+    }
+
     // 房间划分
     const room_mesh_map = {
         '北楼': [],
@@ -118,6 +125,12 @@ $(function () {
     })
 
     // ======================= 触发函数 =======================
+    /**
+     * @name 相机移动至目标
+     * @param {*} start 起点指针
+     * @param {*} end 终点位置
+     * @param {boolean} instant 是否瞬间移动到
+     */
     const walkToTarget = (start, end, instant = false) => {
         const {
             position,
@@ -198,9 +211,9 @@ $(function () {
 
         // 设定镜头位置
         const new_position = new THREE.Vector3();
-        new_position.x = new_target.x - diagonal * 0.5;
+        new_position.x = new_target.x + diagonal * 0.5;
         new_position.y = new_target.y + diagonal * 0.5;
-        new_position.z = new_target.z + diagonal * 0.5;
+        new_position.z = new_target.z - diagonal * 0.5;
 
 
         const start = {
@@ -308,8 +321,7 @@ $(function () {
             const geometry = new THREE.ShapeGeometry(shape);
 
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.rotation.x = Math.PI / 2;
-            mesh.rotation.y = Math.PI;
+            mesh.rotation.x = -Math.PI / 2;
 
             // mesh.position.y = firstPoint.Z * scale + 5;
             mesh.position.y = floor_heights[buildName][floorIndex] * 1000 + 250;
@@ -757,7 +769,7 @@ $(function () {
 
         if (roomName == 'all') {
             clearHightLight();
-            const build = merge_builds[build_name]
+            const build = builds_map[build_name]
             for (const child of build.children) {
                 if (child.name == '楼层组') {
                     const floors = child.children;
@@ -1015,69 +1027,54 @@ $(function () {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 
         // clip平面
-        const clipPlanes = {
-            '北楼': [
-                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
-                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
-            ],
-            '亭廊': [
-                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
-                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
-            ],
-            '南楼': [
-                new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
-                new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
-            ],
-        }
+        const clipPlanes = [
+            new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
+            new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
+        ]
 
 
         const helpers = new THREE.Group();
         helpers.name = 'clip helpers'
         helpers.add(new THREE.AxesHelper(20));
-        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][0], 150000, 0xff0000));
-        helpers.add(new THREE.PlaneHelper(clipPlanes['南楼'][1], 150000, 0x00ff00));
+        helpers.add(new THREE.PlaneHelper(clipPlanes[0], 150000, 0xff0000));
+        helpers.add(new THREE.PlaneHelper(clipPlanes[1], 150000, 0x00ff00));
         helpers.visible = true;
         // scene.add(helpers);
 
         // 待解析的 revit 文件路径数组
         // const paths = ['./models/land.js'];
+        // const paths = [
+        //     './models/north.js',
+        //     './models/south.js',
+        //     './models/tinglang.js',
+        //     './models/land.js',
+        // ];
         const paths = [
-            './models/north.js',
-            './models/south.js',
-            './models/tinglang.js',
-            './models/land.js',
+            './models/north.FBX',
+            './models/south.FBX',
+            './models/west.FBX',
+            './models/land.FBX',
         ];
 
         // 解析 revit 文件
-        analysisRevit(paths, function (group) {
+        analysisRevit(paths, function (group, material_lib_box, material_lib_clip) {
             scene.add(group);
+
+            console.log('material_lib_box', material_lib_box);
+            console.log('material_lib_clip', material_lib_clip);
+            
+            for (const material of material_lib_clip) {
+                material.clippingPlanes = clipPlanes;
+                material.clipIntersection = false;
+            }
 
             // 遍历最外层 group, 获取三栋楼
             for (const child of group.children) {
                 const key = child.name;
-                merge_builds[key] = child;
-
-                // 遍历每栋楼，获取 clip 组与楼层组
-                for (const group of child.children) {
-                    if (group.name == 'clip组') {
-
-                        // 遍历 clip 组，获取融合 mesh 组与线框组
-                        for (const clip_item of group.children) {
-
-                            // 遍历融合 mesh 组与线框组，获取每个融合后的 mesh
-                            for (const mesh of clip_item.children) {
-                                const material = mesh.material;
-                                material.clippingPlanes = clipPlanes[key];
-                                material.clipIntersection = false;
-
-                                clip_material_map[key].push(material);
-                            }
-                        }
-                    }
-                }
+                builds_map[key] = child;
             }
 
-            walkToObjects(scene, true);
+            walkToObjects(group, true);
             console.log(scene);
 
             $('#loading').removeClass("active");
@@ -1100,10 +1097,9 @@ $(function () {
                     show_home_room_dom(); // 出现房间选择下拉界面
                 } else {
                     dom_room_clear(); // 收起房间下拉等多个界面
-                    for (const key in clipPlanes) {
-                        if (clipPlanes.hasOwnProperty(key)) {
-                            const plane_array = clipPlanes[key];
-                            initClipConstant(plane_array, merge_builds[key]);
+                    for (const key in builds_map) {
+                        if (builds_map.hasOwnProperty(key)) {
+                            initClipConstant(clipPlanes, builds_map[key]);
                         }
                     }
                 }
@@ -1112,13 +1108,13 @@ $(function () {
                     const target = [];
                     for (const active_build of $active_build) {
                         const active_build_name = $(active_build).attr('data-name');
-                        const build = merge_builds[active_build_name];
+                        const build = builds_map[active_build_name];
                         target.push(build);
                     }
                     walkToObjects(target);
                 }
 
-                merge_builds[key].visible = $(this).hasClass('active');
+                builds_map[key].visible = $(this).hasClass('active');
             });
 
             // 绑定楼层切换按钮
@@ -1137,11 +1133,10 @@ $(function () {
 
                 if ($active_build.length == 1) {
                     const active_build_name = $active_build.attr('data-name');
-                    const build = merge_builds[active_build_name];
-                    const plane_array = clipPlanes[active_build_name];
+                    const build = builds_map[active_build_name];
 
                     if (index == 'all') {
-                        initClipConstant(plane_array, build);
+                        initClipConstant(clipPlanes, build);
                         walkToObjects(build);
                     } else {
                         index = Number(index);
@@ -1153,16 +1148,15 @@ $(function () {
                         // 进行 clip 位置调整
                         const build_constant = floor_heights[active_build_name];
                         if (!build_constant[index]) {
-                            plane_array[0].constant = -10000 // 向下
+                            clipPlanes[0].constant = -10000 // 向下
                         } else {
                             const y_0 = build_constant[index + 1] * 1000;
                             const y_1 = build_constant[index] * 1000;
 
-                            plane_array[0].constant = y_0 - 1 // 向下
-                            plane_array[1].constant = -y_1 + 1 // 向上
+                            clipPlanes[0].constant = y_0 - 1 // 向下
+                            clipPlanes[1].constant = -y_1 + 1 // 向上
                         }
 
-                        // console.log(key, plane_array);
 
                         const floor_index = index + 1;
                         // 遍历获取每栋楼的楼层组
@@ -1198,7 +1192,6 @@ $(function () {
             // console.log('data', data);
             const roomGroup = new THREE.Group();
             roomGroup.name = '房间地面组';
-            // roomGroup.visible = false;
             scene.add(roomGroup);
 
             for (const key in data) {
