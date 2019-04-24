@@ -1131,7 +1131,7 @@ $(function () {
                 } else if (material.name == '金属-铝合金窗框') {
                     material.color.set('rgb(34, 34, 34)');
                 } else if (material.name == '') {
-                    material.color.set('rgb(252, 251, 242)');
+                    // material.color.set('rgb(252, 251, 242)');
                 } else if (material.name == 'BIAD_金属_钢') {
                     
                 } else if (material.name == 'Concrete - Cast-in-Place Concrete') {
