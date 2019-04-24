@@ -1091,16 +1091,16 @@ $(function () {
         analysisRevit(paths, function (group, material_lib_box, material_lib_clip) {
             scene.add(group);
 
-            console.log('material_lib_box', material_lib_box);
-            console.log('material_lib_clip', material_lib_clip);
-
             for (const material of material_lib_clip) {
                 material.clippingPlanes = clipPlanes;
                 material.clipIntersection = false;
             }
 
+            const all_material = material_lib_box.concat(material_lib_clip);
+            console.log('all_material', all_material);
+
             const texture_loader = new THREE.TextureLoader();
-            for (const material of material_lib_box) {
+            for (const material of all_material) {
                 if (material.name == "住建局外墙贴面（白）") {
                     texture_loader.load('../img/brick.png', function(texture) {
                         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -1108,6 +1108,44 @@ $(function () {
                         material.map = texture;
                         material.needsUpdate = true;
                     })
+                } else if (material.name.includes('玻璃') || material.name == 'boli') {
+                    material.transparent = true;
+                    material.opacity = 0.3;
+                    material.color.set('rgb(34, 34, 66)');
+                } else if (material.name == '30厚SF-IIID底层防水砂浆') {
+                    material.color.setRGB(0.9, 0.9, 0.9);
+                } else if (material.name == '默认墙') {
+                    material.color.setRGB(0.7, 0.7, 0.7);
+                } else if (material.name == '松散-石膏板') {
+                    
+                } else if (material.name == 'BIAD_金属-钢-深灰色') {
+                    
+                } else if (material.name == '木材') {
+                    
+                } else if (material.name == 'Generic') {
+                    
+                } else if (material.name == '默认楼板') {
+                    
+                } else if (material.name == '金属') {
+                    
+                } else if (material.name == '金属-铝合金窗框') {
+                    material.color.set('rgb(34, 34, 34)');
+                } else if (material.name == '') {
+                    material.color.set('rgb(252, 251, 242)');
+                } else if (material.name == 'BIAD_金属_钢') {
+                    
+                } else if (material.name == 'Concrete - Cast-in-Place Concrete') {
+                    
+                } else if (material.name == '混凝土 - 现场浇注混凝土') {
+                    
+                } else if (material.name == '电梯门') {
+                    
+                } else if (material.name == '门 - 框架') {
+                    
+                } else if (material.name == '12-20厚DS砂浆抹面，每3mx3m分缝，缝宽10-15，缝内填密封膏') {
+                    
+                } else if (material.name == '金属-铝-白色') {
+                    
                 }
             }
 
@@ -1339,6 +1377,17 @@ $(function () {
 
                 if (intersects.length > 0) {
                     mousedown_point = intersects[0].point;
+                }
+            })
+
+            // 测试用捕捉射线
+            $(container).on('mousedown', '>canvas', function (event) {
+                const raycaster = getRaycaster(event);
+                const intersects = raycaster.intersectObjects([scene], true);
+
+                if (intersects.length > 0) {
+                    mesh = intersects[0].object;
+                    console.log('mesh', mesh);
                 }
             })
 

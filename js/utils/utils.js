@@ -95,6 +95,9 @@ const correctUv = (mesh) => {
     g.faceVertexUvs = [
         []
     ]
+
+    const imageSize = 300;
+
     for (var i = 0; i < faceLength; i++) { //遍历每个面
         for (var z = 0; z < 3; z++) { //三角形
             var a = "";
@@ -109,9 +112,9 @@ const correctUv = (mesh) => {
             ])
             switch (shortest) {
                 case 'x':
-                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].z - box.min.z) / 2000;
+                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].z - box.min.z) / imageSize;
                     // g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
-                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / 2000);
+                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / imageSize);
                     break;
                 // case 'y':
                 //     g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / (detaX);
@@ -119,8 +122,8 @@ const correctUv = (mesh) => {
                 //     break;
                 default:
                     console.log()
-                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / 2000;
-                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / 2000);
+                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / imageSize;
+                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / imageSize);
 
             }
         }
