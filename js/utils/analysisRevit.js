@@ -62,6 +62,10 @@ const divideGroup = (group, meshes, line_material, material_lib) => {
         if (mesh instanceof THREE.Mesh) {
             mesh_group.add(mesh);
 
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            correctUv(mesh);
+
             const geometry = new THREE.EdgesGeometry(mesh.geometry, 30);
             mesh.updateMatrixWorld();
             geometry.applyMatrix(mesh.matrixWorld);
@@ -252,7 +256,8 @@ const analysisRevit = (paths, callback) => {
                 }
 
                 if (key.includes('land')) { // 地面
-                    build.name = build_name
+                    build.name = build_name;
+                    build.children[0].receiveShadow = true;
                     group.add(build);
                 } else {
                     const result = getDividedFloor(build, build_name, material_lib_box, material_lib_clip);

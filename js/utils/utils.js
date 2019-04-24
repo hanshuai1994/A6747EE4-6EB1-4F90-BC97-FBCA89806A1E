@@ -53,6 +53,83 @@ function merge_obj_children(array) { //merge外部导入模型的同材质到一
     return group;
 }
 
+/**
+ * @name 修正uv
+ * @param {*} mesh 
+ */
+const correctUv = (mesh) => {
+    let g = mesh.geometry;
+
+    // 抽离出旋转矩阵
+    const matrix = new THREE.Matrix4();
+    mesh.updateMatrixWorld();
+    matrix.extractRotation(mesh.matrixWorld);
+
+    // 对顶点进行旋转矩阵变换，并将旋转归零
+    g.applyMatrix(matrix);
+    mesh.rotation.set(0, 0, 0);
+
+
+    if (!g.faceVertexUvs) {
+        g = new THREE.Geometry().fromBufferGeometry(g)
+    }
+
+    // console.log(g)
+    g.computeBoundingBox();
+    var box = g.boundingBox;
+    var detaX = box.max.x - box.min.x;
+    var detaY = box.max.y - box.min.y;
+    var detaZ = box.max.z - box.min.z;
+
+    let shortest;
+    if (detaZ < detaX && detaZ < detaY)
+        shortest = 'z'
+    if (detaY < detaX && detaY < detaZ)
+        shortest = 'y'
+    if (detaX < detaZ && detaX < detaY)
+        shortest = 'x'
+
+    var faceLength = g.faces.length; //面数
+    var v = g.vertices; //顶点数组
+    //核心部分，修正uv坐标
+    g.faceVertexUvs = [
+        []
+    ]
+    for (var i = 0; i < faceLength; i++) { //遍历每个面
+        for (var z = 0; z < 3; z++) { //三角形
+            var a = "";
+            if (z == 0) a = "a";
+            if (z == 1) a = "b";
+            if (z == 2) a = "c";
+
+            g.faceVertexUvs[0].push([
+                new THREE.Vector2(), 
+                new THREE.Vector2(),
+                new THREE.Vector2()
+            ])
+            switch (shortest) {
+                case 'x':
+                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].z - box.min.z) / 2000;
+                    // g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
+                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / 2000);
+                    break;
+                // case 'y':
+                //     g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / (detaX);
+                //     g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
+                //     break;
+                default:
+                    console.log()
+                    g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / 2000;
+                    g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / 2000);
+
+            }
+        }
+    }
+    g.uvsNeedUpdate = true;
+    g.needsUpdate = true;
+    mesh.geometry = g;
+}
+
 // 补全时间
 const fixTime = (num) => {
     if (num < 10) {

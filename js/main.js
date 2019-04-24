@@ -1001,6 +1001,8 @@ $(function () {
         });
         renderer.setSize(width, height);
         renderer.localClippingEnabled = true;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         // renderer.logarithmicDepthBuffer = true;
 
         container.appendChild(renderer.domElement);
@@ -1010,19 +1012,48 @@ $(function () {
 
         ambient = new THREE.AmbientLight(0xffffff);
         scene.add(ambient);
-        directional = new THREE.DirectionalLight(0xffffff, 0.1);
+        directional = new THREE.DirectionalLight(0xffffff, 0.5);
         directional.position.set(0, 1, 0);
-        directional.castShadow = true;
-        directional.shadow.mapSize.width = 2048;
-        directional.shadow.mapSize.height = 2048;
-        var d = 10000;
-        directional.shadow.mapSize.left = -d;
-        directional.shadow.mapSize.right = d;
-        directional.shadow.mapSize.top = d * 2;
-        directional.shadow.mapSize.bottom = -d * 2;
-        directional.shadow.mapSize.near = 1000;
-        directional.shadow.mapSize.far = 20000;
-        scene.add(directional);
+        // directional.castShadow = true;
+        // directional.shadow.mapSize.width = 2048;
+        // directional.shadow.mapSize.height = 2048;
+        // // directional.shadow.bias = 0.0001;
+        // var d = 500;
+        // directional.shadow.mapSize.left = -d;
+        // directional.shadow.mapSize.right = d;
+        // directional.shadow.mapSize.top = d;
+        // directional.shadow.mapSize.bottom = -d;
+        // directional.shadow.camera.near = 1;
+        // directional.shadow.camera.far = 1000;
+        // directional.shadow.camera.zoom = 0.1;
+        // // directional.shadow.camera.updateProjectionMatrix();
+        // scene.add(directional);
+
+        // var helper = new THREE.DirectionalLightHelper( directional, 50 );
+
+        // scene.add( helper );
+
+        // let cube_geometry = new THREE.BoxGeometry(50, 50, 50);
+        // let cube_material = new THREE.MeshPhongMaterial({
+        //     color: 0x00ff00
+        // });
+        // let cube = new THREE.Mesh(cube_geometry, cube_material);
+        // cube.position.y = 100;
+        // cube.castShadow = true;
+        // // cube.receiveShadow = true;
+        // scene.add(cube)
+
+        // const plane_geometry = new THREE.PlaneGeometry(500, 500, 20, 20);
+        // const plane_Material = new THREE.MeshPhongMaterial({
+        //     color: 0x00ff00
+        // });
+        // plane_Material.specular = new THREE.Color('#eeeeee');
+        // const plane = new THREE.Mesh(plane_geometry, plane_Material);
+        // plane.rotation.x = -Math.PI / 2;
+        // // plane.position.y = 100;
+        // // plane.castShadow = true;
+        // plane.receiveShadow = true;
+        // scene.add(plane)
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 
@@ -1062,10 +1093,22 @@ $(function () {
 
             console.log('material_lib_box', material_lib_box);
             console.log('material_lib_clip', material_lib_clip);
-            
+
             for (const material of material_lib_clip) {
                 material.clippingPlanes = clipPlanes;
                 material.clipIntersection = false;
+            }
+
+            const texture_loader = new THREE.TextureLoader();
+            for (const material of material_lib_box) {
+                if (material.name == "住建局外墙贴面（白）") {
+                    texture_loader.load('../img/brick.png', function(texture) {
+                        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+                        material.map = texture;
+                        material.needsUpdate = true;
+                    })
+                }
             }
 
             // 遍历最外层 group, 获取三栋楼
@@ -1075,6 +1118,7 @@ $(function () {
             }
 
             walkToObjects(group, true);
+            // walkToObjects(scene, true);
             console.log(scene);
 
             $('#loading').removeClass("active");
