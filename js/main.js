@@ -3,7 +3,7 @@ $(function () {
     // ======================= 定义变量 =======================
     var camera, scene, renderer;
     var controls;
-    var ambient, directional;
+    let ambient, directional, pointLight;
     let container;
 
     let mousedown_point;
@@ -1013,8 +1013,8 @@ $(function () {
 
         ambient = new THREE.AmbientLight(0xffffff);
         scene.add(ambient);
-        directional = new THREE.DirectionalLight(0xffffff, 0.5);
-        directional.position.set(0, 1, 0);
+        // directional = new THREE.DirectionalLight(0xffffff, 0.5);
+        // directional.position.set(0, 1, 0);
         // directional.castShadow = true;
         // directional.shadow.mapSize.width = 2048;
         // directional.shadow.mapSize.height = 2048;
@@ -1033,7 +1033,20 @@ $(function () {
         // var helper = new THREE.DirectionalLightHelper( directional, 50 );
 
         // scene.add( helper );
+        let lightFar = 200000
+        pointLight = new THREE.PointLight(0xffffff, 1, lightFar);
+        pointLight.position.set(-100000, 100000, 100000);
+        pointLight.castShadow = true; // default false
+        scene.add(pointLight);
 
+        // var sphereSize = 100;
+        // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize, '#FF0000');
+        // scene.add( pointLightHelper );
+
+        pointLight.shadow.mapSize.width = 2048;  // default
+        pointLight.shadow.mapSize.height = 2048; // default
+        pointLight.shadow.camera.near = 0.5;       // default
+        pointLight.shadow.camera.far = lightFar      // default
         // let cube_geometry = new THREE.BoxGeometry(50, 50, 50);
         // let cube_material = new THREE.MeshPhongMaterial({
         //     color: 0x00ff00
