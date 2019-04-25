@@ -89,6 +89,10 @@ canvas {
   color: #484848;
   margin-top: 20px;
 }
+#loading > .progress {
+  margin-top: 20px;
+  width: 50%;
+}
 .build-tab {
   display: flex;
   width: 100%;
