@@ -17,6 +17,8 @@ $(function () {
     const raycaster = new THREE.Raycaster(); //射线
     const mouse = new THREE.Vector2(); //鼠标位置
 
+    const scale_rate = 0.01;
+
     // merge 后的建筑组索引
     const merge_builds = {
         '北楼': undefined,
@@ -157,11 +159,11 @@ $(function () {
             target.copy(new_target);
         } else {
             const tween_p = new TWEEN.Tween(position);
-            tween_p.to(new_position, max_distance / 40).start();
+            tween_p.to(new_position, max_distance / 40 / scale_rate).start();
 
             // 更新控制器target
             const tween_t = new TWEEN.Tween(target);
-            tween_t.to(new_target, max_distance / 40).start();
+            tween_t.to(new_target, max_distance / 40 / scale_rate).start();
         }
     };
 
@@ -994,6 +996,7 @@ $(function () {
         // console.log('height', height);
 
         scene = new THREE.Scene();
+        scene.scale.set(scale_rate, scale_rate, scale_rate);
 
         renderer = new THREE.WebGLRenderer({
             antialias: true,
@@ -1108,30 +1111,26 @@ $(function () {
                         material.map = texture;
                         material.needsUpdate = true;
                     })
-                } else if (material.name.includes('玻璃') || material.name == 'boli') {
+                } else if (material.name.includes('玻璃') || material.name == 'boli' || material.name == 'mesh_系统嵌板1') {
                     material.transparent = true;
                     material.opacity = 0.3;
-                    material.color.set('rgb(34, 34, 66)');
-                } else if (material.name == '30厚SF-IIID底层防水砂浆') {
+                    material.color.set('rgb(34, 34, 100)');
+                } else if (material.name == '30厚SF-IIID底层防水砂浆' || material.name == '默认楼板') {
                     material.color.setRGB(0.9, 0.9, 0.9);
                 } else if (material.name == '默认墙') {
                     material.color.setRGB(0.7, 0.7, 0.7);
                 } else if (material.name == '松散-石膏板') {
-                    
+                    material.color.set('rgb(239, 239, 239)');
                 } else if (material.name == 'BIAD_金属-钢-深灰色') {
-                    
+                    material.color.set('rgb(239, 239, 239)');
                 } else if (material.name == '木材') {
-                    
+                    material.color.set('rgb(200, 162, 126)');
                 } else if (material.name == 'Generic') {
                     
-                } else if (material.name == '默认楼板') {
-                    
                 } else if (material.name == '金属') {
-                    
+                    material.color.set('rgb(200, 200, 200)');
                 } else if (material.name == '金属-铝合金窗框') {
                     material.color.set('rgb(34, 34, 34)');
-                } else if (material.name == '') {
-                    // material.color.set('rgb(252, 251, 242)');
                 } else if (material.name == 'BIAD_金属_钢') {
                     
                 } else if (material.name == 'Concrete - Cast-in-Place Concrete') {
@@ -1146,6 +1145,10 @@ $(function () {
                     
                 } else if (material.name == '金属-铝-白色') {
                     
+                } else if (material.name == 'mesh_Basic') {
+                    
+                } else if (material.name == 'mesh_矩形钢管柱1') {
+                    material.color.set('rgb(160, 167, 173)');
                 }
             }
 
@@ -1230,10 +1233,10 @@ $(function () {
                         // 进行 clip 位置调整
                         const build_constant = floor_heights[active_build_name];
                         if (!build_constant[index]) {
-                            clipPlanes[0].constant = -10000 // 向下
+                            clipPlanes[0].constant = -10000 * scale_rate // 向下
                         } else {
-                            const y_0 = build_constant[index + 1] * 1000;
-                            const y_1 = build_constant[index] * 1000;
+                            const y_0 = build_constant[index + 1] * 1000 * scale_rate;
+                            const y_1 = build_constant[index] * 1000 * scale_rate;
 
                             clipPlanes[0].constant = y_0 - 1 // 向下
                             clipPlanes[1].constant = -y_1 + 1 // 向上

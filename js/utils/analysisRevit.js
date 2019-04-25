@@ -1,5 +1,16 @@
 
 /**
+ * @name 以mesh的name作为材质的name
+ * @param {*} material 
+ * @param {*} mesh 
+ */
+const addMaterialName = (material, mesh) => {
+    let str_arr = mesh.name.split('_');
+    let new_name = 'mesh_' + str_arr[0];
+    material.name = new_name;
+}
+
+/**
  * @name 统一材质
  * @param {array} material_lib 材质库
  * @param {array | object} mesh 匹配的 mesh
@@ -11,19 +22,26 @@ const unifyMaterial = (material_lib, mesh) => {
         const length = mesh_materials.length;
         outer:
             for (let i = 0; i < length; i++) { // 遍历自身的材质
+                // 材质没有名字时，为材质附加mesh的名字
+                if (mesh_materials[i].name =='') {
+                    addMaterialName(mesh_materials[i], mesh);
+                }
+
                 for (const material of material_lib) { // 遍历材质库内的材质
                     if (mesh_materials[i].name == material.name) { // 当在材质库中找到相等的材质时
                         mesh_materials[i] = material; // 替换为材质库内的材质
                         continue outer // 调到下一次循环
                     }
                 }
-                if (mesh_materials[i].name =='') {
-                    console.log('mesh', mesh);
-                }
                 material_lib.push(mesh_materials[i]); // 在材质库中未找到，则放入材质库
             }
     } else {
         let has_material = false;
+
+        // 材质没有名字时，为材质附加mesh的名字
+        if (mesh_materials.name =='') {
+            addMaterialName(mesh_materials, mesh);
+        }
 
         for (const material of material_lib) { // 遍历材质库内的材质
             if (mesh_materials.name == material.name) { // 当在材质库中找到相等的材质时
@@ -34,9 +52,6 @@ const unifyMaterial = (material_lib, mesh) => {
         }
 
         if (!has_material) {
-            if (mesh_materials.name =='') {
-                console.log('mesh', mesh);
-            }
             material_lib.push(mesh_materials); // 在材质库中未找到，则放入材质库
         }
     }
@@ -104,6 +119,18 @@ const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip)
     for (const mesh of build.children) {
         // 遍历获取所有 mesh
         if (mesh instanceof THREE.Mesh && mesh.geometry) {
+            if (mesh.name.includes('Floor_ZJKJ_楼地面_钢筋混凝土')) {
+                mesh.scale.set(0.99, 0.99, 0.99);
+            }
+
+            if (
+                mesh.name.includes('ZJKJ_结构梁_矩形_C30_') || 
+                mesh.name.includes('Basic_Wall_ZJKJ_砌体墙（内墙）_砌块_') ||
+                mesh.name.includes('ZJKJ_结构柱_矩形_C30_')
+            ) {
+                mesh.scale.set(1.01, 1.01, 1.01);
+            }
+
             if (
                 mesh.name.includes('2144203') || // 北楼楼梯柱子
                 mesh.name.includes('2243475') || // 柱 1
@@ -134,8 +161,8 @@ const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip)
                     objects.floor[i] = [];
                 }
 
-                const floor_height = build_heights[i] * 1000;
-                const next_height = build_heights[i + 1] * 1000;
+                const floor_height = build_heights[i] * 1000 - 120;
+                const next_height = build_heights[i + 1] * 1000 - 120;
 
                 if (center.y >= floor_height && center.y < next_height) {
                     objects.floor[i].push(mesh);
@@ -224,7 +251,10 @@ const analysisRevit = (paths, callback) => {
                             loaded_all += loaded_map[key];
                         }
 
-                        $('#loading>.text').text(`载入中...${parseInt((loaded_all / total * 100))}%`)
+                        const range = `${parseInt((loaded_all / total * 100))}%`
+                        $('#loading>.progress>.progress-bar').css('width', range).text(range);
+
+                        // $('#loading>.text').text(range);
                     } else {
                         total += xhr.total;
                     }
