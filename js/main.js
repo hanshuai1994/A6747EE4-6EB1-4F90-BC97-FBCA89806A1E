@@ -17,7 +17,7 @@ $(function () {
     const raycaster = new THREE.Raycaster(); //射线
     const mouse = new THREE.Vector2(); //鼠标位置
 
-    const scale_rate = 0.01;
+    const scale_rate = 0.001;
 
     // merge 后的建筑组索引
     const merge_builds = {
@@ -233,6 +233,15 @@ $(function () {
 
     // 视角移动到 room 上
     const walkToRoom = (mesh) => {
+        // 记录控制器当前相机位置和 target
+        const position = controls.object.position;
+        const target = controls.target;
+
+        if (!position_m) {
+            position_m = position.clone();
+            target_m = target.clone();
+        }
+
         // 清除地板高亮
         clearHightLight();
 
@@ -242,35 +251,24 @@ $(function () {
         const box3 = new THREE.Box3();
         box3.expandByObject(mesh);
 
-        const center = box3.getCenter(new THREE.Vector3());
-        center.y += 1500;
-
-        // 获取控制器当前相机位置和 target
-        const position = controls.object.position;
-        const target = controls.target;
-
-        if (!position_m) {
-            position_m = position.clone();
-            target_m = target.clone();
-        }
-
-        // 计算出控制器相机移动的目标位置
-        const new_position = center.clone();
+        // 移动后控制器的 target
+        const new_target = box3.getCenter(new THREE.Vector3());
 
         // 计算相机位置指向target的方向
         const direction = new THREE.Vector3();
-        direction.x = target.x - position.x;
-        direction.y = target.y - position.y;
-        direction.z = target.z - position.z;
+        direction.x = position.x - target.x;
+        direction.y = position.y - target.y;
+        direction.z = position.z - target.z;
         direction.normalize();
 
-        const offset = 100; // 移动后 target 与相机的距离
+        const offset = 12000 * scale_rate; // 移动后 target 与相机的距离
 
-        // 计算出控制器 target 移动的目标
-        const new_target = new THREE.Vector3();
-        new_target.x = direction.x * offset + new_position.x;
-        new_target.y = direction.y * offset + new_position.y;
-        new_target.z = direction.z * offset + new_position.z;
+        // 移动后的相机位置
+        const new_position = new THREE.Vector3();
+        new_position.x = direction.x * offset + new_target.x;
+        new_position.y = offset + new_target.y;
+        new_position.z = direction.z * offset + new_target.z;
+
 
         const start = {
             position,
@@ -315,8 +313,8 @@ $(function () {
             const firstPoint = array[0];
             shape.lineTo(firstPoint.X * scale, firstPoint.Y * scale);
 
-            const material = new THREE.MeshBasicMaterial({
-                color: 0x00ff00,
+            const material = new THREE.MeshPhongMaterial({
+                color: '#324157',
                 transparent: true,
                 opacity: 0,
             });
@@ -1059,6 +1057,7 @@ $(function () {
         // scene.add(plane)
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.maxPolarAngle = Math.PI / 2;
 
         // clip平面
         const clipPlanes = [
@@ -1105,7 +1104,7 @@ $(function () {
             const texture_loader = new THREE.TextureLoader();
             for (const material of all_material) {
                 if (material.name == "住建局外墙贴面（白）") {
-                    texture_loader.load('../img/brick.png', function(texture) {
+                    texture_loader.load('../img/brick.png', function (texture) {
                         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
                         material.map = texture;
@@ -1126,27 +1125,27 @@ $(function () {
                 } else if (material.name == '木材') {
                     material.color.set('rgb(200, 162, 126)');
                 } else if (material.name == 'Generic') {
-                    
+
                 } else if (material.name == '金属') {
                     material.color.set('rgb(200, 200, 200)');
                 } else if (material.name == '金属-铝合金窗框') {
                     material.color.set('rgb(34, 34, 34)');
                 } else if (material.name == 'BIAD_金属_钢') {
-                    
+
                 } else if (material.name == 'Concrete - Cast-in-Place Concrete') {
-                    
+
                 } else if (material.name == '混凝土 - 现场浇注混凝土') {
-                    
+
                 } else if (material.name == '电梯门') {
-                    
+
                 } else if (material.name == '门 - 框架') {
-                    
+
                 } else if (material.name == '12-20厚DS砂浆抹面，每3mx3m分缝，缝宽10-15，缝内填密封膏') {
-                    
+
                 } else if (material.name == '金属-铝-白色') {
-                    
+
                 } else if (material.name == 'mesh_Basic') {
-                    
+
                 } else if (material.name == 'mesh_矩形钢管柱1') {
                     material.color.set('rgb(160, 167, 173)');
                 }
