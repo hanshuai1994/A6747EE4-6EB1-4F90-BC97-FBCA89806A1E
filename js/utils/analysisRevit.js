@@ -77,8 +77,10 @@ const divideGroup = (group, meshes, line_material, material_lib) => {
         if (mesh instanceof THREE.Mesh) {
             mesh_group.add(mesh);
 
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
+            if (!mesh.name.includes('窗')) {
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+            }
             correctUv(mesh);
 
             const geometry = new THREE.EdgesGeometry(mesh.geometry, 30);
@@ -287,6 +289,7 @@ const analysisRevit = (paths, callback) => {
                 if (key.includes('land')) { // 地面
                     build.name = build_name;
                     build.children[0].receiveShadow = true;
+                    build.children[0].scale.set(2, 2, 1);
                     group.add(build);
                 } else {
                     const result = getDividedFloor(build, build_name, material_lib_box, material_lib_clip);
