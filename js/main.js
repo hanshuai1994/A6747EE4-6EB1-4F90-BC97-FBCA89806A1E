@@ -265,9 +265,9 @@ $(function () {
 
         // 移动后的相机位置
         const new_position = new THREE.Vector3();
-        new_position.x = direction.x * offset + new_target.x;
+        new_position.x = direction.x * 1 + new_target.x;
         new_position.y = offset + new_target.y;
-        new_position.z = direction.z * offset + new_target.z;
+        new_position.z = direction.z * 1 + new_target.z;
 
 
         const start = {
@@ -1035,7 +1035,7 @@ $(function () {
         // scene.add( helper );
         let lightFar = 200000
         pointLight = new THREE.PointLight(0xffffff, 1, lightFar);
-        pointLight.position.set(-100000, 100000, 100000);
+        pointLight.position.set(-10000, 100000, 10000);
         pointLight.castShadow = true; // default false
         scene.add(pointLight);
 
@@ -1043,31 +1043,10 @@ $(function () {
         // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize, '#FF0000');
         // scene.add( pointLightHelper );
 
-        pointLight.shadow.mapSize.width = 2048;  // default
-        pointLight.shadow.mapSize.height = 2048; // default
-        pointLight.shadow.camera.near = 0.5;       // default
-        pointLight.shadow.camera.far = lightFar      // default
-        // let cube_geometry = new THREE.BoxGeometry(50, 50, 50);
-        // let cube_material = new THREE.MeshPhongMaterial({
-        //     color: 0x00ff00
-        // });
-        // let cube = new THREE.Mesh(cube_geometry, cube_material);
-        // cube.position.y = 100;
-        // cube.castShadow = true;
-        // // cube.receiveShadow = true;
-        // scene.add(cube)
-
-        // const plane_geometry = new THREE.PlaneGeometry(500, 500, 20, 20);
-        // const plane_Material = new THREE.MeshPhongMaterial({
-        //     color: 0x00ff00
-        // });
-        // plane_Material.specular = new THREE.Color('#eeeeee');
-        // const plane = new THREE.Mesh(plane_geometry, plane_Material);
-        // plane.rotation.x = -Math.PI / 2;
-        // // plane.position.y = 100;
-        // // plane.castShadow = true;
-        // plane.receiveShadow = true;
-        // scene.add(plane)
+        pointLight.shadow.mapSize.width = 1024;
+        pointLight.shadow.mapSize.height = 1024;
+        pointLight.shadow.camera.near = 0.5;
+        pointLight.shadow.camera.far = lightFar;
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.maxPolarAngle = Math.PI / 2;
@@ -1250,8 +1229,8 @@ $(function () {
                             const y_0 = build_constant[index + 1] * 1000 * scale_rate;
                             const y_1 = build_constant[index] * 1000 * scale_rate;
 
-                            clipPlanes[0].constant = y_0 - 1 // 向下
-                            clipPlanes[1].constant = -y_1 + 1 // 向上
+                            clipPlanes[0].constant = y_0 // 向下
+                            clipPlanes[1].constant = -y_1 // 向上
                         }
 
 
