@@ -13,10 +13,10 @@
 <body>
 	<!-- 主菜单 -->
 	<ul class="tab-menu" id="top-menu">
-		<li class="home active">
+		<li class="home ">
 			<a href="#tab-home" data-toggle="tab">首页</a>
 		</li>
-		<li class="statistics ">
+		<li class="statistics active">
 			<a href="#tab-statistics" data-toggle="tab">能耗统计</a>
 		</li>
 		<li class="manage ">
@@ -29,7 +29,8 @@
 
 	<!-- 主体容器 -->
 	<div class="tab-content" id="main-container">
-		<div class="tab-pane active" id="tab-home">
+		<!-- 首页 -->
+		<div class="tab-pane " id="tab-home">
 			<!-- 加载容器 -->
 			<div id="loading" class="active">
 				<img src="./img/loading.gif" alt="">
@@ -311,8 +312,9 @@
 				<div class="init-btn">复原</div>
 			</div>
 		</div>
-		<div class="tab-pane " id="tab-statistics">
-			<div class="water-box">
+		<!-- 能耗统计 -->
+		<div class="tab-pane active" id="tab-statistics">
+			<!-- <div class="water-box">
 				<div class="title">水表</div>
 				<div class="content">
 					<div class="info">
@@ -371,8 +373,29 @@
 					</div>
 					<div class="chart"></div>
 				</div>
+			</div> -->
+			<ul class="tab-menu">
+				<li class="electric active">
+					<a href="#tab-electric" data-toggle="tab">能耗</a>
+				</li>
+				<li class="water ">
+					<a href="#tab-water" data-toggle="tab">水耗</a>
+				</li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="tab-electric">
+					<div class="chart-1 active"></div>
+					<div class="chart-2 "></div>
+					<div class="chart-3 "></div>
+				</div>
+				<div class="tab-pane " id="tab-water">
+					<div class="chart-1 active"></div>
+					<div class="chart-2 "></div>
+					<div class="chart-3 "></div>
+				</div>
 			</div>
 		</div>
+		<!-- 运维管理 -->
 		<div class="tab-pane " id="tab-manage">
 			<div class="operate-menu">
 				<div class="build-tab">
@@ -507,6 +530,7 @@
 				</div>
 			</div>
 		</div>
+		<!-- 监控系统 -->
 		<!-- <div class="tab-pane" id="tab-monitor"></div> -->
 	</div>
 

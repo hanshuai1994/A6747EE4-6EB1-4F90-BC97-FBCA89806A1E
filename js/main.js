@@ -1444,4 +1444,102 @@ $(function () {
 
         renderer.setSize(width, height);
     })
+
+
+    // 登录
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
+    //     data: {
+    //         LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
+    //         ParamList: ''
+    //     },
+    //     success: function (res) {
+    //         const text = $(res).find('string').text();
+    //         const data = JSON.parse(text);
+    //         console.log('data', data);
+    //         const token = data.Data[0].Token;
+    //         console.log('token', token);
+
+    //         // 当前抄表数据
+    //         $.ajax({
+    //             type: 'POST',
+    //             url: 'http://39.108.12.65:5713/DefaultAPI.asmx/ReadMeter',
+    //             data: {
+    //                 LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+    //                 ParamList: '{"MeterAddr":"101902174225","ReadType":"1","FreezeDate":""}'
+    //             },
+    //             success: function(res) {
+    //                 console.log('res', res);
+    //                 const text = $(res).find('string').text();
+    //                 const data = JSON.parse(text);
+    //                 console.log('当前抄表数据data', data);
+    //             },
+    //             error: function (err) {
+    //                 console.log('err', err);
+    //             }
+    //         })
+
+    //         // 历史抄表数据
+    //         $.ajax({
+    //             type: 'POST',
+    //             url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
+    //             data: {
+    //                 LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+    //                 ParamList: '{"DataType":"2","MeterAddr":"101811200913","BeginDate":"2019-4-1","EndDate":"2019-4-26","PageSize":"100000"}'
+    //             },
+    //             success: function (res) {
+    //                 console.log('res', res);
+    //                 const text = $(res).find('string').text();
+    //                 const data = JSON.parse(text);
+    //                 console.log('历史抄表数据data', data);
+    //             },
+    //             error: function (err) {
+    //                 console.log('err', err);
+    //             }
+    //         })
+    //     },
+    //     error: function (err) {
+    //         console.log('err', err);
+    //     }
+    // })
+
+    // 当前抄表数据
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/ReadMeter',
+    //     data: {
+    //         LoginInfo: `{"Code":"admin","Token":"3G6NfyQ2+2nZKTSrZFxZ5Q=="}`,
+    //         // ParamList: '{"MeterAddr":"101902174225","ReadType":"1","FreezeDate":""}'
+    //         ParamList: '{"MeterAddr":"101902174225","ReadType":"2","FreezeDate":"2019-04-25"}'
+    //     },
+    //     success: function (res) {
+    //         console.log('当前抄表数据res', res);
+    //         const text = $(res).find('string').text();
+    //         const data = JSON.parse(text);
+    //         console.log('当前抄表数据data', data);
+    //     },
+    //     error: function (err) {
+    //         console.log('err', err);
+    //     }
+    // })
+
+    // 历史抄表数据
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
+    //     data: {
+    //         LoginInfo: `{"Code":"admin","Token":"3G6NfyQ2+2nZKTSrZFxZ5Q=="}`,
+    //         ParamList: '{"DataType":"2","MeterAddr":"","BeginDate":"2019-04-01","EndDate":"2019-04-26","PageSize":"100000"}'
+    //     },
+    //     success: function (res) {
+    //         console.log('历史抄表数据res', res);
+    //         const text = $(res).find('string').text();
+    //         const data = JSON.parse(text);
+    //         console.log('历史抄表数据data', data);
+    //     },
+    //     error: function (err) {
+    //         console.log('err', err);
+    //     }
+    // })
 })
