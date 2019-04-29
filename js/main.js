@@ -1075,10 +1075,10 @@ $(function () {
         //     './models/land.js',
         // ];
         const paths = [
-            './models/north.FBX',
-            './models/south.FBX',
-            './models/west.FBX',
-            './models/land.FBX',
+            './models/north.toolkipBIM',
+            './models/south.toolkipBIM',
+            './models/west.toolkipBIM',
+            './models/land.toolkipBIM',
         ];
 
         // 解析 revit 文件
@@ -1446,12 +1446,12 @@ $(function () {
     })
 
     $('#top-menu a[data-toggle="tab"]').on('show.bs.tab', function(event) {
-        console.log('this', this);
+        // console.log('this', this);
         if ($(this).parent().hasClass('home')) {
-            console.log('首页 开启渲染');
+            // console.log('首页 开启渲染');
             animate();
         } else {
-            console.log('其他页 停止渲染');
+            // console.log('其他页 停止渲染');
             window.cancelAnimationFrame(idM)
         }
     })
