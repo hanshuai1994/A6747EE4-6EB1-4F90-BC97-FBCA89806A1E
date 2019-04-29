@@ -13,10 +13,10 @@
 <body>
 	<!-- 主菜单 -->
 	<ul class="tab-menu" id="top-menu">
-		<li class="home ">
+		<li class="home active">
 			<a href="#tab-home" data-toggle="tab">首页</a>
 		</li>
-		<li class="statistics active">
+		<li class="statistics ">
 			<a href="#tab-statistics" data-toggle="tab">能耗统计</a>
 		</li>
 		<li class="manage ">
@@ -30,7 +30,7 @@
 	<!-- 主体容器 -->
 	<div class="tab-content" id="main-container">
 		<!-- 首页 -->
-		<div class="tab-pane " id="tab-home">
+		<div class="tab-pane active" id="tab-home">
 			<!-- 加载容器 -->
 			<div id="loading" class="active">
 				<img src="./img/loading.gif" alt="">
@@ -313,7 +313,7 @@
 			</div>
 		</div>
 		<!-- 能耗统计 -->
-		<div class="tab-pane active" id="tab-statistics">
+		<div class="tab-pane " id="tab-statistics">
 			<!-- <div class="water-box">
 				<div class="title">水表</div>
 				<div class="content">
@@ -574,6 +574,7 @@
 	<script src='./js/main.js'></script>
 
 	<!-- echarts 设置 -->
+	<script src="./js/data/meterMap.js"></script>
 	<script src="./js/echarts/setCharts.js"></script>
 </body>
 

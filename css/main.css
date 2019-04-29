@@ -1151,7 +1151,34 @@ canvas {
 #tab-statistics > .tab-content > .tab-pane > div {
   display: none;
   height: 100%;
+  position: relative;
 }
 #tab-statistics > .tab-content > .tab-pane > div.active {
   display: block;
+}
+#tab-statistics > .tab-content > .tab-pane > div > .back {
+  cursor: pointer;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  width: 76px;
+  height: 32px;
+  background: url(../img/icon/btn_back.png) center no-repeat;
+}
+#tab-statistics > .tab-content > .tab-pane > div > .back:hover {
+  background-color: #eeeeee;
+}
+#tab-statistics > .tab-content > .tab-pane > div > .year-switch {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  display: flex;
+  width: 80px;
+  height: 29px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }

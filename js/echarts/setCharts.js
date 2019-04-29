@@ -85,14 +85,12 @@ const option = {
 // electricChart.setOption(option);
 // lightChart.setOption(option);
 
-const chart_water_1 = echarts.init(document.querySelector('#tab-water>.chart-1'));
-const chart_water_2 = echarts.init(document.querySelector('#tab-water>.chart-2'));
-const chart_water_3 = echarts.init(document.querySelector('#tab-water>.chart-3'));
-
 const chart_electric_1 = echarts.init(document.querySelector('#tab-electric>.chart-1'));
 const chart_electric_2 = echarts.init(document.querySelector('#tab-electric>.chart-2'));
 const chart_electric_3 = echarts.init(document.querySelector('#tab-electric>.chart-3'));
-
+const chart_water_1 = echarts.init(document.querySelector('#tab-water>.chart-1'));
+const chart_water_2 = echarts.init(document.querySelector('#tab-water>.chart-2'));
+const chart_water_3 = echarts.init(document.querySelector('#tab-water>.chart-3'));
 
 /**
  * @name 创建饼状图配置
@@ -102,7 +100,8 @@ const createChartOption1 = (config) => {
     const {
         titleText,
         seriesName,
-        seriesData
+        seriesData,
+        unit,
     } = config;
 
     const option = {
@@ -118,7 +117,7 @@ const createChartOption1 = (config) => {
         },
         tooltip: {
             trigger: 'item',
-            formatter: "{a} <br/>{b}: {c}t ({d}%)"
+            formatter: `{a} <br/>{b}: {c}${unit} ({d}%)`
         },
         legend: {
             orient: 'vertical',
@@ -126,7 +125,7 @@ const createChartOption1 = (config) => {
             top: '31%',
             icon: 'circle',
             formatter: function (name) {
-                const datas = water_chart_1_option.series[0].data;
+                const datas = seriesData;
 
                 let value = datas[0].value
                 let total = 0;
@@ -139,7 +138,7 @@ const createChartOption1 = (config) => {
                 }
 
                 const rate = value / total * 100;
-                return `${name}: ${value}t / ${rate.toFixed(2)}%`
+                return `${name}: ${value}${unit} / ${rate.toFixed(2)}%`
             }
         },
         series: [{
@@ -156,7 +155,7 @@ const createChartOption1 = (config) => {
                 emphasis: {
                     show: true,
                     textStyle: {
-                        fontSize: '30',
+                        fontSize: '20',
                         fontWeight: 'bold'
                     }
                 }
@@ -167,7 +166,8 @@ const createChartOption1 = (config) => {
                 }
             },
             data: seriesData
-        }]
+        }],
+        color: ['#985ef9', '#ffc742', '#ff6e42', '#ff5886', '#00c4aa', '#00a3fb'],
     };
 
     return option
@@ -210,10 +210,11 @@ const createChartOption2 = (config) => {
                 show: false,
             },
             axisLabel: {
-                rotate: -20,
+                // rotate: -20,
                 color: '#999999',
                 lineHeight: 14,
-                margin: 60,
+                // margin: 60,
+                margin: 15,
                 formatter: function (value) {
                     return value.split("").join("\n");
                 },
@@ -239,6 +240,7 @@ const createChartOption2 = (config) => {
             itemStyle: {
                 color: '#cccccc'
             },
+            barMaxWidth: 80,
             emphasis: {
                 itemStyle: {
                     color: {
@@ -268,25 +270,23 @@ const createChartOption2 = (config) => {
                 }
             }
         }],
-        toolbox: {
-            show: true,
-            top: 30,
-            right: 30,
-            itemSize: 72,
-            width: 72,
-            height: 32,
-            feature: {
-                myBack: {
-                    show: true,
-                    title: '回到饼图',
-                    icon: `image://./img/icon/btn_back.png`,
-                    onclick: function (event, event2) {
-                        const wrap = event2.getDom();
-                        $(wrap).removeClass('active').siblings('.chart-1').addClass('active')
-                    }
-                }
-            }
-        }
+        // toolbox: {
+        //     show: true,
+        //     top: 30,
+        //     right: 30,
+        //     itemSize: 72,
+        //     feature: {
+        //         myBack: {
+        //             show: true,
+        //             title: '回到饼图',
+        //             icon: `image://./img/icon/btn_back.png`,
+        //             onclick: function (event, event2) {
+        //                 const wrap = event2.getDom();
+        //                 $(wrap).removeClass('active').siblings('.chart-1').addClass('active')
+        //             }
+        //         }
+        //     }
+        // }
     };
 
     return option
@@ -318,7 +318,7 @@ const createChartOption3 = (config) => {
             left: 'center',
             top: '20%',
             height: '50%',
-            width: '75%',
+            width: '60%',
         },
         xAxis: {
             type: 'category',
@@ -399,120 +399,30 @@ const createChartOption3 = (config) => {
                 }
             }
         }],
-        toolbox: {
-            show: true,
-            top: 30,
-            right: 30,
-            feature: {
-                myBack: {
-                    show: true,
-                    title: '回到柱图',
-                    icon: 'image://./img/icon/btn_back.png',
-                    width: 72,
-                    height: 32,
-                    onclick: function (event, event2) {
-                        const wrap = event2.getDom();
-                        $(wrap).removeClass('active').siblings('.chart-2').addClass('active')
-                    }
-                }
-            }
-        }
+        // toolbox: {
+        //     show: true,
+        //     top: 30,
+        //     right: 30,
+        //     itemSize: 72,
+        //     feature: {
+        //         myBack: {
+        //             show: true,
+        //             title: '回到柱图',
+        //             icon: 'image://./img/icon/btn_back.png',
+        //             width: 72,
+        //             height: 32,
+        //             onclick: function (event, event2) {
+        //                 const wrap = event2.getDom();
+        //                 $(wrap).removeClass('active').siblings('.chart-2').addClass('active')
+        //             }
+        //         }
+        //     }
+        // }
     };
 
     return option
 }
 
-// 生成水表饼状图配置
-const water_chart_1_option = createChartOption1({
-    titleText: '耗水占比统计',
-    seriesName: '用水区域',
-    seriesData: [ // 饼图内容信息
-        {
-            value: 335,
-            name: '厨房',
-            itemStyle: {
-                color: '#985ef9'
-            }
-        },
-        {
-            value: 310,
-            name: '卫生间',
-            itemStyle: {
-                color: '#ffc742'
-            }
-        },
-        {
-            value: 234,
-            name: '空气热泵补水',
-            itemStyle: {
-                color: '#ff6e42'
-            }
-        },
-        {
-            value: 135,
-            name: '垂直绿化',
-            itemStyle: {
-                color: '#ff5886'
-            }
-        },
-        {
-            value: 1548,
-            name: '直饮水',
-            itemStyle: {
-                color: '#00c4aa'
-            }
-        },
-        {
-            value: 1548,
-            name: '生活用水',
-            itemStyle: {
-                color: '#00a3fb'
-            }
-        }
-    ]
-});
-// 生成电表饼状图配置
-const electric_chart_1_option = createChartOption1({
-    titleText: '耗电占比统计',
-    seriesName: '用电区域',
-    seriesData: [ // 饼图内容信息
-        {
-            value: 335,
-            name: '照明',
-            itemStyle: {
-                color: '#985ef9'
-            }
-        },
-        {
-            value: 310,
-            name: '应急照明',
-            itemStyle: {
-                color: '#ffc742'
-            }
-        },
-        {
-            value: 234,
-            name: '空调内机',
-            itemStyle: {
-                color: '#ff6e42'
-            }
-        },
-        {
-            value: 135,
-            name: '空调外机',
-            itemStyle: {
-                color: '#ff5886'
-            }
-        },
-        {
-            value: 1548,
-            name: '厨房',
-            itemStyle: {
-                color: '#00c4aa'
-            }
-        },
-    ]
-})
 
 // 柱状图x轴标签原型
 const xAxisFloors = [
@@ -540,10 +450,165 @@ const createXAxisData = (typeName) => {
     })
 }
 
+let token;
 
+let waterPosts;
+let electricPosts;
 
-chart_water_1.setOption(water_chart_1_option);
-chart_electric_1.setOption(electric_chart_1_option);
+const createPromisesByMeter = (meterArray, token) => {
+    return meterArray.map(function (meterData) {
+        const {
+            id,
+            type,
+            detail,
+        } = meterData;
+        
+
+        const promise = new Promise(function (resolve, reject) {
+            // 当前抄表数据
+            $.ajax({
+                type: 'POST',
+                url: 'http://39.108.12.65:5713/DefaultAPI.asmx/ReadMeter',
+                data: {
+                    LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+                    ParamList: `{"MeterAddr":"${id}","ReadType":"1","FreezeDate":""}`
+                },
+                success: function (res) {
+                    // console.log('res', res);
+                    const text = $(res).find('string').text();
+                    const data = JSON.parse(text);
+                    // console.log('当前抄表数据data', data);
+                    if (data.Data[0]) {
+                        const value = Number(data.Data[0].MeterNumber);
+                        const result = {
+                            id,
+                            type,
+                            value,
+                            detail,
+                        };
+    
+                        resolve(result);
+                    } else {
+                        const result = {
+                            id,
+                            type,
+                            detail,
+                        };
+    
+                        resolve(result);
+                    }
+                },
+                error: function (err) {
+                    console.log('err', err);
+                    reject(err);
+                }
+            })
+        })
+
+        return promise
+    })
+}
+
+// 获取饼图信息
+const getPipSeriesData = posts => {
+    // 遍历获取的数据，根据 type 类型进行数值累加
+    const meterMap = {};
+    for (const meterData of posts) {
+        const {
+            type,
+            value
+        } = meterData;
+
+        if (value) {
+            if (meterMap[type]) {
+                meterMap[type] += value;
+            } else {
+                meterMap[type] = value;
+            }
+        }
+    }
+
+    // console.log('meterMap', meterMap);
+
+    // 根据计算后的数据，生成饼图信息
+    const seriesData = [];
+    for (const key in meterMap) {
+        if (meterMap.hasOwnProperty(key)) {
+            const data = {
+                name: key,
+                value: Number(meterMap[key].toFixed(2)),
+            };
+            seriesData.push(data);
+        }
+    }
+
+    return seriesData
+}
+
+// 登录
+$.ajax({
+    type: 'POST',
+    url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
+    data: {
+        LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
+        ParamList: ''
+    },
+    success: function (res) {
+        const text = $(res).find('string').text();
+        const data = JSON.parse(text);
+        // console.log('data', data);
+        const token = data.Data[0].Token;
+        // console.log('token', token);
+
+        const water_promises = createPromisesByMeter(waterMeter, token);
+
+        Promise.all(water_promises).then(function (posts) {
+            // console.log('water posts', posts);
+            waterPosts = posts;
+
+            const seriesData = getPipSeriesData(posts);
+            // console.log('water seriesData', seriesData);
+
+            // 生成水表饼状图配置
+            const water_chart_1_option = createChartOption1({
+                titleText: '耗水占比统计',
+                seriesName: '用水区域',
+                seriesData: seriesData,
+                unit: 't',
+            });
+
+            chart_water_1.setOption(water_chart_1_option);
+        }).catch(function (reason) {
+            console.log('reason', reason);
+        });
+
+        const electric_promises = createPromisesByMeter(electricMeter, token);
+
+        Promise.all(electric_promises).then(function (posts) {
+            // console.log('electric posts', posts);
+            electricPosts = posts;
+
+            const seriesData = getPipSeriesData(posts);
+            // console.log('electric seriesData', seriesData);
+
+            // 生成电表饼状图配置
+            const electric_chart_1_option = createChartOption1({
+                titleText: '耗电占比统计',
+                seriesName: '用电区域',
+                seriesData: seriesData,
+                unit: 'kw·h',
+            });
+
+            chart_electric_1.setOption(electric_chart_1_option);
+        }).catch(function (reason) {
+            console.log('reason', reason);
+        });
+    },
+    error: function (err) {
+        console.log('err', err);
+    }
+})
+
 
 // 绑定水表饼图点击
 chart_water_1.on('click', function (event) {
@@ -553,11 +618,26 @@ chart_water_1.on('click', function (event) {
 
     const name = event.name;
 
+    const xAxisData = [];
+    const seriesData = [];
+
+    for (const meterData of waterPosts) {
+        const {
+            type,
+            value,
+            detail
+        } = meterData
+        if (type == name) {
+            xAxisData.push(detail);
+            seriesData.push(value);
+        }
+    }
+
     // 生成水表柱状图配置
     const water_chart_2_option = createChartOption2({
-        titleText: `各层${name}总耗水(t)`,
-        xAxisData: createXAxisData(name),
-        seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110, 130],
+        titleText: `${name}耗水(t)`,
+        xAxisData: xAxisData,
+        seriesData: seriesData,
     });
 
     chart_water_2.resize();
@@ -571,11 +651,27 @@ chart_electric_1.on('click', function (event) {
     $('#tab-electric').find('>.chart-2').addClass('active');
 
     const name = event.name;
+
+    const xAxisData = [];
+    const seriesData = [];
+
+    for (const meterData of electricPosts) {
+        const {
+            type,
+            value,
+            detail
+        } = meterData
+        if (type == name) {
+            xAxisData.push(detail);
+            seriesData.push(value);
+        }
+    }
+
     // 生成电表柱状图配置
     const electric_chart_2_option = createChartOption2({
-        titleText: `各层${name}总用能耗(kw)`,
-        xAxisData: createXAxisData(name),
-        seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110, 130],
+        titleText: `${name}能耗(kw)`,
+        xAxisData: xAxisData,
+        seriesData: seriesData,
     })
 
     chart_electric_2.resize();
@@ -616,4 +712,63 @@ chart_electric_2.on('click', function (event) {
 
     chart_electric_3.resize();
     chart_electric_3.setOption(electric_chart_3_option);
+});
+
+const back_dom = `
+    <span class="back"></span>
+`
+
+$('#tab-water>.chart-2').append(back_dom);
+$('#tab-water>.chart-3').append(back_dom);
+
+$('#tab-electric>.chart-2').append(back_dom);
+$('#tab-electric>.chart-3').append(back_dom);
+
+$('#tab-electric, #tab-water').on('click', '>div>.back', function () {
+    const $chart = $(this).parent();
+
+    $chart.removeClass('active');
+
+    if ($chart.hasClass('chart-2')) {
+        $chart.siblings('.chart-1').addClass('active');
+    } else if ($chart.hasClass('chart-3')) {
+        $chart.siblings('.chart-2').addClass('active');
+    }
+});
+
+
+const year_switch = `<span class="year-switch">2019</span>`;
+$('#tab-electric>.chart-3').append(year_switch);
+$('#tab-water>.chart-3').append(year_switch);
+
+laydate.set({
+    type: 'datetime',
+    isInitValue: false,
+    btns: ['clear', 'confirm'],
+    theme: '#324157',
+    calendar: true,
+})
+
+laydate.render({
+    elem: '#tab-electric>.chart-3>.year-switch',
+    type: 'year',
+    isInitValue: true,
+})
+
+laydate.render({
+    elem: '#tab-water>.chart-3>.year-switch',
+    type: 'year',
+    isInitValue: true,
+})
+
+$('#top-menu>.statistics>a').one('click', function() {
+    setTimeout(function() {
+        chart_electric_1.resize();
+    })
+})
+
+$('#tab-statistics>.tab-menu>.water>a').one('click', function() {
+    setTimeout(function() {
+        chart_water_1.resize();
+    })
 })

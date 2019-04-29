@@ -1176,18 +1176,18 @@ canvas {
                             >.room-name {
                                 margin-left: 20px;
                             }
-    
+
                             >.title {
                                 margin-left: 30px;
                             }
                         }
-    
+
                         &.item-right {
                             >.state {
                                 &[data-state="unfinished"] {
                                     background-image: url(../img/icon/icon_unfinished_red.png);
                                 }
-    
+
                                 &[data-state="finished"] {
                                     background-image: url(../img/icon/icon_finished_green.png);
                                 }
@@ -1315,7 +1315,7 @@ canvas {
                                     background-image: url(../img/icon/btn_select_normal.png);
                                     background-repeat: no-repeat;
                                     background-position: 47px center;
-                    
+
                                     &[aria-expanded="true"] {
                                         background-image: url(../img/icon/btn_select_selected.png);
                                     }
@@ -1326,6 +1326,7 @@ canvas {
 
                                     min-width: 0;
                                     width: 100%;
+
                                     >li {
                                         >a {
                                             .font(12px);
@@ -1475,9 +1476,39 @@ canvas {
             >div {
                 display: none;
                 height: 100%;
+                position: relative;
 
                 &.active {
                     display: block;
+                }
+
+                >.back {
+                    cursor: pointer;
+                    position: absolute;
+                    top: 30px;
+                    right: 30px;
+                    display: flex;
+                    width: 76px;
+                    height: 32px;
+                    background: url(../img/icon/btn_back.png) center no-repeat;
+
+                    &:hover {
+                        background-color: #eeeeee;
+                    }
+                }
+
+                >.year-switch {
+                    position: absolute;
+                    top: 30px;
+                    left: 10px;
+                    display: flex;
+                    width: 80px;
+                    height: 29px;
+                    border: 1px solid @borderColor;
+                    border-radius: @border_radius;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
                 }
             }
         }
