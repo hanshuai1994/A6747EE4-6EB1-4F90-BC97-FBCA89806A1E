@@ -1,7 +1,7 @@
 $(function () {
     // ####################### 定义 #######################
     // ======================= 定义变量 =======================
-    var camera, scene, renderer;
+    var camera, scene, renderer, idM;
     var controls;
     let ambient, directional, pointLight;
     let container;
@@ -968,7 +968,7 @@ $(function () {
     animate();
 
     function animate() {
-        idM = requestAnimationFrame(animate);
+        idM = window.requestAnimationFrame(animate);
         TWEEN.update();
         controls.update();
         render();
@@ -1443,6 +1443,17 @@ $(function () {
         camera.updateProjectionMatrix();
 
         renderer.setSize(width, height);
+    })
+
+    $('#top-menu a[data-toggle="tab"]').on('show.bs.tab', function(event) {
+        console.log('this', this);
+        if ($(this).parent().hasClass('home')) {
+            console.log('首页 开启渲染');
+            animate();
+        } else {
+            console.log('其他页 停止渲染');
+            window.cancelAnimationFrame(idM)
+        }
     })
 
 
