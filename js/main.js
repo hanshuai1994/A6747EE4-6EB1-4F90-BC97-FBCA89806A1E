@@ -1371,6 +1371,8 @@ $(function () {
 
             // 添加房间选择的射线函数绑定
             $(container).on('mousedown', '>canvas', function (event) {
+                if (event.button != 0) return
+
                 const $build_tab = $('#container>.select-wrap>.build-tab');
                 const $floor_switch = $build_tab.siblings('.floor-switch');
 
@@ -1413,6 +1415,10 @@ $(function () {
                     return
                 }
 
+                if (event.button != 0) {
+                    return
+                }
+
                 const $build_tab = $('#container>.select-wrap>.build-tab');
                 const $floor_switch = $build_tab.siblings('.floor-switch');
 
@@ -1438,7 +1444,7 @@ $(function () {
                     const mesh = intersects[0].object;
 
                     // 鼠标按下时和松开时距离太远则返回
-                    if (mouseup_point.distanceTo(mousedown_point) > 5) {
+                    if (mouseup_point.distanceTo(mousedown_point) > (5 * scale_rate)) {
                         mousedown_point = undefined;
                         mouseup_point = undefined;
                         return
