@@ -669,7 +669,7 @@ chart_electric_1.on('click', function (event) {
 
     // 生成电表柱状图配置
     const electric_chart_2_option = createChartOption2({
-        titleText: `${name}能耗(kw)`,
+        titleText: `${name}能耗(kWh)`,
         xAxisData: xAxisData,
         seriesData: seriesData,
     })
@@ -690,7 +690,7 @@ chart_water_2.on('click', function (event) {
 
     // 生成水表折线图配置
     const water_chart_3_option = createChartOption3({
-        titleText: `${name}每月耗水(kw)`,
+        titleText: `${name}每月耗水(kWh)`,
         seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
     });
 
@@ -708,7 +708,7 @@ chart_electric_2.on('click', function (event) {
 
     // 生成电表折线图配置
     const electric_chart_3_option = createChartOption3({
-        titleText: `${name}每月能耗(kw)`,
+        titleText: `${name}每月能耗(kWh)`,
         seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
     })
 
