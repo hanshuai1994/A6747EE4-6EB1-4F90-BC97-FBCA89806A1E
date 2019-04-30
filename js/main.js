@@ -1267,15 +1267,15 @@ $(function () {
                                         floor.visible = true;
                                         walkToObjects(floor);
                                     } else {
-                                        if (active_build_name == '亭廊') { // 亭廊的一楼和二楼同时显示
-                                            if ((floor_index == 1 && floor.name == '2楼') || (floor_index == 2 && floor.name == '1楼')) {
-                                                floor.visible = true;
-                                            } else {
-                                                floor.visible = false;
-                                            }
-                                        } else { // 隐藏其他楼层
+                                        // if (active_build_name == '亭廊') { // 亭廊的一楼和二楼同时显示
+                                        //     if ((floor_index == 1 && floor.name == '2楼') || (floor_index == 2 && floor.name == '1楼')) {
+                                        //         floor.visible = true;
+                                        //     } else {
+                                        //         floor.visible = false;
+                                        //     }
+                                        // } else { // 隐藏其他楼层
                                             floor.visible = false;
-                                        }
+                                        // }
                                     }
                                 }
                             }

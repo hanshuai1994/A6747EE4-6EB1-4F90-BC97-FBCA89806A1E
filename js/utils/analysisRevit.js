@@ -166,7 +166,23 @@ const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip)
                 const next_height = build_heights[i + 1] * 1000 - 120;
 
                 if (center.y >= floor_height && center.y < next_height) {
-                    objects.floor[i].push(mesh);
+                    if (build_name == '亭廊' && i == 1) {
+                        if (
+                            mesh.name.includes('矩形钢管柱_600_') ||
+                            mesh.name.includes('矩形钢管柱_400_') ||
+                            // mesh.name.includes('2148185') ||
+                            mesh.name.includes('2145308') ||
+                            mesh.name.includes('2148187') ||
+                            mesh.name.includes('2207588') ||
+                            mesh.name.includes('矩形竖梃_50_x_150_mm_')
+                        ) {
+                            objects.floor[i - 1].push(mesh);
+                        } else {
+                            objects.floor[i].push(mesh);
+                        }
+                    } else {
+                        objects.floor[i].push(mesh);
+                    }
                     continue outer;
                 }
             }
