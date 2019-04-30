@@ -806,7 +806,8 @@ canvas {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
 }
-#container > .init-btn {
+#container > .init-btn,
+#container > .shadow-btn {
   position: absolute;
   left: 20px;
   bottom: 20px;
@@ -819,6 +820,15 @@ canvas {
   border: 1px solid #e6e6e6;
   background-color: #fafafa;
   border-radius: 5px;
+}
+#container > .init-btn.shadow-btn,
+#container > .shadow-btn.shadow-btn {
+  bottom: 64px;
+}
+#container > .init-btn.shadow-btn.active,
+#container > .shadow-btn.shadow-btn.active {
+  background-color: #324157;
+  color: #ffffff;
 }
 #tab-manage {
   height: 100%;

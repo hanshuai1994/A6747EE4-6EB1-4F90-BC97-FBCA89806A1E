@@ -889,6 +889,17 @@ $(function () {
         clearHightLight();
     })
 
+    // 阴影开启
+    $('#tab-home .shadow-btn').on('click', function () {
+        $(this).toggleClass('active');
+
+        if ($(this).hasClass('active')) {
+            pointLight.castShadow = true;
+        } else {
+            pointLight.castShadow = false;
+        }
+    })
+
     // +++++++++++++++++++++++ 管理页面 +++++++++++++++++++++++
     // ----------------------- 上部切换 -----------------------
     // 楼栋切换
@@ -1046,7 +1057,7 @@ $(function () {
         let lightFar = 200000
         pointLight = new THREE.PointLight(0xffffff, 1, lightFar);
         pointLight.position.set(-10000, 100000, 10000);
-        pointLight.castShadow = true; // default false
+        pointLight.castShadow = false; // default false
         scene.add(pointLight);
 
         // var sphereSize = 100;

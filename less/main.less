@@ -1041,7 +1041,8 @@ canvas {
         background-color: rgba(0, 0, 0, 0.1);
     }
 
-    >.init-btn {
+    >.init-btn,
+    >.shadow-btn {
         position: absolute;
         left: 20px;
         bottom: 20px;
@@ -1056,6 +1057,15 @@ canvas {
         background-color: @normalBackColor;
 
         border-radius: @border_radius;
+
+        &.shadow-btn {
+            bottom: 64px;
+
+            &.active {
+                background-color: @themeColor;
+                color: #ffffff;
+            }
+        }
     }
 }
 
