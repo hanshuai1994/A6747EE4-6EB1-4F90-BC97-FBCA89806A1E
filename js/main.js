@@ -67,14 +67,14 @@ $(function () {
     laydate.render({
         elem: '#tab-home .operate-wrap>.wrap-left>.top-area>.calendar',
         done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
+            // console.log('value', value);
+            // console.log('date', date);
             if (date.year) {
                 // 执行修改命令
             } else {
                 // 执行清空命令
             }
-            console.log('this.elem', this.elem);
+            // console.log('this.elem', this.elem);
         }
     });
 
@@ -82,14 +82,14 @@ $(function () {
     laydate.render({
         elem: '#tab-home .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
         done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
+            // console.log('value', value);
+            // console.log('date', date);
             if (date.year) {
                 // 执行修改命令
             } else {
                 // 执行清空命令
             }
-            console.log('this.elem', this.elem);
+            // console.log('this.elem', this.elem);
         }
     })
 
@@ -97,14 +97,14 @@ $(function () {
     laydate.render({
         elem: '#tab-manage .operate-wrap>.wrap-left>.top-area>.calendar',
         done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
+            // console.log('value', value);
+            // console.log('date', date);
             if (date.year) {
                 // 执行修改命令
             } else {
                 // 执行清空命令
             }
-            console.log('this.elem', this.elem);
+            // console.log('this.elem', this.elem);
         }
     })
 
@@ -112,8 +112,8 @@ $(function () {
     laydate.render({
         elem: '#tab-manage .operate-wrap>.wrap-right>.edit-area>.time>.calendar',
         done: function (value, date) {
-            console.log('value', value);
-            console.log('date', date);
+            // console.log('value', value);
+            // console.log('date', date);
 
             if (date.year) {
                 // 执行修改命令
@@ -325,6 +325,11 @@ $(function () {
 
             // mesh.position.y = firstPoint.Z * scale + 5;
             mesh.position.y = floor_heights[buildName][floorIndex] * 1000 + 250;
+            if (buildName == '南楼') {
+                if (roomName == '107' || roomName == '108') {
+                    mesh.position.y += 200;
+                }
+            }
 
             mesh.name = '房间';
             mesh.roomName = roomName;
@@ -369,6 +374,8 @@ $(function () {
             $('.operate-btn').hide();
             // 更新并显示空调与新风
             $('.air-system').hide();
+            // 清除地板高亮
+            clearHightLight();
         } else {
             // 显示运维按钮
             $('.operate-btn').show();
@@ -387,6 +394,9 @@ $(function () {
 
         // 隐藏空调与新风
         $('.air-system').hide();
+
+        // 清除地板高亮
+        clearHightLight();
     }
 
     // 更新首页楼层选择下拉菜单
@@ -1050,6 +1060,7 @@ $(function () {
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.maxPolarAngle = Math.PI / 2;
+        controls.minPolarAngle = 0.1;
 
         // clip平面
         const clipPlanes = [
@@ -1091,12 +1102,12 @@ $(function () {
             }
 
             const all_material = material_lib_box.concat(material_lib_clip);
-            console.log('all_material', all_material);
+            // console.log('all_material', all_material);
 
             const texture_loader = new THREE.TextureLoader();
             for (const material of all_material) {
                 if (material.name == "住建局外墙贴面（白）") {
-                    texture_loader.load('../img/brick.png', function (texture) {
+                    texture_loader.load('./img/brick.png', function (texture) {
                         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
                         material.map = texture;
@@ -1151,7 +1162,7 @@ $(function () {
 
             walkToObjects(group, true);
             // walkToObjects(scene, true);
-            console.log(scene);
+            // console.log(scene);
 
             $('#loading').removeClass("active");
 
@@ -1340,8 +1351,8 @@ $(function () {
                 }
             }
 
-            console.log('build_data', build_data);
-            console.log('room_mesh_map', room_mesh_map)
+            // console.log('build_data', build_data);
+            // console.log('room_mesh_map', room_mesh_map)
 
             // 触发一次运维页的楼栋切换
             const manage_first_build_tab = $('#tab-manage .operate-menu .build-tab').children()[0];
@@ -1375,15 +1386,15 @@ $(function () {
             })
 
             // 测试用捕捉射线
-            $(container).on('mousedown', '>canvas', function (event) {
-                const raycaster = getRaycaster(event);
-                const intersects = raycaster.intersectObjects([scene], true);
+            // $(container).on('mousedown', '>canvas', function (event) {
+            //     const raycaster = getRaycaster(event);
+            //     const intersects = raycaster.intersectObjects([scene], true);
 
-                if (intersects.length > 0) {
-                    mesh = intersects[0].object;
-                    console.log('mesh', mesh);
-                }
-            })
+            //     if (intersects.length > 0) {
+            //         mesh = intersects[0].object;
+            //         console.log('mesh', mesh);
+            //     }
+            // })
 
             $(container).on('mouseup', '>canvas', function (event) {
                 // 未在画布内按下，则返回
