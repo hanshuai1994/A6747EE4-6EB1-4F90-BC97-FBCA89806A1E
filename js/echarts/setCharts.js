@@ -681,6 +681,7 @@ chart_electric_1.on('click', function (event) {
 
 
 chart_water_2.on('click', function (event) {
+    return
     console.log('event', event);
     $('#tab-water').find('>.chart-2').removeClass('active');
     $('#tab-water').find('>.chart-3').addClass('active');
@@ -698,6 +699,7 @@ chart_water_2.on('click', function (event) {
 })
 
 chart_electric_2.on('click', function (event) {
+    return
     console.log('event', event);
     $('#tab-electric').find('>.chart-2').removeClass('active');
     $('#tab-electric').find('>.chart-3').addClass('active');
