@@ -1055,7 +1055,7 @@ $(function () {
 
         // scene.add( helper );
         let lightFar = 200000
-        pointLight = new THREE.PointLight(0xffffff, 1, lightFar);
+        pointLight = new THREE.PointLight(0xffffff, 0.1, lightFar);
         pointLight.position.set(-10000, 100000, 10000);
         pointLight.castShadow = false; // default false
         scene.add(pointLight);
