@@ -462,7 +462,7 @@ const createPromisesByMeter = (meterArray, token) => {
             type,
             detail,
         } = meterData;
-        
+
 
         const promise = new Promise(function (resolve, reject) {
             // 当前抄表数据
@@ -486,7 +486,7 @@ const createPromisesByMeter = (meterArray, token) => {
                             value,
                             detail,
                         };
-    
+
                         resolve(result);
                     } else {
                         const result = {
@@ -494,7 +494,7 @@ const createPromisesByMeter = (meterArray, token) => {
                             type,
                             detail,
                         };
-    
+
                         resolve(result);
                     }
                 },
@@ -557,7 +557,7 @@ $.ajax({
         const text = $(res).find('string').text();
         const data = JSON.parse(text);
         // console.log('data', data);
-        const token = data.Data[0].Token;
+        token = data.Data[0].Token;
         // console.log('token', token);
 
         const water_promises = createPromisesByMeter(waterMeter, token);
@@ -688,14 +688,55 @@ chart_water_2.on('click', function (event) {
 
     const name = event.name;
 
-    // 生成水表折线图配置
-    const water_chart_3_option = createChartOption3({
-        titleText: `${name}每月耗水(kWh)`,
-        seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
-    });
+    let id;
+    for (const waterData of waterMeter) {
+        if (waterData.detail == name) {
+            id = waterData.id;
+            break
+        }
+    }
 
-    chart_water_3.resize();
-    chart_water_3.setOption(water_chart_3_option);
+    if (id) {
+        // 当前抄表数据
+        $.ajax({
+            type: 'POST',
+            url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
+            data: {
+                LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+                ParamList: `{"MeterAddr":"${id}","DataType":"3","BeginDate":"2019-01-01","EndDate":"2019-12-31","PageSize":"100000"}`
+            },
+            success: function (res) {
+                console.log('res', res);
+                const text = $(res).find('string').text();
+                const data = JSON.parse(text);
+                console.log('当前抄表数据data', data);
+                // if (data.Data[0]) {
+                //     const value = Number(data.Data[0].MeterNumber);
+                //     const result = {
+                //         id,
+                //         type,
+                //         value,
+                //         detail,
+                //     };
+
+                // } else {
+
+                // }
+
+                // 生成水表折线图配置
+                // const water_chart_3_option = createChartOption3({
+                //     titleText: `${name}每月耗水(kWh)`,
+                //     seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
+                // });
+
+                // chart_water_3.resize();
+                // chart_water_3.setOption(water_chart_3_option);
+            },
+            error: function (err) {
+                console.log('err', err);
+            }
+        })
+    }
 })
 
 chart_electric_2.on('click', function (event) {
@@ -706,14 +747,55 @@ chart_electric_2.on('click', function (event) {
 
     const name = event.name;
 
-    // 生成电表折线图配置
-    const electric_chart_3_option = createChartOption3({
-        titleText: `${name}每月能耗(kWh)`,
-        seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
-    })
+    let id;
+    for (const electricData of electricMeter) {
+        if (electricData.detail == name) {
+            id = electricData.id;
+            break
+        }
+    }
 
-    chart_electric_3.resize();
-    chart_electric_3.setOption(electric_chart_3_option);
+    if (id) {
+        // 当前抄表数据
+        $.ajax({
+            type: 'POST',
+            url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
+            data: {
+                LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+                ParamList: `{"MeterAddr":"${id}","DataType":"3","BeginDate":"2019-01-01","EndDate":"2019-12-31","PageSize":"100000"}`
+            },
+            success: function (res) {
+                console.log('res', res);
+                const text = $(res).find('string').text();
+                const data = JSON.parse(text);
+                console.log('当前抄表数据data', data);
+                // if (data.Data[0]) {
+                //     const value = Number(data.Data[0].MeterNumber);
+                //     const result = {
+                //         id,
+                //         type,
+                //         value,
+                //         detail,
+                //     };
+
+                // } else {
+
+                // }
+
+                // 生成电表折线图配置
+                // const electric_chart_3_option = createChartOption3({
+                //     titleText: `${name}每月能耗(kWh)`,
+                //     seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
+                // })
+
+                // chart_electric_3.resize();
+                // chart_electric_3.setOption(electric_chart_3_option);
+            },
+            error: function (err) {
+                console.log('err', err);
+            }
+        })
+    }
 });
 
 const back_dom = `
@@ -763,14 +845,14 @@ laydate.render({
     isInitValue: true,
 })
 
-$('#top-menu>.statistics>a').one('click', function() {
-    setTimeout(function() {
+$('#top-menu>.statistics>a').one('click', function () {
+    setTimeout(function () {
         chart_electric_1.resize();
     })
 })
 
-$('#tab-statistics>.tab-menu>.water>a').one('click', function() {
-    setTimeout(function() {
+$('#tab-statistics>.tab-menu>.water>a').one('click', function () {
+    setTimeout(function () {
         chart_water_1.resize();
     })
 })
