@@ -1192,3 +1192,55 @@ canvas {
   align-items: center;
   cursor: pointer;
 }
+#confirm-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+#confirm-mask.active {
+  display: flex;
+}
+#confirm-mask > .confirm-box {
+  width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fafafa;
+  border-radius: 5px;
+  font-size: 16px;
+}
+#confirm-mask > .confirm-box > .content {
+  height: 70%;
+  display: flex;
+  align-items: center;
+}
+#confirm-mask > .confirm-box > .btns {
+  width: 100%;
+  height: 30%;
+  display: flex;
+  justify-content: center;
+}
+#confirm-mask > .confirm-box > .btns > span {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #324157;
+  border-radius: 5px;
+  width: 60px;
+  height: 35px;
+}
+#confirm-mask > .confirm-box > .btns > span:not(:first-child) {
+  margin-left: 15px;
+}
+#confirm-mask > .confirm-box > .btns > span:hover {
+  color: #ffffff;
+  background-color: #1f2d3d;
+}

@@ -54,6 +54,9 @@ $(function () {
         '南楼': [],
     }
 
+    let saveCallback; // 确认框的保存回调
+    let continueCallback; // 确认框的继续回调
+
     // ======================= 日期时间 =======================
     laydate.set({
         type: 'datetime',
@@ -628,10 +631,47 @@ $(function () {
 
 
     // ======================= 绑定事件 =======================
+    // +++++++++++++++++++++++ 确认界面事件 +++++++++++++++++++++++
+    $('#confirm-mask').on('click', '>.confirm-box>.btns>span', function () {
+        if ($(this).hasClass('save')) { // 是
+            // 保存并继续
+            if (saveCallback) saveCallback();
+            if (continueCallback) continueCallback();
+        } else if ($(this).hasClass('deny')) { // 否
+            // 不保存，继续
+            if (continueCallback) continueCallback();
+        } else if ($(this).hasClass('cancel')) { // 取消
+            // 不保存，不继续
+
+        }
+
+        $('#confirm-mask').removeClass('active');
+        saveCallback = undefined;
+        continueCallback = undefined;
+    })
+
+
     // +++++++++++++++++++++++ 运维共用事件 +++++++++++++++++++++++
     // 运维项目表单切换事件
     $('.operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
-        dom_oper_item_select(this);
+        if (!$(this).hasClass('active')) {
+            const $wrap_left = $(this).parents('.wrap-left');
+            const $wrap_right = $wrap_left.siblings('.wrap-right');
+            const $edit_area = $wrap_right.find('.edit-area');
+
+            const display = $edit_area.css('display');
+
+            if (display == 'block') {
+                $('#confirm-mask').addClass('active');
+                continueCallback = () => {
+                    dom_oper_item_select(this);
+                    $(this).addClass('active').siblings().removeClass('active');
+                }
+            } else {
+                dom_oper_item_select(this);
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        }
     });
 
     // 运维修改按钮
@@ -740,20 +780,35 @@ $(function () {
         const $wrap_right = $wrap_left.siblings('.wrap-right');
 
         const $content = $wrap_left.find('>.content');
-        $content.prepend(newDom);
-        $content.children().removeClass('active');
-        $content.children(':first-child').addClass('active');
 
         // 右侧打开编辑区域
         const $view_area = $wrap_right.find('.view-area');
         const $edit_area = $wrap_right.find('.edit-area');
 
-        $view_area.hide();
-        $edit_area.show();
+        const newFunc = () => {
+            $content.prepend(newDom);
+            $content.children().removeClass('active');
+            $content.children(':first-child').addClass('active');
 
-        // 初始化编辑区域
-        newData.title = '';
-        update_oper_edit_dom($edit_area, newData);
+            $view_area.hide();
+            $edit_area.show();
+
+            // 初始化编辑区域
+            newData.title = '';
+            update_oper_edit_dom($edit_area, newData);
+        }
+
+        const display = $edit_area.css('display');
+
+        if (display == 'block') {
+            $('#confirm-mask').addClass('active');
+            continueCallback = () => {
+                newFunc()
+            }
+        } else {
+            newFunc();
+        }
+
     })
 
     // +++++++++++++++++++++++ 首页页面事件 +++++++++++++++++++++++
@@ -973,13 +1028,6 @@ $(function () {
             // manage_switch_floor(this);
             $room_text.attr('data-index', this_index);
             $room_text.text($(this).text());
-        }
-    })
-
-    // ----------------------- 运维列表项切换 -----------------------
-    $('#tab-manage>.operate-wrap>.wrap-left>.content').on('click', '>.operate-item', function () {
-        if (!$(this).hasClass('active')) {
-            $(this).addClass('active').siblings().removeClass('active');
         }
     })
 
@@ -1274,7 +1322,7 @@ $(function () {
                                         //         floor.visible = false;
                                         //     }
                                         // } else { // 隐藏其他楼层
-                                            floor.visible = false;
+                                        floor.visible = false;
                                         // }
                                     }
                                 }
@@ -1473,7 +1521,7 @@ $(function () {
         renderer.setSize(width, height);
     })
 
-    $('#top-menu a[data-toggle="tab"]').on('show.bs.tab', function(event) {
+    $('#top-menu a[data-toggle="tab"]').on('show.bs.tab', function (event) {
         // console.log('this', this);
         if ($(this).parent().hasClass('home')) {
             // console.log('首页 开启渲染');
