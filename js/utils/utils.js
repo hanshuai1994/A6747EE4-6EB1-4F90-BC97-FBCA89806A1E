@@ -106,7 +106,7 @@ const correctUv = (mesh) => {
             if (z == 2) a = "c";
 
             g.faceVertexUvs[0].push([
-                new THREE.Vector2(), 
+                new THREE.Vector2(),
                 new THREE.Vector2(),
                 new THREE.Vector2()
             ])
@@ -116,10 +116,10 @@ const correctUv = (mesh) => {
                     // g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
                     g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].y - box.min.y) / imageSize);
                     break;
-                // case 'y':
-                //     g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / (detaX);
-                //     g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
-                //     break;
+                    // case 'y':
+                    //     g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / (detaX);
+                    //     g.faceVertexUvs[0][i][z].y = 1 - ((v[g.faces[i][a]].z - box.min.z) / (detaZ));
+                    //     break;
                 default:
                     console.log()
                     g.faceVertexUvs[0][i][z].x = (v[g.faces[i][a]].x - box.min.x) / imageSize;
@@ -148,7 +148,7 @@ const getDateByTime = (time, onlyDate) => {
     new_time.setTime(time);
 
     let year = new_time.getFullYear();
-    let month = new_time.getMonth();
+    let month = new_time.getMonth() + 1;
     let day = new_time.getDate();
     let hour = new_time.getHours();
     let minute = new_time.getMinutes();
@@ -158,11 +158,23 @@ const getDateByTime = (time, onlyDate) => {
     minute = fixTime(minute);
     second = fixTime(second);
 
-    let result = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    let result = `${year}-${month<10?'0'+month:month}-${day<10?'0'+day:day} ${hour}:${minute}:${second}`;
 
     if (onlyDate) {
-        result = `${year}-${month}-${day}`;
+        result = `${year}-${month<10?'0'+month:month}-${day<10?'0'+day:day}`;
     }
 
     return result
+}
+
+// 数据替换
+const replaceData = (array, data) => {
+    const length = array.length;
+    for (let i = 0; i < length; i++) {
+        const element = array[i];
+        if (element.id == data.id) {
+            array[i] = data;
+            break;
+        }
+    }
 }

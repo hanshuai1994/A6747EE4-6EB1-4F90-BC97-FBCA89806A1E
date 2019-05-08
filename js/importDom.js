@@ -2,7 +2,7 @@
 /**
  * @name 导入dom
  */
-const importDom = () => {
+const importDom = (dataList) => {
 
     // 首页导入空调信息 dom
     const air_conditioner_dom = createAirStateList(air_conditioner_data);
@@ -21,13 +21,13 @@ const importDom = () => {
 
     // 导入首页运维列表
     const $home_oper_wrap = $('#tab-home .operate-wrap .wrap-left>.content');
-    const home_oper_list_dom = createOperList(home_oper_data, false);
+    const home_oper_list_dom = createOperList(dataList, false);
     $home_oper_wrap.html(home_oper_list_dom);
 
     // 导入管理页运维列表
-    const $manage_oper_wrap = $('#tab-manage .operate-wrap .wrap-left>.content');
-    const manage_oper_list_dom = createOperList(home_oper_data, true);
-    $manage_oper_wrap.html(manage_oper_list_dom);
+    // const $manage_oper_wrap = $('#tab-manage .operate-wrap .wrap-left>.content');
+    // const manage_oper_list_dom = createOperList(dataList, true);
+    // $manage_oper_wrap.html(manage_oper_list_dom);
 
     return
 }

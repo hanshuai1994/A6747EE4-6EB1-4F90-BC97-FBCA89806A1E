@@ -88,12 +88,14 @@ const createFloorList = (floors, firstData) => {
 /**
  * @name 根据单个数据生成首页单个运维项目
  * @param {*} data 单个运维数据
+ * @param {boolean} hasName 是否含有房间名
+ * @param {boolean} active 是否被选中
  */
-const createOperItem = (data, hasName) => {
+const createOperItem = (data, hasName, active) => {
     return `
-    <div class="operate-item" data-id=${data.id?data.id:"new"}>
+    <div class="operate-item${active?' active':''}" data-id=${data.id?data.id:"new"}>
         <div class="item-left">
-            ${hasName?`<span class="room-name">${data.roomName}</span>`:''}
+            ${hasName?`<span class="room-name">${data.room}</span>`:''}
             <span class="title">${data.title}</span>
         </div>
         <div class="item-right">

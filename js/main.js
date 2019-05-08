@@ -40,6 +40,9 @@ $(function () {
         '南楼': [],
     }
 
+    // 所有运维数据
+    let allOperateData;
+
     // 楼层高度
     const floor_heights = {
         '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
@@ -457,7 +460,7 @@ $(function () {
 
     // 选择运维单项时
     const dom_oper_item_select = (element) => {
-        const id = Number($(element).attr('data-id'));
+        const id = $(element).attr('data-id');
 
         const $wrap_left = $(element).parents('.wrap-left');
         const $wrap_right = $wrap_left.siblings('.wrap-right');
@@ -471,7 +474,7 @@ $(function () {
         $(element).addClass('active').siblings().removeClass('active');
 
         let this_data;
-        for (const data of home_oper_data) {
+        for (const data of allOperateData) {
             if (data.id == id) {
                 this_data = data;
                 dom_update_oper_view($view_area, this_data);
@@ -481,9 +484,9 @@ $(function () {
     }
 
     // 删除运维单项时
-    const dom_oper_item_delete = (element) => {
-        const $content = $(element).parent();
-        $(element).remove();
+    const dom_oper_item_delete = ($element) => {
+        const $content = $element.parent();
+        $element.remove();
 
         dom_oper_item_select($content.children()[0]);
     }
@@ -491,12 +494,16 @@ $(function () {
     // 更新运维展示界面信息
     const dom_update_oper_view = ($view_area, data) => {
         const {
+            build,
+            floor,
+            room,
             title,
             time,
             state,
-            content
+            content,
         } = data
 
+        $view_area.find('>.room>.text').text(`${build}-${floor+1}楼-${room}`); // 更新房间
         $view_area.find('>.title>.text').text(title); // 更新标题
         $view_area.find('>.time>.text').text(getDateByTime(time)); // 更新时间
         $view_area.find(`>.state>.text`).attr('data-state', state); // 更新状态
@@ -505,16 +512,57 @@ $(function () {
 
     // 获取运维编辑界面信息
     const get_oper_edit_data = ($edit_area) => {
+        const $tab_pane = $edit_area.parents('.tab-pane');
+
+        let build, floor, room;
+        if ($tab_pane.attr('id') == 'tab-home') {
+            const $select_wrap = $('#container>.select-wrap');
+            const $build_tab = $select_wrap.find('>.build-tab');
+            const $floor_switch = $select_wrap.find('>.floor-switch');
+            const $room_switch = $select_wrap.find('>.room-switch');
+    
+            build = $build_tab.find('>span.active').attr('data-name');
+            floor = Number($floor_switch.find('>.floor-text').attr('data-index'));
+            room = $room_switch.find('>.room-text').attr('data-index');
+        } else {
+            build = $edit_area.parents('.operate-wrap').siblings('.operate-menu').find('>.build-tab>span.active').attr('data-name');
+            floor = Number($edit_area.find('.floor-text').attr('data-index'));
+            room = $edit_area.find('.room-text').attr('data-index');
+        }
+
         const title = $edit_area.find('>.title>input').val();
-        const time = Number($edit_area.find('>.time>.calendar').attr('data-time'));
-        const state = $edit_area.find('>.state>.radio-box>span.selected').attr('date-state');
+        const time = $edit_area.find('>.time>.calendar').attr('data-time');
+        const state = $edit_area.find('>.state>.radio-box>span.selected').attr('data-state');
         const content = $edit_area.find('>.content>textarea').val();
 
         return {
+            build,
+            floor,
+            room,
             title,
             time,
             state,
             content,
+        }
+    }
+
+    // 更新楼层下拉菜单
+    const update_floor_switch = ($floor_switch, active_build_name) => {
+        if ($floor_switch.length > 0) {
+            const floors = build_data[active_build_name];
+
+            const floors_dom = createFloorList(floors);
+            $floor_switch.find('>.dropdown-menu').html(floors_dom);
+        }
+    }
+
+    // 更新房间下拉菜单
+    const update_room_switch = ($room_switch, active_build_name, active_floor_index) => {
+        if ($room_switch.length > 0) {
+            const rooms = build_data[active_build_name][active_floor_index].rooms;
+
+            const rooms_dom = createRoomList(rooms, false, '');
+            $room_switch.find('>.dropdown-menu').html(rooms_dom);
         }
     }
 
@@ -524,16 +572,81 @@ $(function () {
             title,
             time,
             state,
+            floor,
+            room,
             content
         } = data
 
-        $edit_area.find('>.title>input').val(title); // 更新标题
+        // 更新标题
+        $edit_area.find('>.title>input').val(title);
+
+        // 清空时间/设置为当前时间
         laydate.render({
             elem: $edit_area.find('>.time>.calendar')[0],
             value: getDateByTime(time),
-        }); // 清空时间/设置为当前时间
-        $edit_area.find(`>.state>.radio-box>span[data-state=${state}]`).addClass('selected').siblings().removeClass('selected'); // 更新状态
-        $edit_area.find('>.content>textarea').val(content); // 更新内容
+        });
+        $edit_area.find('>.time>.calendar').attr('data-time', time);
+
+        const $floor_switch = $edit_area.find('>.room>.room-area .floor-switch');
+        const $floor_text = $floor_switch.find('>.floor-text');
+        const $room_switch = $edit_area.find('>.room>.room-area .room-switch');
+        const $room_text = $room_switch.find('>.room-text');
+
+        // 更新编辑页的楼层选择下拉菜单
+        const active_build_name = $('#tab-manage>.operate-menu>.build-tab>span.active').attr('data-name');
+        update_floor_switch($floor_switch, active_build_name);
+
+        if (floor) {
+            // 更新楼层显示
+            $floor_text.attr('data-index', floor).text(floor + 1 + '楼');
+            // 更新编辑页的房间选择下拉菜单
+            update_room_switch($room_switch, active_build_name, floor);
+        }
+
+        if (room) {
+            // 更新房间显示
+            $room_text.attr('data-index', room).text(room);
+        }
+
+        // 更新状态
+        $edit_area.find(`>.state>.radio-box>span[data-state=${state}]`).addClass('selected').siblings().removeClass('selected');
+
+        // 更新内容
+        $edit_area.find('>.content>textarea').val(content);
+    }
+
+    // 更新运维列表
+    const update_oper_list = ($operate_wrap, hasName, build = 'all', floor = "all", room = "all") => {
+        const list = [];
+
+        for (const data of allOperateData) {
+            if (build == 'all') { // 推入所有数据
+                list.push(data);
+            } else if (data.build == build) { // 楼栋匹配
+                if (floor == 'all') { // 推入所有楼层数据
+                    list.push(data);
+                } else if (data.floor == floor) { // 楼层匹配
+                    if (room == 'all') { // 所有房间数据推入
+                        list.push(data);
+                    } else if (data.room == room) { // 房间匹配
+                        list.push(data);
+                    }
+                }
+            }
+        }
+
+        // console.log('list', list);
+
+        const $content = $operate_wrap.find('>.wrap-left>.content');
+        const $wrap_right = $operate_wrap.find('>.wrap-right');
+        const $view_area = $wrap_right.find('.view-area');
+
+        $content.html(createOperList(list, hasName));
+        if (list.length > 0) {
+            dom_oper_item_select($content.children()[0]);
+        } else {
+            $view_area.hide();
+        }
     }
 
     // 管理页切换楼栋
@@ -565,6 +678,10 @@ $(function () {
         const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
+
+        // 运维管理列表更新 ----------------------
+        const $operate_wrap = $(element).parents('.operate-menu').siblings('.operate-wrap');
+        update_oper_list($operate_wrap, true, build_name);
     }
 
     // 管理页切换楼层
@@ -594,13 +711,17 @@ $(function () {
         const rooms_dom = createRoomList(rooms, true, '室');
         $room_switch.find('>.room-text').text('所有房间').attr('data-index', 'all');
         $room_switch.find('>.dropdown-menu').html(rooms_dom);
+
+        // 运维管理列表更新 ----------------------
+        const $operate_wrap = $(element).parents('.operate-menu').siblings('.operate-wrap');
+        update_oper_list($operate_wrap, true, build_name, active_floor_index)
     }
 
     // 管理页切换房间
     const manage_switch_room = (element) => {
         const $room_switch = $(element).parents('.room-switch');
         const $build_tab = $room_switch.siblings('.build-tab');
-        const $floor_switch = $room_switch.siblings('.room-switch');
+        const $floor_switch = $room_switch.siblings('.floor-switch');
 
         const $active_build = $build_tab.find('>span.active');
 
@@ -608,8 +729,82 @@ $(function () {
         const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
         const active_room_index = $(element).attr('data-index');
 
-        // 根据 build_name active_floor_index active_room_index 向后台获取信息
+        // 根据 build_name active_floor_index active_room_index 更新列表
+        const $operate_wrap = $(element).parents('.operate-menu').siblings('.operate-wrap');
+        let hasName = false;
+        if (active_room_index == 'all') {
+            hasName = true;
+        }
+        update_oper_list($operate_wrap, hasName, build_name, active_floor_index, active_room_index);
+    }
 
+    /**
+     * @name 保存执行函数
+     * @param {*} $operate_wrap 运维dom包
+     * @param {boolean} active 替换的dom是否为活跃
+     * @param {*} callback 保存完成后的回调
+     */
+    const save_operate_data = ($operate_wrap, active, callback) => {
+        let hasName = true;
+        const $tab_pane = $operate_wrap.parents('.tab-pane');
+        if ($tab_pane.attr('id') == 'tab-home') {
+            hasName = false;
+        } else {
+            const room = $operate_wrap.siblings('.operate-menu').find('>.room-switch>.room-text').attr('data-index');
+            if (room != 'all') {
+                hasName = false;
+            }
+        }
+        
+        const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
+        const $view_area = $operate_wrap.find('>.wrap-right>.view-area');
+
+        const data = get_oper_edit_data($edit_area); // 获取编辑框内的信息
+
+        const $active_item = $operate_wrap.find('>.wrap-left>.content>.operate-item.active')
+
+        let this_id = $active_item.attr('data-id'); // 获取当前活跃项id
+
+        if (this_id == 'new') { // 新建
+            // 向后台发送新建的 data
+            addYunweiData(data, function (res_id) {
+                data.id = res_id; // id 赋值
+                allOperateData.unshift(data); // 本地数据添加
+
+                dom_update_oper_view($view_area, data); // 更新显示界面
+                $active_item.replaceWith(createOperItem(data, hasName, active)); // 更新列表界面
+                if (callback) callback();
+            })
+        } else { // 修改
+            data.id = this_id;
+            updateYunweiData(data, function () {
+                replaceData(allOperateData, data); // 本地数据替换
+
+                dom_update_oper_view($view_area, data); // 更新显示界面
+                $active_item.replaceWith(createOperItem(data, hasName, active)); // 更新列表界面
+                if (callback) callback();
+            })
+        }
+    }
+
+    /**
+     * @name 进入确认界面
+     * @param {*} $operate_wrap 运维dom包
+     * @param {*} continueCallback 将要继续执行的函数
+     */
+    const enter_ensure = ($operate_wrap, continueCallback) => {
+        const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
+
+        if ($edit_area.css('display') == 'block') {
+            $('#confirm-mask').addClass('active');
+
+            saveCallback = () => {
+                save_operate_data($operate_wrap, false, continueCallback);
+            }
+        } else {
+            continueCallback();
+            continueCallback = undefined;
+        }
     }
 
 
@@ -619,15 +814,24 @@ $(function () {
     }
 
     // ======================= 插入 dom =======================
-    importDom();
+    selectAllYunweiData(function (dataList) {
+        allOperateData = dataList;
+        const new_list = [];
+        for (const data of dataList) {
+            if (data.build == '北楼') {
+                new_list.push(data);
+            }
+        }
+        importDom(new_list);
 
-    // 切换显示首页第一个运维项目
-    const home_first_oper_item = $('#tab-home .operate-wrap .wrap-left>.content').children()[0];
-    dom_oper_item_select(home_first_oper_item);
+        // 切换显示首页第一个运维项目
+        const home_first_oper_item = $('#tab-home .operate-wrap .wrap-left>.content').children()[0];
+        dom_oper_item_select(home_first_oper_item);
 
-    // 切换显示管理页第一个运维项目
-    const manage_first_oper_item = $('#tab-manage .operate-wrap .wrap-left>.content').children()[0];
-    dom_oper_item_select(manage_first_oper_item);
+        // 切换显示管理页第一个运维项目
+        const manage_first_oper_item = $('#tab-manage .operate-wrap .wrap-left>.content').children()[0];
+        dom_oper_item_select(manage_first_oper_item);
+    });
 
 
     // ======================= 绑定事件 =======================
@@ -636,7 +840,6 @@ $(function () {
         if ($(this).hasClass('save')) { // 是
             // 保存并继续
             if (saveCallback) saveCallback();
-            if (continueCallback) continueCallback();
         } else if ($(this).hasClass('deny')) { // 否
             // 不保存，继续
             if (continueCallback) continueCallback();
@@ -655,22 +858,17 @@ $(function () {
     // 运维项目表单切换事件
     $('.operate-wrap').on('click', '>.wrap-left>.content>.operate-item', function () {
         if (!$(this).hasClass('active')) {
+            const $operate_wrap = $(this).parents('.operate-wrap');
             const $wrap_left = $(this).parents('.wrap-left');
             const $wrap_right = $wrap_left.siblings('.wrap-right');
             const $edit_area = $wrap_right.find('.edit-area');
 
-            const display = $edit_area.css('display');
-
-            if (display == 'block') {
-                $('#confirm-mask').addClass('active');
-                continueCallback = () => {
-                    dom_oper_item_select(this);
-                    $(this).addClass('active').siblings().removeClass('active');
-                }
-            } else {
+            continueCallback = () => {
                 dom_oper_item_select(this);
                 $(this).addClass('active').siblings().removeClass('active');
             }
+
+            enter_ensure($operate_wrap, continueCallback)
         }
     });
 
@@ -685,20 +883,10 @@ $(function () {
         $view_area.hide();
         $edit_area.show();
 
-        // 更新编辑页的楼层选择下拉菜单
-        const $floor_switch = $edit_area.find('>.room>.room-area .floor-switch');
-        if ($floor_switch.length > 0) {
-            const active_build_name = $('#tab-manage>.operate-menu>.build-tab>span.active').attr('data-name');
-            const floors = build_data[active_build_name];
-
-            const floors_dom = createFloorList(floors);
-            $floor_switch.find('>.dropdown-menu').html(floors_dom);
-        }
-
-        const id = Number($wrap_left.find('>.content>.operate-item.active').attr('data-id'));
+        const id = $wrap_left.find('>.content>.operate-item.active').attr('data-id');
 
         let this_data;
-        for (const data of home_oper_data) {
+        for (const data of allOperateData) {
             if (data.id == id) {
                 this_data = data;
                 update_oper_edit_dom($edit_area, this_data);
@@ -712,14 +900,19 @@ $(function () {
         const $wrap_right = $(this).parents('.wrap-right');
         const $wrap_left = $wrap_right.siblings('.wrap-left');
 
-        const $view_area = $wrap_right.find('.view-area');
-        const $edit_area = $wrap_right.find('.edit-area');
+        // const $view_area = $wrap_right.find('.view-area');
+        // const $edit_area = $wrap_right.find('.edit-area');
 
         const $active_item = $wrap_left.find('>.content>.operate-item.active');
-        const this_id = Number($active_item.attr('data-id'));
+        const this_id = $active_item.attr('data-id');
 
         // 向后台发送需要删除的数据的 id
-        dom_oper_item_delete($active_item[0]); // ajax成功后执行此行
+        const req = {
+            id: this_id
+        };
+        deleteYunweiData(req, function () {
+            dom_oper_item_delete($active_item); // ajax成功后执行此行
+        })
     })
 
     // 修改界面状态切换
@@ -729,27 +922,16 @@ $(function () {
 
     // 修改界面保存/取消按钮
     $('.operate-wrap .wrap-right').on('click', '.edit-area .btn-box>span', function () {
-        const $edit_area = $(this).parents('.edit-area');
-        const $view_area = $edit_area.siblings('.view-area');
+        const $operate_wrap = $(this).parents('.operate-wrap');
+
+        const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
+        const $view_area = $operate_wrap.find('>.wrap-right>.view-area');
 
         $view_area.show();
         $edit_area.hide();
 
         if ($(this).hasClass('save')) {
-            const data = get_oper_edit_data($edit_area); // 获取编辑框内的信息
-
-            const $operate_wrap = $(this).parents('.operate-wrap');
-            const $active_item = $operate_wrap.find('>.wrap-left>.content>.operate-item.active')
-
-            let this_id = $active_item.attr('data-id');
-            if (this_id == 'new') {
-                // 向后台发送新建的 data
-                const dom = createOperItem(newData, true);
-                $active_item.html(dom);
-            } else {
-                this_id = Number(this_id);
-                // 向后台发送修改后的 data
-            }
+            save_operate_data($operate_wrap, true);
         } else {
             const $wrap_right = $edit_area.parent();
             const $wrap_left = $wrap_right.siblings('.wrap-left');
@@ -776,8 +958,10 @@ $(function () {
 
         const newDom = createOperItem(newData);
 
-        const $wrap_left = $(this).parents('.wrap-left');
-        const $wrap_right = $wrap_left.siblings('.wrap-right');
+        const $operate_wrap = $(this).parents('.operate-wrap');
+
+        const $wrap_left = $operate_wrap.find('>.wrap-left');
+        const $wrap_right = $operate_wrap.find('>.wrap-right');
 
         const $content = $wrap_left.find('>.content');
 
@@ -785,7 +969,7 @@ $(function () {
         const $view_area = $wrap_right.find('.view-area');
         const $edit_area = $wrap_right.find('.edit-area');
 
-        const newFunc = () => {
+        continueCallback = () => {
             $content.prepend(newDom);
             $content.children().removeClass('active');
             $content.children(':first-child').addClass('active');
@@ -798,17 +982,7 @@ $(function () {
             update_oper_edit_dom($edit_area, newData);
         }
 
-        const display = $edit_area.css('display');
-
-        if (display == 'block') {
-            $('#confirm-mask').addClass('active');
-            continueCallback = () => {
-                newFunc()
-            }
-        } else {
-            newFunc();
-        }
-
+        enter_ensure($operate_wrap, continueCallback)
     })
 
     // +++++++++++++++++++++++ 首页页面事件 +++++++++++++++++++++++
@@ -860,6 +1034,20 @@ $(function () {
     // 首页运维入口按钮事件
     $('#tab-home .operate-btn').click(function () {
         $('.operate-mask').show();
+
+        const $operate_wrap = $('#container>.operate-mask>.operate-wrap');
+        const $build_tab = $(this).siblings('.build-tab');
+        const $floor_switch = $(this).siblings('.floor-switch');
+        const $room_switch = $(this).siblings('.room-switch');
+
+        const build = $build_tab.find('>span.active').attr('data-name');
+        const floor = Number($floor_switch.find('>.floor-text').attr('data-index'));
+        const room = $room_switch.find('>.room-text').attr('data-index');
+
+        const $room_path = $operate_wrap.find('>.wrap-right>.top-area>.room-path');
+        $room_path.text(`${build}-${floor+1}-${room}`);
+
+        update_oper_list($operate_wrap, false, build, floor, room);
     })
 
     // 首页运维界面关闭
@@ -960,8 +1148,23 @@ $(function () {
     // 楼栋切换
     $('#tab-manage>.operate-menu>.build-tab>span').click(function () {
         if (!$(this).hasClass('active')) {
-            $(this).addClass('active').siblings().removeClass('active');
-            manage_switch_build(this);
+            const $operate_menu = $(this).parents('.operate-menu');
+            const $operate_wrap = $operate_menu.siblings('.operate-wrap');
+            // const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
+
+            continueCallback = () => {
+                $(this).addClass('active').siblings().removeClass('active');
+                manage_switch_build(this);
+            }
+
+            enter_ensure($operate_wrap, continueCallback);
+
+            // if ($edit_area.css('display') == 'block') {
+            //     $('#confirm-mask').addClass('active');
+            // } else {
+            //     continueCallback();
+            //     continueCallback = undefined;
+            // }
         }
     })
 
@@ -974,9 +1177,24 @@ $(function () {
         const this_index = $(this).attr('data-index');
 
         if (active_index != this_index) {
-            manage_switch_floor(this);
-            $floor_text.attr('data-index', this_index);
-            $floor_text.text($(this).text());
+            const $operate_menu = $(this).parents('.operate-menu');
+            const $operate_wrap = $operate_menu.siblings('.operate-wrap');
+            // const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
+
+            continueCallback = () => {
+                manage_switch_floor(this);
+                $floor_text.attr('data-index', this_index);
+                $floor_text.text($(this).text());
+            }
+
+            enter_ensure($operate_wrap, continueCallback);
+
+            // if ($edit_area.css('display') == 'block') {
+            //     $('#confirm-mask').addClass('active');
+            // } else {
+            //     continueCallback();
+            //     continueCallback = undefined;
+            // }
         }
     })
 
