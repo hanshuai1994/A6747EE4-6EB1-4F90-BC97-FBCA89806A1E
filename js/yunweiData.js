@@ -21,10 +21,8 @@ function addYunweiData(build, floor, room, title, time, state, content){
 	    data: {build: build, floor: floor, room: room, title: title, time: time, state: state, content: content},
 	    dataType: "json",
 	    success: function(data) {
-	        resp = eval(data);
-	        if(resp[0].data == 100){
-	        	console.log("运维数据成功插入数据库！");
-	        }
+	        newId = eval(data);
+	        console.log('新增运维数据的id', data[0].newId);
 	    }
 	})
 }
