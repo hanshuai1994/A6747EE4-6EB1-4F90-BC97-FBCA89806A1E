@@ -612,6 +612,7 @@ canvas {
   position: absolute;
   width: 83px;
   height: 34px;
+  border-radius: 5px;
   top: 0;
   right: calc(-20px - 83px);
   cursor: pointer;

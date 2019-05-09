@@ -75,10 +75,25 @@ $(function () {
         done: function (value, date) {
             // console.log('value', value);
             // console.log('date', date);
+            const data_time = Date.parse(value);
+            $(this.elem).attr('data-time', data_time);
+
+            const $operate_wrap = $('#container>.operate-mask>.operate-wrap');
+            const $select_wrap = $('#container>.select-wrap');
+            const $build_tab = $select_wrap.find('.build-tab');
+            const $floor_switch = $select_wrap.find('.floor-switch');
+            const $room_switch = $select_wrap.find('.room-switch');
+
+            const build = $build_tab.find('>span.active').attr('data-name');
+            const floor = Number($floor_switch.find('>.floor-text').attr('data-index'));
+            const room = $room_switch.find('>.room-text').attr('data-index');
+
             if (date.year) {
                 // 执行修改命令
+                update_oper_list($operate_wrap, false, data_time, build, floor, room);
             } else {
                 // 执行清空命令
+                update_oper_list($operate_wrap, false, 'all', build, floor, room);
             }
             // console.log('this.elem', this.elem);
         }
@@ -90,6 +105,9 @@ $(function () {
         done: function (value, date) {
             // console.log('value', value);
             // console.log('date', date);
+            const data_time = Date.parse(value);
+            $(this.elem).attr('data-time', data_time);
+
             if (date.year) {
                 // 执行修改命令
             } else {
@@ -105,10 +123,23 @@ $(function () {
         done: function (value, date) {
             // console.log('value', value);
             // console.log('date', date);
+            const data_time = Date.parse(value);
+            $(this.elem).attr('data-time', data_time);
+
+            const $operate_wrap = $(this.elem).parents('.operate-wrap');
+            const $operate_menu = $operate_wrap.siblings('.operate-menu');
+            const build = $operate_menu.find('>.build-tab>span.active').attr('data-name');
+            const floor = $operate_menu.find('>.floor-switch>.floor-text').attr('data-index');
+            const room = $operate_menu.find('>.room-switch>.room-text').attr('data-index');
+
+            const hasName = room == 'all' ? true : false;
+
             if (date.year) {
                 // 执行修改命令
+                update_oper_list($operate_wrap, hasName, data_time, build, floor, room);
             } else {
                 // 执行清空命令
+                update_oper_list($operate_wrap, hasName, 'all', build, floor, room);
             }
             // console.log('this.elem', this.elem);
         }
@@ -120,15 +151,14 @@ $(function () {
         done: function (value, date) {
             // console.log('value', value);
             // console.log('date', date);
+            const data_time = Date.parse(value);
+            $(this.elem).attr('data-time', data_time);
 
             if (date.year) {
                 // 执行修改命令
-
             } else {
                 // 执行清空命令
             }
-
-            $(this.elem).attr('data-time', Date.parse(value));
         }
     })
 
@@ -520,7 +550,7 @@ $(function () {
             const $build_tab = $select_wrap.find('>.build-tab');
             const $floor_switch = $select_wrap.find('>.floor-switch');
             const $room_switch = $select_wrap.find('>.room-switch');
-    
+
             build = $build_tab.find('>span.active').attr('data-name');
             floor = Number($floor_switch.find('>.floor-text').attr('data-index'));
             room = $room_switch.find('>.room-text').attr('data-index');
@@ -616,10 +646,18 @@ $(function () {
     }
 
     // 更新运维列表
-    const update_oper_list = ($operate_wrap, hasName, build = 'all', floor = "all", room = "all") => {
+    const update_oper_list = ($operate_wrap, hasName, date = 'all', build = 'all', floor = "all", room = "all") => {
         const list = [];
 
         for (const data of allOperateData) {
+            if (date != 'all') {
+                const new_date = getDateByTime(date, true);
+                const data_date = getDateByTime(data.time, true);
+                if (new_date != data_date) {
+                    continue
+                }
+            }
+
             if (build == 'all') { // 推入所有数据
                 list.push(data);
             } else if (data.build == build) { // 楼栋匹配
@@ -681,7 +719,7 @@ $(function () {
 
         // 运维管理列表更新 ----------------------
         const $operate_wrap = $(element).parents('.operate-menu').siblings('.operate-wrap');
-        update_oper_list($operate_wrap, true, build_name);
+        update_oper_list($operate_wrap, true, 'all', build_name);
     }
 
     // 管理页切换楼层
@@ -714,7 +752,7 @@ $(function () {
 
         // 运维管理列表更新 ----------------------
         const $operate_wrap = $(element).parents('.operate-menu').siblings('.operate-wrap');
-        update_oper_list($operate_wrap, true, build_name, active_floor_index)
+        update_oper_list($operate_wrap, true, 'all', build_name, active_floor_index)
     }
 
     // 管理页切换房间
@@ -735,7 +773,7 @@ $(function () {
         if (active_room_index == 'all') {
             hasName = true;
         }
-        update_oper_list($operate_wrap, hasName, build_name, active_floor_index, active_room_index);
+        update_oper_list($operate_wrap, hasName, 'all', build_name, active_floor_index, active_room_index);
     }
 
     /**
@@ -755,7 +793,7 @@ $(function () {
                 hasName = false;
             }
         }
-        
+
         const $edit_area = $operate_wrap.find('>.wrap-right>.edit-area');
         const $view_area = $operate_wrap.find('>.wrap-right>.view-area');
 
@@ -1047,7 +1085,7 @@ $(function () {
         const $room_path = $operate_wrap.find('>.wrap-right>.top-area>.room-path');
         $room_path.text(`${build}-${floor+1}-${room}`);
 
-        update_oper_list($operate_wrap, false, build, floor, room);
+        update_oper_list($operate_wrap, false, 'all', build, floor, room);
     })
 
     // 首页运维界面关闭
