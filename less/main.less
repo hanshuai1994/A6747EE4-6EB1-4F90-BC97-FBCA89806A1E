@@ -1509,18 +1509,43 @@ canvas {
                     }
                 }
 
-                >.year-switch {
+                >.edit-box {
                     position: absolute;
-                    top: 30px;
-                    left: 10px;
+                    top: 10%;
+                    left: 17%;
                     display: flex;
-                    width: 80px;
-                    height: 29px;
-                    border: 1px solid @borderColor;
-                    border-radius: @border_radius;
-                    justify-content: center;
                     align-items: center;
-                    cursor: pointer;
+
+                    >.year-switch {
+                        display: flex;
+                        width: 80px;
+                        height: 29px;
+                        margin-right: 5px;
+                        border: 1px solid @borderColor;
+                        border-radius: @border_radius;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                    }
+
+                    >.radio-box {
+                        display: flex;
+                    
+                        >span {
+                            cursor: pointer;
+                            width: 35px;
+                            height: 25px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            border-radius: @border_radius;
+
+                            &.active {
+                                background-color: @themeColor;
+                                color: #fff;
+                            }
+                        }
+                    }
                 }
             }
         }

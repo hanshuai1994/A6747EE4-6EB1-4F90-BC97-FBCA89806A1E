@@ -298,10 +298,28 @@ const createChartOption2 = (config) => {
  * @param {*} config 
  */
 const createChartOption3 = (config) => {
-    const {
+    let {
         titleText,
         seriesData,
+        xAxisData,
     } = config;
+
+    if (!xAxisData) {
+        xAxisData = [
+            '一月',
+            '二月',
+            '三月',
+            '四月',
+            '五月',
+            '六月',
+            '七月',
+            '八月',
+            '九月',
+            '十月',
+            '十一月',
+            '十二月',
+        ];
+    }
 
     const option = {
         title: {
@@ -332,20 +350,7 @@ const createChartOption3 = (config) => {
                 color: '#999999',
                 margin: 20,
             },
-            data: [
-                '一月',
-                '二月',
-                '三月',
-                '四月',
-                '五月',
-                '六月',
-                '七月',
-                '八月',
-                '九月',
-                '十月',
-                '十一月',
-                '十二月',
-            ],
+            data: xAxisData,
         },
         yAxis: {
             type: 'value',
@@ -679,122 +684,191 @@ chart_electric_1.on('click', function (event) {
 });
 
 
+const getMonthIndex = (data) => {
+    return Number(data.FreezeDate.split('-')[1]) - 1
+}
 
+// 根据返回的数据获取折线图数据
+const get_chart_2_data = (Data, interval = "monthly") => {
+    const tempArray = []; // 临时数组
+    const startData = Data[0]; // 返回数组中首个数据
+
+    if (interval == "monthly") {
+        let preMonth = getMonthIndex(Data[1]);
+
+        const length = Data.length;
+        for (let i = 1; i < length; i++) {
+            const item = Data[i];
+            const month_index = getMonthIndex(item);
+
+            if ((month_index != preMonth) || (i == length - 1)) { // 切到下一个月
+                tempArray[preMonth] = Number(item.MeterNumber); // 记录数据
+                preMonth = month_index; // 记录当前月的序列
+            }
+        }
+
+        const result = [];
+        const start_month_index = getMonthIndex(startData);
+
+        let next_month = 0;
+        if (start_month_index != 11) { // 数组中首个数据的月数不是12月
+            next_month = start_month_index + 1;
+        }
+
+        for (let i = 0; i < 12; i++) {
+            if (tempArray[i]) {
+                if (i == next_month) {
+                    result[i] = Number(Number(tempArray[i] - Number(startData.MeterNumber)).toFixed(2));
+                } else {
+                    result[i] = Number(Number(tempArray[i] - tempArray[i - 1]).toFixed(2));
+                }
+            } else {
+                result[i] = 0;
+            }
+        }
+
+        // console.log('result', result);
+
+        return result
+    } else {
+        const result = [];
+
+        const length = Data.length;
+        for (let i = 1; i < length; i++) {
+            result[i - 1] = Number(Data[i].MeterNumber - Data[i - 1].MeterNumber).toFixed(2);
+        }
+
+        return result
+    }
+}
+
+/**
+ * @name 更新折线图
+ * @param {*} opts 
+ * @param {dom} opts.chart 将要更新的图表
+ * @param {string} opts.id 将要更新的电/水表的id
+ * @param {number} opts.year 将要更新的电/水表的年份
+ * @param {string} opts.type 将要更新的电/水表的类型（water/electric）
+ * @param {string} opts.interval 将要更新的电/水表的间隔(monthly/daily)
+ * @param {string} opts.name 将要更新的电/水表的名称
+ */
+const update_chart_3 = (opts) => {
+    const {
+        chart,
+        id,
+        year,
+        type,
+        interval,
+        name,
+    } = opts
+
+    $.ajax({
+        type: 'POST',
+        url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
+        data: {
+            LoginInfo: `{"Code":"admin","Token":"${token}"}`,
+            ParamList: `{"MeterAddr":"${id}","DataType":"2","BeginDate":"${year - 1}-12-31","EndDate":"${year}-12-31","PageSize":"100000"}`
+        },
+        success: function (res) {
+            const text = $(res).find('string').text();
+            const data = JSON.parse(text);
+            // console.log('当前抄表数据data', data);
+            if (data.Data.length == 0) {
+                return
+            }
+            const result = get_chart_2_data(data.Data, interval);
+            // console.log('result', result);
+            let xAxisData;
+            if (interval == 'daily') {
+                xAxisData = [];
+
+                const Data = data.Data;
+                const length = Data.length;
+
+                for (let i = 1; i < length; i++) {
+                    const item = Data[i];
+                    xAxisData.push(item.FreezeDate);
+                }
+            }
+
+            // 生成水表折线图配置
+            const chart_3_option = createChartOption3({
+                titleText: type == 'water' ? `${name}每月耗水(kWh)` : `${name}每月能耗(kWh)`,
+                seriesData: result,
+                xAxisData: xAxisData || undefined,
+            });
+
+            chart.resize();
+            chart.setOption(chart_3_option);
+        },
+        error: function (err) {
+            console.log('err', err);
+        }
+    })
+}
+
+
+const water_chart_opts = {
+    chart: chart_water_3,
+    id: undefined,
+    year: undefined,
+    type: 'water',
+    interval: 'monthly',
+    name: undefined,
+}
 chart_water_2.on('click', function (event) {
-    return
+    // return
     console.log('event', event);
     $('#tab-water').find('>.chart-2').removeClass('active');
     $('#tab-water').find('>.chart-3').addClass('active');
 
     const name = event.name;
 
-    let id;
+    // let id;
     for (const waterData of waterMeter) {
         if (waterData.detail == name) {
-            id = waterData.id;
+            water_chart_opts.id = waterData.id;
             break
         }
     }
 
-    if (id) {
-        // 当前抄表数据
-        $.ajax({
-            type: 'POST',
-            url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
-            data: {
-                LoginInfo: `{"Code":"admin","Token":"${token}"}`,
-                ParamList: `{"MeterAddr":"${id}","DataType":"3","BeginDate":"2019-01-01","EndDate":"2019-12-31","PageSize":"100000"}`
-            },
-            success: function (res) {
-                console.log('res', res);
-                const text = $(res).find('string').text();
-                const data = JSON.parse(text);
-                console.log('当前抄表数据data', data);
-                // if (data.Data[0]) {
-                //     const value = Number(data.Data[0].MeterNumber);
-                //     const result = {
-                //         id,
-                //         type,
-                //         value,
-                //         detail,
-                //     };
-
-                // } else {
-
-                // }
-
-                // 生成水表折线图配置
-                // const water_chart_3_option = createChartOption3({
-                //     titleText: `${name}每月耗水(kWh)`,
-                //     seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
-                // });
-
-                // chart_water_3.resize();
-                // chart_water_3.setOption(water_chart_3_option);
-            },
-            error: function (err) {
-                console.log('err', err);
-            }
-        })
+    if (water_chart_opts.id) {
+        water_chart_opts.year = new Date().getFullYear();
+        water_chart_opts.name = name;
+        water_chart_opts.interval = $('#tab-water>.chart-3>.edit-box>.radio-box>span.active').attr('data-key');
+        update_chart_3(water_chart_opts);
     }
 })
 
+const electric_chart_opts = {
+    chart: chart_electric_3,
+    id: undefined,
+    year: undefined,
+    type: 'electric',
+    interval: 'monthly',
+    name: undefined,
+}
 chart_electric_2.on('click', function (event) {
-    return
+    // return
     console.log('event', event);
     $('#tab-electric').find('>.chart-2').removeClass('active');
     $('#tab-electric').find('>.chart-3').addClass('active');
 
     const name = event.name;
 
-    let id;
+    // let id;
     for (const electricData of electricMeter) {
         if (electricData.detail == name) {
-            id = electricData.id;
+            electric_chart_opts.id = electricData.id;
             break
         }
     }
 
-    if (id) {
-        // 当前抄表数据
-        $.ajax({
-            type: 'POST',
-            url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
-            data: {
-                LoginInfo: `{"Code":"admin","Token":"${token}"}`,
-                ParamList: `{"MeterAddr":"${id}","DataType":"3","BeginDate":"2019-01-01","EndDate":"2019-12-31","PageSize":"100000"}`
-            },
-            success: function (res) {
-                console.log('res', res);
-                const text = $(res).find('string').text();
-                const data = JSON.parse(text);
-                console.log('当前抄表数据data', data);
-                // if (data.Data[0]) {
-                //     const value = Number(data.Data[0].MeterNumber);
-                //     const result = {
-                //         id,
-                //         type,
-                //         value,
-                //         detail,
-                //     };
-
-                // } else {
-
-                // }
-
-                // 生成电表折线图配置
-                // const electric_chart_3_option = createChartOption3({
-                //     titleText: `${name}每月能耗(kWh)`,
-                //     seriesData: [120, 190, 150, 80, 70, 110, 120, 180, 150, 80, 70, 110],
-                // })
-
-                // chart_electric_3.resize();
-                // chart_electric_3.setOption(electric_chart_3_option);
-            },
-            error: function (err) {
-                console.log('err', err);
-            }
-        })
+    if (electric_chart_opts.id) {
+        electric_chart_opts.year = new Date().getFullYear();
+        electric_chart_opts.name = name;
+        electric_chart_opts.interval = $('#tab-electric>.chart-3>.edit-box>.radio-box>span.active').attr('data-key');
+        update_chart_3(electric_chart_opts);
     }
 });
 
@@ -821,9 +895,33 @@ $('#tab-electric, #tab-water').on('click', '>div>.back', function () {
 });
 
 
-const year_switch = `<span class="year-switch">2019</span>`;
-$('#tab-electric>.chart-3').append(year_switch);
-$('#tab-water>.chart-3').append(year_switch);
+const edit_box = `
+    <div class="edit-box">
+        <div class="year-switch">2019</div>
+        <div class="radio-box">
+            <span class='active' data-key="monthly">月</span>
+            <span data-key="daily">日</span>
+        </div>
+    </div>
+`;
+$('#tab-electric>.chart-3').append(edit_box);
+$('#tab-water>.chart-3').append(edit_box);
+
+$('#tab-statistics .chart-3').on('click', '>.edit-box>.radio-box>span', function () {
+    if (!$(this).hasClass('active')) {
+        $(this).addClass('active').siblings().removeClass('active');
+
+        const interval = $(this).attr('data-key')
+
+        if ($(this).parents('.tab-pane').attr('id') == 'tab-electric') {
+            electric_chart_opts.interval = interval;
+            update_chart_3(electric_chart_opts);
+        } else {
+            water_chart_opts.interval = interval;
+            update_chart_3(water_chart_opts);
+        }
+    }
+})
 
 laydate.set({
     type: 'datetime',
@@ -834,15 +932,55 @@ laydate.set({
 })
 
 laydate.render({
-    elem: '#tab-electric>.chart-3>.year-switch',
+    elem: '#tab-electric>.chart-3>.edit-box>.year-switch',
     type: 'year',
     isInitValue: true,
+    done: function (value, date) {
+        // console.log('value', value);
+        // console.log('date', date);
+        let year;
+        if (date.year) {
+            // 执行修改命令
+            year = date.year;
+        } else {
+            // 执行清空命令
+            year = new Date().getFullYear();
+            $(this.elem).text(year);
+        }
+
+        $(this.elem).attr('data-year', year);
+
+        electric_chart_opts.year = year;
+        update_chart_3(electric_chart_opts);
+
+        // console.log('this.elem', this.elem);
+    }
 })
 
 laydate.render({
-    elem: '#tab-water>.chart-3>.year-switch',
+    elem: '#tab-water>.chart-3>.edit-box>.year-switch',
     type: 'year',
     isInitValue: true,
+    done: function (value, date) {
+        // console.log('value', value);
+        // console.log('date', date);
+        let year;
+        if (date.year) {
+            // 执行修改命令
+            year = date.year;
+        } else {
+            // 执行清空命令
+            year = new Date().getFullYear();
+            $(this.elem).text(year);
+        }
+
+        $(this.elem).attr('data-year', year);
+
+        water_chart_opts.year = year;
+        update_chart_3(water_chart_opts);
+
+        // console.log('this.elem', this.elem);
+    }
 })
 
 $('#top-menu>.statistics>a').one('click', function () {
