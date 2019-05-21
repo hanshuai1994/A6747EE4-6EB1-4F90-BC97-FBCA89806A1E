@@ -406,8 +406,10 @@ $(function () {
         $room_switch.find('>.room-text').text(room_text).attr('data-index', roomName);
 
         if (roomName == 'all') {
-            // 显示运维按钮
+            // 隐藏运维按钮
             $('.operate-btn').hide();
+            // 隐藏机电按钮
+            $('.equipment-btn').hide();
             // 更新并显示空调与新风
             $('.air-system').hide();
             // 清除地板高亮
@@ -415,6 +417,8 @@ $(function () {
         } else {
             // 显示运维按钮
             $('.operate-btn').show();
+            // 显示机电按钮
+            $('.equipment-btn').show();
             // 更新并显示空调与新风
             $('.air-system').show();
         }
@@ -427,6 +431,9 @@ $(function () {
 
         // 隐藏运维按钮
         $('.operate-btn').hide();
+
+        // 隐藏机电按钮
+        $('.equipment-btn').hide();
 
         // 隐藏空调与新风
         $('.air-system').hide();
@@ -1092,6 +1099,39 @@ $(function () {
     $('#tab-home .operate-wrap .shut').click(function () {
         $('#tab-home .operate-mask').hide();
     });
+
+    // ----------------------- 首页机电 -----------------------
+    $('#tab-home .equipment-btn').click(function() {
+        $('.equipment-mask').show();
+        const seriesData = [
+            {
+                name: '111',
+                value: 111,
+            },
+            {
+                name: '222',
+                value: 222,
+            },
+            {
+                name: '333',
+                value: 333,
+            },
+        ]
+        const chart_1_option = createChartOption1({
+            titleText: '耗电占比统计',
+            // seriesName: '用电区域',
+            seriesData: seriesData,
+            unit: 'kw·h',
+            titleLeft: '30%',
+            titleTop: '18 %',
+            seriesCenter: ['35%', '50%'],
+            legendTop: '40%',
+            // legendLeft: '64%',
+        });
+        chart_equipment_1.resize();
+        chart_equipment_1.setOption(chart_1_option);
+    })
+
 
     // ----------------------- 空调新风 -----------------------
     // 隐藏空调/新风编辑框

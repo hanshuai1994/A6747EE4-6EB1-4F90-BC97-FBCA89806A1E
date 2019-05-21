@@ -122,6 +122,17 @@ canvas {
     }
 }
 
+.shut {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    display: flex;
+    width: 22px;
+    height: 22px;
+    background: url(../img/icon/btn_shut.png) center no-repeat;
+    cursor: pointer;
+}
+
 // 楼栋显示/隐藏
 .build-tab {
     display: flex;
@@ -364,17 +375,6 @@ canvas {
             height: 38px;
             border-bottom: 1px solid @borderColor;
             position: relative;
-
-            >.shut {
-                position: absolute;
-                top: 9px;
-                right: 9px;
-                display: flex;
-                width: 22px;
-                height: 22px;
-                background: url(../img/icon/btn_shut.png) center no-repeat;
-                cursor: pointer;
-            }
         }
 
         >.view-area,
@@ -771,29 +771,46 @@ canvas {
                 }
             }
 
-            >.operate-btn {
-                display: none;
-
-                position: absolute;
+            >.operate-btn,
+            >.equipment-btn {
                 @width: 83px;
+                @height: 34px;
 
                 width: @width;
-                height: 34px;
+                height: @height;
 
-                border-radius: @border_radius;
-
-                top: 0;
+                display: none;
+                position: absolute;
                 right: calc(-20px - @width);
-
+                
                 cursor: pointer;
+                border-radius: @border_radius;
+                background-color: @normalBackColor;
 
-                background: url(../img/icon/btn_oper_normal.png) center no-repeat;
+                &.operate-btn {
+                    top: 0;
 
-                &:hover {
-                    background-image: url(../img/icon/btn_oper_normal_pressed.png);
+                    background-image: url(../img/icon/btn_oper_normal.png);
+                    background-repeat: no-repeat;
+                    background-position: center;
+
+                    &:hover {
+                        background-image: url(../img/icon/btn_oper_normal_pressed.png);
+                    }
                 }
 
-                background-color: @normalBackColor;
+                &.equipment-btn {
+                    top: 40px;
+                    text-align: center;
+                    line-height: @height;
+                    font-size: 14px;
+                    border: 1px solid #999999;
+
+                    &:hover {
+                        color: @activeFontColor;
+                        border-color: @activeFontColor;
+                    }
+                }
             }
         }
 
@@ -1032,15 +1049,35 @@ canvas {
         }
     }
 
-    >.operate-mask {
+    >.operate-mask,
+    >.equipment-mask {
         display: none;
         position: absolute;
+        z-index: 999;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
 
         background-color: rgba(0, 0, 0, 0.1);
+
+        &.equipment-mask {
+            >div {
+                display: none;
+                width: 60%;
+                height: 80%;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: @normalBackColor;
+                border-radius: @border_radius;
+
+                &.active {
+                    display: block;
+                }
+            }
+        }
     }
 
     >.init-btn,

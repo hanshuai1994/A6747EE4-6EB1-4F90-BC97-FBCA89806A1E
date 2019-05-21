@@ -178,3 +178,18 @@ const replaceData = (array, data) => {
         }
     }
 }
+
+/**
+ * @name 根据日期确定所在年的周数
+ * @param {str} str 日期，格式为 'yyyy-mm-dd'
+ */
+const getWeekIndexOfYear = (str) => {
+    const date = new Date(str);
+    const date2 = new Date(date.getFullYear(), 0, 1);
+    let day1 = date.getDay();
+    if (day1 == 0) day1 = 7;
+    let day2 = date2.getDay();
+    if (day2 == 0) day2 = 7;
+    const d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
+    return Math.ceil(d / 7) + 1;
+}

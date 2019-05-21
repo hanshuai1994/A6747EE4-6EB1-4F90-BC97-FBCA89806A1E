@@ -93,6 +93,16 @@ canvas {
   margin-top: 20px;
   width: 50%;
 }
+.shut {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: flex;
+  width: 22px;
+  height: 22px;
+  background: url(../img/icon/btn_shut.png) center no-repeat;
+  cursor: pointer;
+}
 .build-tab {
   display: flex;
   width: 100%;
@@ -274,16 +284,6 @@ canvas {
   height: 38px;
   border-bottom: 1px solid #e6e6e6;
   position: relative;
-}
-.operate-wrap > .wrap-right > .top-area > .shut {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  display: flex;
-  width: 22px;
-  height: 22px;
-  background: url(../img/icon/btn_shut.png) center no-repeat;
-  cursor: pointer;
 }
 .operate-wrap > .wrap-right > .view-area,
 .operate-wrap > .wrap-right > .edit-area {
@@ -607,20 +607,40 @@ canvas {
   line-height: 12px;
   color: #525d70;
 }
-#container > .view-wrap.select-wrap > .operate-btn {
-  display: none;
-  position: absolute;
+#container > .view-wrap.select-wrap > .operate-btn,
+#container > .view-wrap.select-wrap > .equipment-btn {
   width: 83px;
   height: 34px;
-  border-radius: 5px;
-  top: 0;
+  display: none;
+  position: absolute;
   right: calc(-20px - 83px);
   cursor: pointer;
-  background: url(../img/icon/btn_oper_normal.png) center no-repeat;
+  border-radius: 5px;
   background-color: #fafafa;
 }
-#container > .view-wrap.select-wrap > .operate-btn:hover {
+#container > .view-wrap.select-wrap > .operate-btn.operate-btn,
+#container > .view-wrap.select-wrap > .equipment-btn.operate-btn {
+  top: 0;
+  background-image: url(../img/icon/btn_oper_normal.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#container > .view-wrap.select-wrap > .operate-btn.operate-btn:hover,
+#container > .view-wrap.select-wrap > .equipment-btn.operate-btn:hover {
   background-image: url(../img/icon/btn_oper_normal_pressed.png);
+}
+#container > .view-wrap.select-wrap > .operate-btn.equipment-btn,
+#container > .view-wrap.select-wrap > .equipment-btn.equipment-btn {
+  top: 40px;
+  text-align: center;
+  line-height: 34px;
+  font-size: 14px;
+  border: 1px solid #999999;
+}
+#container > .view-wrap.select-wrap > .operate-btn.equipment-btn:hover,
+#container > .view-wrap.select-wrap > .equipment-btn.equipment-btn:hover {
+  color: #3b78c8;
+  border-color: #3b78c8;
 }
 #container > .view-wrap.air-system {
   display: none;
@@ -798,14 +818,32 @@ canvas {
   cursor: pointer;
   background: url(../img/icon/btn_yes.png) center no-repeat;
 }
-#container > .operate-mask {
+#container > .operate-mask,
+#container > .equipment-mask {
   display: none;
   position: absolute;
+  z-index: 999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
+}
+#container > .operate-mask.equipment-mask > div,
+#container > .equipment-mask.equipment-mask > div {
+  display: none;
+  width: 60%;
+  height: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fafafa;
+  border-radius: 5px;
+}
+#container > .operate-mask.equipment-mask > div.active,
+#container > .equipment-mask.equipment-mask > div.active {
+  display: block;
 }
 #container > .init-btn,
 #container > .shadow-btn {

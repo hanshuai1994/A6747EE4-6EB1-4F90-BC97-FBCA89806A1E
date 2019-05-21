@@ -92,6 +92,13 @@ const chart_water_1 = echarts.init(document.querySelector('#tab-water>.chart-1')
 const chart_water_2 = echarts.init(document.querySelector('#tab-water>.chart-2'));
 const chart_water_3 = echarts.init(document.querySelector('#tab-water>.chart-3'));
 
+const chart_equipment_1 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-1'));
+const chart_equipment_2 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-2'));
+
+
+const shut_dom = `<span class="shut"></span>`
+$('#container>.equipment-mask>.chart-1').append(shut_dom);
+
 /**
  * @name 创建饼状图配置
  * @param {*} config 
@@ -102,13 +109,18 @@ const createChartOption1 = (config) => {
         seriesName,
         seriesData,
         unit,
+        titleLeft,
+        titleTop,
+        legendLeft,
+        legendTop,
+        seriesCenter,
     } = config;
 
     const option = {
         title: {
             text: titleText,
-            left: '38.5%',
-            top: '14%',
+            left: titleLeft || '38.5%',
+            top: titleTop || '14%',
             textStyle: {
                 color: '#484848',
                 fontSize: 14,
@@ -121,8 +133,8 @@ const createChartOption1 = (config) => {
         },
         legend: {
             orient: 'vertical',
-            left: '60%',
-            top: '31%',
+            left: legendLeft || '60%',
+            top: legendTop || '31%',
             icon: 'circle',
             formatter: function (name) {
                 const datas = seriesData;
@@ -145,7 +157,7 @@ const createChartOption1 = (config) => {
             name: seriesName,
             type: 'pie',
             radius: ['26%', '40%'],
-            center: ['42%', '40%'],
+            center: seriesCenter || ['42%', '40%'],
             avoidLabelOverlap: false,
             label: {
                 normal: {
@@ -730,7 +742,32 @@ const get_chart_2_data = (Data, interval = "monthly") => {
         // console.log('result', result);
 
         return result
-    } else {
+    } else if (interval == "weekly") {
+        const result = [];
+
+        const tempObject = {};
+        const length = Data.length;
+        for (let i = 1; i < length; i++) {
+            const data = Data[i];
+            
+            const dayIndex = new Date(data.FreezeDate).getDay();
+            if (dayIndex == 0) { // 周日
+                const weekIndex = getWeekIndexOfYear(data.FreezeDate);
+                tempObject[weekIndex] = data.MeterNumber;
+            }
+        }
+
+        // 遍历一年的周数
+        for (let i = 1; i < 55; i++) {
+            if (tempObject[i] && tempObject[i - 1]) {
+                result[i - 1] = Number((Number(tempObject[i]) - Number(tempObject[i - 1])).toFixed(2));
+            } else {
+                result[i - 1] = 0;
+            }
+        }
+
+        return result
+    } else if (interval == "daily") {
         const result = [];
 
         const length = Data.length;
@@ -749,7 +786,7 @@ const get_chart_2_data = (Data, interval = "monthly") => {
  * @param {string} opts.id 将要更新的电/水表的id
  * @param {number} opts.year 将要更新的电/水表的年份
  * @param {string} opts.type 将要更新的电/水表的类型（water/electric）
- * @param {string} opts.interval 将要更新的电/水表的间隔(monthly/daily)
+ * @param {string} opts.interval 将要更新的电/水表的间隔(monthly/weekly/daily)
  * @param {string} opts.name 将要更新的电/水表的名称
  */
 const update_chart_3 = (opts) => {
@@ -789,6 +826,13 @@ const update_chart_3 = (opts) => {
                     const item = Data[i];
                     xAxisData.push(item.FreezeDate);
                 }
+            } else if (interval == 'weekly') {
+                xAxisData = [];
+
+                const length = result.length;
+                for (let i = 0; i < length; i++) {
+                    xAxisData.push(`${i + 1}周`)
+                }
             }
 
             // 生成水表折线图配置
@@ -818,7 +862,7 @@ const water_chart_opts = {
 }
 chart_water_2.on('click', function (event) {
     // return
-    console.log('event', event);
+    // console.log('event', event);
     $('#tab-water').find('>.chart-2').removeClass('active');
     $('#tab-water').find('>.chart-3').addClass('active');
 
@@ -850,7 +894,7 @@ const electric_chart_opts = {
 }
 chart_electric_2.on('click', function (event) {
     // return
-    console.log('event', event);
+    // console.log('event', event);
     $('#tab-electric').find('>.chart-2').removeClass('active');
     $('#tab-electric').find('>.chart-3').addClass('active');
 
@@ -900,6 +944,7 @@ const edit_box = `
         <div class="year-switch">2019</div>
         <div class="radio-box">
             <span class='active' data-key="monthly">月</span>
+            <span data-key="weekly">周</span>
             <span data-key="daily">日</span>
         </div>
     </div>
