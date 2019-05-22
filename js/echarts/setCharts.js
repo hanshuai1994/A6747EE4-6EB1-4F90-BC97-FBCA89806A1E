@@ -479,7 +479,7 @@ const getMonthIndex = (data) => {
  * @param {*} Data 基础数据
  * @param {string} interval 显示间隔（monthly/weekly/daily）
  */
-const get_chart_2_data = (Data, interval = "monthly") => {
+const get_chart_3_data = (Data, interval = "monthly") => {
     const tempArray = []; // 临时数组
     const startData = Data[0]; // 返回数组中首个数据
 
@@ -550,7 +550,7 @@ const get_chart_2_data = (Data, interval = "monthly") => {
 
         const length = Data.length;
         for (let i = 1; i < length; i++) {
-            result[i - 1] = Number(Data[i].MeterNumber - Data[i - 1].MeterNumber).toFixed(2);
+            result[i - 1] = Number(Number(Data[i].MeterNumber - Data[i - 1].MeterNumber).toFixed(2));
         }
 
         return result
@@ -591,7 +591,7 @@ const update_chart_3 = (opts) => {
             if (data.Data.length == 0) {
                 return
             }
-            const result = get_chart_2_data(data.Data, interval);
+            const result = get_chart_3_data(data.Data, interval);
             // console.log('result', result);
             let xAxisData;
             if (interval == 'daily') {
@@ -613,7 +613,7 @@ const update_chart_3 = (opts) => {
                 }
             }
 
-            // 生成水表折线图配置
+            // 生成折线图配置
             const chart_3_option = createChartOption3({
                 titleText: type == 'water' ? `${name}每月耗水(kWh)` : `${name}每月能耗(kWh)`,
                 seriesData: result,
@@ -643,6 +643,7 @@ const chart_equipment_2 = echarts.init(document.querySelector('#container>.equip
 // 在图表中插入dom与绑定事件
 const shut_dom = `<span class="shut"></span>`;
 $('#container>.equipment-mask>.chart-1').append(shut_dom);
+$('#container>.equipment-mask>.chart-2').append(shut_dom);
 
 const back_dom = `<span class="back"></span>`;
 $('#tab-water>.chart-2').append(back_dom);
@@ -674,19 +675,24 @@ const edit_box = `
 `;
 $('#tab-electric>.chart-3').append(edit_box);
 $('#tab-water>.chart-3').append(edit_box);
+$('#container>.equipment-mask>.chart-2').append(edit_box);
 
-$('#tab-statistics .chart-3').on('click', '>.edit-box>.radio-box>span', function () {
+$('.chart-wrap').on('click', '>.edit-box>.radio-box>span', function () {
     if (!$(this).hasClass('active')) {
         $(this).addClass('active').siblings().removeClass('active');
 
-        const interval = $(this).attr('data-key')
+        const interval = $(this).attr('data-key');
+        const type = $(this).parents('.chart-box').attr('data-type');
 
-        if ($(this).parents('.tab-pane').attr('id') == 'tab-electric') {
+        if (type == 'electric') {
             electric_chart_opts.interval = interval;
             update_chart_3(electric_chart_opts);
-        } else {
+        } else if (type == 'water') {
             water_chart_opts.interval = interval;
             update_chart_3(water_chart_opts);
+        } else if (type == 'equipment') {
+            equipment_chart_opts.interval = interval;
+            update_chart_3(equipment_chart_opts);
         }
     }
 })
@@ -758,9 +764,8 @@ $.ajax({
 
 // 绑定水表饼图点击
 chart_water_1.on('click', function (event) {
-    console.log('event', event);
-    $('#tab-water').find('>.chart-1').removeClass('active');
-    $('#tab-water').find('>.chart-2').addClass('active');
+    // console.log('event', event);
+    $(this._dom).removeClass('active').siblings('.chart-2').addClass('active');
 
     const name = event.name;
 
@@ -792,9 +797,8 @@ chart_water_1.on('click', function (event) {
 
 // 绑定电表饼图点击
 chart_electric_1.on('click', function (event) {
-    console.log('event', event);
-    $('#tab-electric').find('>.chart-1').removeClass('active');
-    $('#tab-electric').find('>.chart-2').addClass('active');
+    // console.log('event', event);
+    $(this._dom).removeClass('active').siblings('.chart-2').addClass('active');
 
     const name = event.name;
 
@@ -824,6 +828,26 @@ chart_electric_1.on('click', function (event) {
     chart_electric_2.setOption(electric_chart_2_option);
 });
 
+const equipment_chart_opts = {
+    chart: chart_equipment_2,
+    id: 402019124810 || undefined,
+    year: undefined,
+    type: 'equipment',
+    interval: 'monthly',
+    name: undefined,
+}
+// 绑定机电图表饼状图点击
+chart_equipment_1.on('click', function (event) {
+    // console.log('this', this);
+    $(this._dom).removeClass('active').siblings('.chart-2').addClass('active');
+    const name = event.name;
+
+    equipment_chart_opts.year = new Date().getFullYear();
+    equipment_chart_opts.name = name;
+    equipment_chart_opts.interval = $(this._dom).siblings('.chart-2').find('>.edit-box>.radio-box>span.active').attr('data-key');
+    update_chart_3(equipment_chart_opts);
+})
+
 
 const water_chart_opts = {
     chart: chart_water_3,
@@ -836,8 +860,7 @@ const water_chart_opts = {
 chart_water_2.on('click', function (event) {
     // return
     // console.log('event', event);
-    $('#tab-water').find('>.chart-2').removeClass('active');
-    $('#tab-water').find('>.chart-3').addClass('active');
+    $(this._dom).removeClass('active').siblings('.chart-3').addClass('active');
 
     const name = event.name;
 
@@ -852,7 +875,7 @@ chart_water_2.on('click', function (event) {
     if (water_chart_opts.id) {
         water_chart_opts.year = new Date().getFullYear();
         water_chart_opts.name = name;
-        water_chart_opts.interval = $('#tab-water>.chart-3>.edit-box>.radio-box>span.active').attr('data-key');
+        water_chart_opts.interval = $(this._dom).siblings('.chart-3').find('>.edit-box>.radio-box>span.active').attr('data-key');
         update_chart_3(water_chart_opts);
     }
 })
@@ -868,8 +891,7 @@ const electric_chart_opts = {
 chart_electric_2.on('click', function (event) {
     // return
     // console.log('event', event);
-    $('#tab-electric').find('>.chart-2').removeClass('active');
-    $('#tab-electric').find('>.chart-3').addClass('active');
+    $(this._dom).removeClass('active').siblings('.chart-3').addClass('active');
 
     const name = event.name;
 
@@ -884,7 +906,7 @@ chart_electric_2.on('click', function (event) {
     if (electric_chart_opts.id) {
         electric_chart_opts.year = new Date().getFullYear();
         electric_chart_opts.name = name;
-        electric_chart_opts.interval = $('#tab-electric>.chart-3>.edit-box>.radio-box>span.active').attr('data-key');
+        electric_chart_opts.interval = $(this._dom).siblings('.chart-3').find('>.edit-box>.radio-box>span.active').attr('data-key');
         update_chart_3(electric_chart_opts);
     }
 });
@@ -897,6 +919,7 @@ laydate.set({
     calendar: true,
 })
 
+// 能耗折线图内的日历事件
 laydate.render({
     elem: '#tab-electric>.chart-3>.edit-box>.year-switch',
     type: 'year',
@@ -923,6 +946,7 @@ laydate.render({
     }
 })
 
+// 水耗折线图内的日历事件
 laydate.render({
     elem: '#tab-water>.chart-3>.edit-box>.year-switch',
     type: 'year',

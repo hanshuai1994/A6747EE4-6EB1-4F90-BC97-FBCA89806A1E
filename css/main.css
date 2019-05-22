@@ -103,6 +103,40 @@ canvas {
   background: url(../img/icon/btn_shut.png) center no-repeat;
   cursor: pointer;
 }
+.chart-wrap > .edit-box {
+  position: absolute;
+  top: 10%;
+  left: 17%;
+  display: flex;
+  align-items: center;
+}
+.chart-wrap > .edit-box > .year-switch {
+  display: flex;
+  width: 80px;
+  height: 29px;
+  margin-right: 5px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.chart-wrap > .edit-box > .radio-box {
+  display: flex;
+}
+.chart-wrap > .edit-box > .radio-box > span {
+  cursor: pointer;
+  width: 35px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+.chart-wrap > .edit-box > .radio-box > span.active {
+  background-color: #324157;
+  color: #fff;
+}
 .build-tab {
   display: flex;
   width: 100%;
@@ -1217,40 +1251,6 @@ canvas {
 }
 #tab-statistics > .tab-content > .tab-pane > div > .back:hover {
   background-color: #eeeeee;
-}
-#tab-statistics > .tab-content > .tab-pane > div > .edit-box {
-  position: absolute;
-  top: 10%;
-  left: 17%;
-  display: flex;
-  align-items: center;
-}
-#tab-statistics > .tab-content > .tab-pane > div > .edit-box > .year-switch {
-  display: flex;
-  width: 80px;
-  height: 29px;
-  margin-right: 5px;
-  border: 1px solid #e6e6e6;
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-#tab-statistics > .tab-content > .tab-pane > div > .edit-box > .radio-box {
-  display: flex;
-}
-#tab-statistics > .tab-content > .tab-pane > div > .edit-box > .radio-box > span {
-  cursor: pointer;
-  width: 35px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-}
-#tab-statistics > .tab-content > .tab-pane > div > .edit-box > .radio-box > span.active {
-  background-color: #324157;
-  color: #fff;
 }
 #confirm-mask {
   position: fixed;
