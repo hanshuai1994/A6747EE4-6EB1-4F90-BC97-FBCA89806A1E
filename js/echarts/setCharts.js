@@ -1,103 +1,7 @@
-const option = {
-    grid: {
-        left: 42,
-        top: 23,
-        right: 10,
-        bottom: 48,
-    },
-    xAxis: {
-        type: 'category',
-        data: [
-            '01:00',
-            '02:00',
-            '03:00',
-            '04:00',
-            '05:00',
-            '06:00',
-            '07:00',
-            '08:00',
-            '09:00',
-            '10:00',
-            '11:00',
-            '12:00',
-            '13:00',
-            '14:00',
-        ],
-        axisLine: {
-            show: false,
-        },
-        axisTick: {
-            show: false,
-        },
-        axisLabel: {
-            color: '#999999',
-            margin: 14,
-            align: 'center',
-        },
-    },
-    yAxis: {
-        type: 'value',
-        interval: 50,
-        axisLine: {
-            show: false,
-        },
-        axisTick: {
-            show: false,
-        },
-        axisLabel: {
-            color: '#999999',
-            margin: 20,
-            align: 'center',
-        },
-    },
-    series: [{
-        type: 'bar',
-        data: [
-            120,
-            200,
-            150,
-            80,
-            70,
-            110,
-            130,
-            120,
-            200,
-            150,
-            80,
-            70,
-            110,
-            130,
-        ],
-        itemStyle: {
-            color: '#324157',
-            borderColor: '#324157',
-        },
-        barWidth: '100%',
-    }]
-};
+let token;
 
-
-// const waterChart = echarts.init(document.querySelector('#tab-statistics>.water-box>.content>.chart'));
-// const electricChart = echarts.init(document.querySelector('#tab-statistics>.electric-box>.content>.chart'));
-// const lightChart = echarts.init(document.querySelector('#tab-statistics>.light-box>.content>.chart'));
-
-// waterChart.setOption(option);
-// electricChart.setOption(option);
-// lightChart.setOption(option);
-
-const chart_electric_1 = echarts.init(document.querySelector('#tab-electric>.chart-1'));
-const chart_electric_2 = echarts.init(document.querySelector('#tab-electric>.chart-2'));
-const chart_electric_3 = echarts.init(document.querySelector('#tab-electric>.chart-3'));
-const chart_water_1 = echarts.init(document.querySelector('#tab-water>.chart-1'));
-const chart_water_2 = echarts.init(document.querySelector('#tab-water>.chart-2'));
-const chart_water_3 = echarts.init(document.querySelector('#tab-water>.chart-3'));
-
-const chart_equipment_1 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-1'));
-const chart_equipment_2 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-2'));
-
-
-const shut_dom = `<span class="shut"></span>`
-$('#container>.equipment-mask>.chart-1').append(shut_dom);
+let waterPosts;
+let electricPosts;
 
 /**
  * @name 创建饼状图配置
@@ -304,7 +208,6 @@ const createChartOption2 = (config) => {
     return option
 }
 
-
 /**
  * @name 创建折线图配置
  * @param {*} config 
@@ -440,7 +343,6 @@ const createChartOption3 = (config) => {
     return option
 }
 
-
 // 柱状图x轴标签原型
 const xAxisFloors = [
     '北楼一层',
@@ -457,6 +359,7 @@ const xAxisFloors = [
     '南楼六层',
     '南楼七层',
 ];
+
 /**
  * @name 创建楼层列表
  * @param {string} typeName 耗能类型名称
@@ -467,11 +370,12 @@ const createXAxisData = (typeName) => {
     })
 }
 
-let token;
-
-let waterPosts;
-let electricPosts;
-
+/**
+ * @name 根据表映射与token创建promise
+ * @param {array} meterArray 表映射
+ * @param {string} token 登录token
+ * @return 表对应数据
+ */
 const createPromisesByMeter = (meterArray, token) => {
     return meterArray.map(function (meterData) {
         const {
@@ -562,145 +466,19 @@ const getPipSeriesData = posts => {
     return seriesData
 }
 
-// 登录
-$.ajax({
-    type: 'POST',
-    url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
-    data: {
-        LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
-        ParamList: ''
-    },
-    success: function (res) {
-        const text = $(res).find('string').text();
-        const data = JSON.parse(text);
-        // console.log('data', data);
-        token = data.Data[0].Token;
-        // console.log('token', token);
-
-        const water_promises = createPromisesByMeter(waterMeter, token);
-
-        Promise.all(water_promises).then(function (posts) {
-            // console.log('water posts', posts);
-            waterPosts = posts;
-
-            const seriesData = getPipSeriesData(posts);
-            // console.log('water seriesData', seriesData);
-
-            // 生成水表饼状图配置
-            const water_chart_1_option = createChartOption1({
-                titleText: '耗水占比统计',
-                seriesName: '用水区域',
-                seriesData: seriesData,
-                unit: 't',
-            });
-
-            chart_water_1.setOption(water_chart_1_option);
-        }).catch(function (reason) {
-            console.log('reason', reason);
-        });
-
-        const electric_promises = createPromisesByMeter(electricMeter, token);
-
-        Promise.all(electric_promises).then(function (posts) {
-            // console.log('electric posts', posts);
-            electricPosts = posts;
-
-            const seriesData = getPipSeriesData(posts);
-            // console.log('electric seriesData', seriesData);
-
-            // 生成电表饼状图配置
-            const electric_chart_1_option = createChartOption1({
-                titleText: '耗电占比统计',
-                seriesName: '用电区域',
-                seriesData: seriesData,
-                unit: 'kw·h',
-            });
-
-            chart_electric_1.setOption(electric_chart_1_option);
-        }).catch(function (reason) {
-            console.log('reason', reason);
-        });
-    },
-    error: function (err) {
-        console.log('err', err);
-    }
-})
-
-
-// 绑定水表饼图点击
-chart_water_1.on('click', function (event) {
-    console.log('event', event);
-    $('#tab-water').find('>.chart-1').removeClass('active');
-    $('#tab-water').find('>.chart-2').addClass('active');
-
-    const name = event.name;
-
-    const xAxisData = [];
-    const seriesData = [];
-
-    for (const meterData of waterPosts) {
-        const {
-            type,
-            value,
-            detail
-        } = meterData
-        if (type == name) {
-            xAxisData.push(detail);
-            seriesData.push(value);
-        }
-    }
-
-    // 生成水表柱状图配置
-    const water_chart_2_option = createChartOption2({
-        titleText: `${name}耗水(t)`,
-        xAxisData: xAxisData,
-        seriesData: seriesData,
-    });
-
-    chart_water_2.resize();
-    chart_water_2.setOption(water_chart_2_option);
-});
-
-// 绑定电表饼图点击
-chart_electric_1.on('click', function (event) {
-    console.log('event', event);
-    $('#tab-electric').find('>.chart-1').removeClass('active');
-    $('#tab-electric').find('>.chart-2').addClass('active');
-
-    const name = event.name;
-
-    const xAxisData = [];
-    const seriesData = [];
-
-    for (const meterData of electricPosts) {
-        const {
-            type,
-            value,
-            detail
-        } = meterData
-        if (type == name) {
-            xAxisData.push(detail);
-            seriesData.push(value);
-        }
-    }
-
-    // 生成电表柱状图配置
-    const electric_chart_2_option = createChartOption2({
-        titleText: `${name}能耗(kWh)`,
-        xAxisData: xAxisData,
-        seriesData: seriesData,
-    })
-
-    chart_electric_2.resize();
-    chart_electric_2.setOption(electric_chart_2_option);
-});
-
-
+/**
+ * @name 获取月份序列
+ * @param {*} data 数据库中单个表的数据
+ */
 const getMonthIndex = (data) => {
     return Number(data.FreezeDate.split('-')[1]) - 1
 }
 
-// 根据返回的数据获取折线图数据
+/**
+ * @name 根据返回的数据生成折线图数据
+ * @param {*} Data 基础数据
+ * @param {string} interval 显示间隔（monthly/weekly/daily）
+ */
 const get_chart_2_data = (Data, interval = "monthly") => {
     const tempArray = []; // 临时数组
     const startData = Data[0]; // 返回数组中首个数据
@@ -851,6 +629,201 @@ const update_chart_3 = (opts) => {
     })
 }
 
+// 初始化echarts图表
+const chart_electric_1 = echarts.init(document.querySelector('#tab-electric>.chart-1'));
+const chart_electric_2 = echarts.init(document.querySelector('#tab-electric>.chart-2'));
+const chart_electric_3 = echarts.init(document.querySelector('#tab-electric>.chart-3'));
+const chart_water_1 = echarts.init(document.querySelector('#tab-water>.chart-1'));
+const chart_water_2 = echarts.init(document.querySelector('#tab-water>.chart-2'));
+const chart_water_3 = echarts.init(document.querySelector('#tab-water>.chart-3'));
+
+const chart_equipment_1 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-1'));
+const chart_equipment_2 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-2'));
+
+// 在图表中插入dom与绑定事件
+const shut_dom = `<span class="shut"></span>`;
+$('#container>.equipment-mask>.chart-1').append(shut_dom);
+
+const back_dom = `<span class="back"></span>`;
+$('#tab-water>.chart-2').append(back_dom);
+$('#tab-water>.chart-3').append(back_dom);
+$('#tab-electric>.chart-2').append(back_dom);
+$('#tab-electric>.chart-3').append(back_dom);
+
+$('#tab-electric, #tab-water').on('click', '>div>.back', function () {
+    const $chart = $(this).parent();
+
+    $chart.removeClass('active');
+
+    if ($chart.hasClass('chart-2')) {
+        $chart.siblings('.chart-1').addClass('active');
+    } else if ($chart.hasClass('chart-3')) {
+        $chart.siblings('.chart-2').addClass('active');
+    }
+});
+
+const edit_box = `
+    <div class="edit-box">
+        <div class="year-switch">2019</div>
+        <div class="radio-box">
+            <span class='active' data-key="monthly">月</span>
+            <span data-key="weekly">周</span>
+            <span data-key="daily">日</span>
+        </div>
+    </div>
+`;
+$('#tab-electric>.chart-3').append(edit_box);
+$('#tab-water>.chart-3').append(edit_box);
+
+$('#tab-statistics .chart-3').on('click', '>.edit-box>.radio-box>span', function () {
+    if (!$(this).hasClass('active')) {
+        $(this).addClass('active').siblings().removeClass('active');
+
+        const interval = $(this).attr('data-key')
+
+        if ($(this).parents('.tab-pane').attr('id') == 'tab-electric') {
+            electric_chart_opts.interval = interval;
+            update_chart_3(electric_chart_opts);
+        } else {
+            water_chart_opts.interval = interval;
+            update_chart_3(water_chart_opts);
+        }
+    }
+})
+
+// 登录
+$.ajax({
+    type: 'POST',
+    url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
+    data: {
+        LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
+        ParamList: ''
+    },
+    success: function (res) {
+        const text = $(res).find('string').text();
+        const data = JSON.parse(text);
+        // console.log('data', data);
+        token = data.Data[0].Token;
+        // console.log('token', token);
+
+        const water_promises = createPromisesByMeter(waterMeter, token);
+
+        Promise.all(water_promises).then(function (posts) {
+            // console.log('water posts', posts);
+            waterPosts = posts;
+
+            const seriesData = getPipSeriesData(posts);
+            // console.log('water seriesData', seriesData);
+
+            // 生成水表饼状图配置
+            const water_chart_1_option = createChartOption1({
+                titleText: '耗水占比统计',
+                seriesName: '用水区域',
+                seriesData: seriesData,
+                unit: 't',
+            });
+
+            chart_water_1.setOption(water_chart_1_option);
+        }).catch(function (reason) {
+            console.log('reason', reason);
+        });
+
+        const electric_promises = createPromisesByMeter(electricMeter, token);
+
+        Promise.all(electric_promises).then(function (posts) {
+            // console.log('electric posts', posts);
+            electricPosts = posts;
+
+            const seriesData = getPipSeriesData(posts);
+            // console.log('electric seriesData', seriesData);
+
+            // 生成电表饼状图配置
+            const electric_chart_1_option = createChartOption1({
+                titleText: '耗电占比统计',
+                seriesName: '用电区域',
+                seriesData: seriesData,
+                unit: 'kw·h',
+            });
+
+            chart_electric_1.setOption(electric_chart_1_option);
+        }).catch(function (reason) {
+            console.log('reason', reason);
+        });
+    },
+    error: function (err) {
+        console.log('err', err);
+    }
+})
+
+
+// 绑定水表饼图点击
+chart_water_1.on('click', function (event) {
+    console.log('event', event);
+    $('#tab-water').find('>.chart-1').removeClass('active');
+    $('#tab-water').find('>.chart-2').addClass('active');
+
+    const name = event.name;
+
+    const xAxisData = [];
+    const seriesData = [];
+
+    for (const meterData of waterPosts) {
+        const {
+            type,
+            value,
+            detail
+        } = meterData
+        if (type == name) {
+            xAxisData.push(detail);
+            seriesData.push(value);
+        }
+    }
+
+    // 生成水表柱状图配置
+    const water_chart_2_option = createChartOption2({
+        titleText: `${name}耗水(t)`,
+        xAxisData: xAxisData,
+        seriesData: seriesData,
+    });
+
+    chart_water_2.resize();
+    chart_water_2.setOption(water_chart_2_option);
+});
+
+// 绑定电表饼图点击
+chart_electric_1.on('click', function (event) {
+    console.log('event', event);
+    $('#tab-electric').find('>.chart-1').removeClass('active');
+    $('#tab-electric').find('>.chart-2').addClass('active');
+
+    const name = event.name;
+
+    const xAxisData = [];
+    const seriesData = [];
+
+    for (const meterData of electricPosts) {
+        const {
+            type,
+            value,
+            detail
+        } = meterData
+        if (type == name) {
+            xAxisData.push(detail);
+            seriesData.push(value);
+        }
+    }
+
+    // 生成电表柱状图配置
+    const electric_chart_2_option = createChartOption2({
+        titleText: `${name}能耗(kWh)`,
+        xAxisData: xAxisData,
+        seriesData: seriesData,
+    })
+
+    chart_electric_2.resize();
+    chart_electric_2.setOption(electric_chart_2_option);
+});
+
 
 const water_chart_opts = {
     chart: chart_water_3,
@@ -915,58 +888,6 @@ chart_electric_2.on('click', function (event) {
         update_chart_3(electric_chart_opts);
     }
 });
-
-const back_dom = `
-    <span class="back"></span>
-`
-
-$('#tab-water>.chart-2').append(back_dom);
-$('#tab-water>.chart-3').append(back_dom);
-
-$('#tab-electric>.chart-2').append(back_dom);
-$('#tab-electric>.chart-3').append(back_dom);
-
-$('#tab-electric, #tab-water').on('click', '>div>.back', function () {
-    const $chart = $(this).parent();
-
-    $chart.removeClass('active');
-
-    if ($chart.hasClass('chart-2')) {
-        $chart.siblings('.chart-1').addClass('active');
-    } else if ($chart.hasClass('chart-3')) {
-        $chart.siblings('.chart-2').addClass('active');
-    }
-});
-
-
-const edit_box = `
-    <div class="edit-box">
-        <div class="year-switch">2019</div>
-        <div class="radio-box">
-            <span class='active' data-key="monthly">月</span>
-            <span data-key="weekly">周</span>
-            <span data-key="daily">日</span>
-        </div>
-    </div>
-`;
-$('#tab-electric>.chart-3').append(edit_box);
-$('#tab-water>.chart-3').append(edit_box);
-
-$('#tab-statistics .chart-3').on('click', '>.edit-box>.radio-box>span', function () {
-    if (!$(this).hasClass('active')) {
-        $(this).addClass('active').siblings().removeClass('active');
-
-        const interval = $(this).attr('data-key')
-
-        if ($(this).parents('.tab-pane').attr('id') == 'tab-electric') {
-            electric_chart_opts.interval = interval;
-            update_chart_3(electric_chart_opts);
-        } else {
-            water_chart_opts.interval = interval;
-            update_chart_3(water_chart_opts);
-        }
-    }
-})
 
 laydate.set({
     type: 'datetime',
