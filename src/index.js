@@ -1,3 +1,47 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min.js';
+
+import './less/index.less';
+
+import * as THREE from "three";
+// import * as laydate from 'laydate';
+// const laydate = require('laydate');
+import laydate from './laydate/laydate';
+import {
+    selectAllYunweiData,
+    updateYunweiData,
+    deleteYunweiData,
+    addYunweiData,
+} from "./api/yunweiData";
+
+import importDom from './api/importDom';
+import OrbitControls from 'three-orbitcontrols';
+
+import analysisRevit from './utils/analysisRevit';
+
+import TWEEN from '@tweenjs/tween.js';
+
+const {
+    createFloorList,
+    createRoomList,
+    createOperList,
+} = require('./component/domTemplate');
+
+const {
+    getDateByTime
+} = require('./utils/utils');
+
+const {
+    build_data
+} = require('./data/domData');
+
+
+// $('.tab-menu').on('click', '>li>a', function (e) {
+//     e.preventDefault()
+//     $(this).tab('show')
+// })
+
+
 $(function () {
     // ####################### 定义 #######################
     // ======================= 定义变量 =======================
@@ -861,13 +905,14 @@ $(function () {
     // ======================= 插入 dom =======================
     selectAllYunweiData(function (dataList) {
         allOperateData = dataList;
-        const new_list = [];
-        for (const data of dataList) {
-            if (data.build == '北楼') {
-                new_list.push(data);
-            }
-        }
-        importDom(new_list);
+        // const new_list = [];
+        // for (const data of dataList) {
+        //     if (data.build == '北楼') {
+        //         new_list.push(data);
+        //     }
+        // }
+        // importDom(new_list);
+        importDom();
 
         // 切换显示首页第一个运维项目
         const home_first_oper_item = $('#tab-home .operate-wrap .wrap-left>.content').children()[0];
@@ -1101,11 +1146,10 @@ $(function () {
     });
 
     // ----------------------- 首页机电 -----------------------
-    $('#tab-home .equipment-btn').click(function() {
+    $('#tab-home .equipment-btn').click(function () {
         $('.equipment-mask').show(); // 显示机电图表
         $('#container>.air-system').hide(); // 隐藏空调区域
-        const seriesData = [
-            {
+        const seriesData = [{
                 name: '111',
                 value: 111,
             },
@@ -1133,7 +1177,7 @@ $(function () {
         chart_equipment_1.setOption(chart_1_option);
     });
 
-    $('#container>.equipment-mask>.chart-wrap').on('click', '>.shut', function() {
+    $('#container>.equipment-mask>.chart-wrap').on('click', '>.shut', function () {
         if ($(this).parent().hasClass('chart-1')) {
             $('.equipment-mask').hide(); // 隐藏机电图表
             $('#container>.air-system').show(); // 显示空调区域
@@ -1423,7 +1467,7 @@ $(function () {
         pointLight.shadow.camera.near = 0.5;
         pointLight.shadow.camera.far = lightFar;
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls = new OrbitControls(camera, renderer.domElement);
         controls.maxPolarAngle = Math.PI / 2;
         controls.minPolarAngle = 0.1;
 
@@ -1444,16 +1488,10 @@ $(function () {
 
         // 待解析的 revit 文件路径数组
         // const paths = ['./models/land.js'];
-        // const paths = [
-        //     './models/north.js',
-        //     './models/south.js',
-        //     './models/tinglang.js',
-        //     './models/land.js',
-        // ];
         const paths = [
-            './models/north.toolkipBIM',
-            './models/south.toolkipBIM',
-            './models/west.toolkipBIM',
+            // './models/north.toolkipBIM',
+            // './models/south.toolkipBIM',
+            // './models/west.toolkipBIM',
             './models/land.toolkipBIM',
         ];
 
@@ -1640,7 +1678,7 @@ $(function () {
         })
 
         // 解析房间信息
-        $.getJSON('./js/data/roomData.js', function (data) {
+        $.getJSON('./data/roomData.js', function (data) {
             // console.log('data', data);
             const roomGroup = new THREE.Group();
             roomGroup.name = '房间地面组';
@@ -1837,102 +1875,8 @@ $(function () {
             window.cancelAnimationFrame(idM)
         }
     })
-
-
-    // 登录
-    // $.ajax({
-    //     type: 'POST',
-    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
-    //     data: {
-    //         LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
-    //         ParamList: ''
-    //     },
-    //     success: function (res) {
-    //         const text = $(res).find('string').text();
-    //         const data = JSON.parse(text);
-    //         console.log('data', data);
-    //         const token = data.Data[0].Token;
-    //         console.log('token', token);
-
-    //         // 当前抄表数据
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: 'http://39.108.12.65:5713/DefaultAPI.asmx/ReadMeter',
-    //             data: {
-    //                 LoginInfo: `{"Code":"admin","Token":"${token}"}`,
-    //                 ParamList: '{"MeterAddr":"101902174225","ReadType":"1","FreezeDate":""}'
-    //             },
-    //             success: function(res) {
-    //                 console.log('res', res);
-    //                 const text = $(res).find('string').text();
-    //                 const data = JSON.parse(text);
-    //                 console.log('当前抄表数据data', data);
-    //             },
-    //             error: function (err) {
-    //                 console.log('err', err);
-    //             }
-    //         })
-
-    //         // 历史抄表数据
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
-    //             data: {
-    //                 LoginInfo: `{"Code":"admin","Token":"${token}"}`,
-    //                 ParamList: '{"DataType":"2","MeterAddr":"101811200913","BeginDate":"2019-4-1","EndDate":"2019-4-26","PageSize":"100000"}'
-    //             },
-    //             success: function (res) {
-    //                 console.log('res', res);
-    //                 const text = $(res).find('string').text();
-    //                 const data = JSON.parse(text);
-    //                 console.log('历史抄表数据data', data);
-    //             },
-    //             error: function (err) {
-    //                 console.log('err', err);
-    //             }
-    //         })
-    //     },
-    //     error: function (err) {
-    //         console.log('err', err);
-    //     }
-    // })
-
-    // 当前抄表数据
-    // $.ajax({
-    //     type: 'POST',
-    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/ReadMeter',
-    //     data: {
-    //         LoginInfo: `{"Code":"admin","Token":"3G6NfyQ2+2nZKTSrZFxZ5Q=="}`,
-    //         // ParamList: '{"MeterAddr":"101902174225","ReadType":"1","FreezeDate":""}'
-    //         ParamList: '{"MeterAddr":"101902174225","ReadType":"2","FreezeDate":"2019-04-25"}'
-    //     },
-    //     success: function (res) {
-    //         console.log('当前抄表数据res', res);
-    //         const text = $(res).find('string').text();
-    //         const data = JSON.parse(text);
-    //         console.log('当前抄表数据data', data);
-    //     },
-    //     error: function (err) {
-    //         console.log('err', err);
-    //     }
-    // })
-
-    // 历史抄表数据
-    // $.ajax({
-    //     type: 'POST',
-    //     url: 'http://39.108.12.65:5713/DefaultAPI.asmx/GetData',
-    //     data: {
-    //         LoginInfo: `{"Code":"admin","Token":"3G6NfyQ2+2nZKTSrZFxZ5Q=="}`,
-    //         ParamList: '{"DataType":"2","MeterAddr":"","BeginDate":"2019-04-01","EndDate":"2019-04-26","PageSize":"100000"}'
-    //     },
-    //     success: function (res) {
-    //         console.log('历史抄表数据res', res);
-    //         const text = $(res).find('string').text();
-    //         const data = JSON.parse(text);
-    //         console.log('历史抄表数据data', data);
-    //     },
-    //     error: function (err) {
-    //         console.log('err', err);
-    //     }
-    // })
 })
+
+if (module.hot) {
+    module.hot.accept();
+}

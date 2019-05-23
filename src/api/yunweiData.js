@@ -102,3 +102,10 @@ function selectAllYunweiData(callback) {
 		}
 	})
 }
+
+export {
+	selectAllYunweiData,
+	updateYunweiData,
+	deleteYunweiData,
+	addYunweiData,
+};

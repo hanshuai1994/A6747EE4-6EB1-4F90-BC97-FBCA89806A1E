@@ -156,3 +156,11 @@ const build_data = {
 //         },
 //     ],
 // }
+
+export {
+    air_conditioner_data,
+    build_data,
+    fresh_air_data,
+    home_oper_data,
+    room_data,
+}

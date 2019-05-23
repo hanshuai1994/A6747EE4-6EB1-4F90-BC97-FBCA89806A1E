@@ -1,4 +1,23 @@
 
+import {
+    // createAirStateItem,
+    createAirStateList,
+    // createFloorItem,
+    // createFloorList,
+    // createOperItem,
+    // createOperList,
+    // createRoomItem,
+    createRoomList
+} from '../component/domTemplate';
+
+import {
+    air_conditioner_data,
+    // build_data,
+    fresh_air_data,
+    // home_oper_data,
+    room_data
+} from '../data/domData';
+
 /**
  * @name 导入dom
  */
@@ -31,3 +50,5 @@ const importDom = (dataList) => {
 
     return
 }
+
+export default importDom;

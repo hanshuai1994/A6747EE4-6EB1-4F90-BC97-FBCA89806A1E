@@ -1,3 +1,7 @@
+
+const {getDateByTime} = require('../utils/utils');
+
+
 /**
  * @name 根据单个数据创建空气系统标签
  * @param {*} data 空气系统单个标签数据
@@ -117,4 +121,15 @@ const createOperList = (array, hasName) => {
     }
 
     return result
+}
+
+export {
+    createAirStateItem,
+    createAirStateList,
+    createFloorItem,
+    createFloorList,
+    createOperItem,
+    createOperList,
+    createRoomItem,
+    createRoomList
 }

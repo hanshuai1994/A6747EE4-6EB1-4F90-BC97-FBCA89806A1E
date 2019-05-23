@@ -1,4 +1,9 @@
 
+import * as THREE from "three";
+import FBXLoader from 'threejs-fbxloader';
+
+FBXLoader(THREE);
+
 /**
  * @name 以mesh的name作为材质的name
  * @param {*} material 
@@ -373,3 +378,5 @@ function downloadOBJ(model, fileName) {
 
     link.click();
 }
+
+export default analysisRevit

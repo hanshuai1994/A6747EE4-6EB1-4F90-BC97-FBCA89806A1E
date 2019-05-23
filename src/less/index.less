@@ -89,6 +89,19 @@ canvas {
     max-height: 270px;
     overflow-y: scroll;
 
+    a {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: 400;
+        white-space: nowrap;
+
+        &:hover {
+            text-decoration: none;
+            background-color: #f5f5f5;
+        }
+    }
+
     &::-webkit-scrollbar {
         display: none;
     }
@@ -1452,70 +1465,6 @@ canvas {
         }
     }
 }
-
-/*
-#tab-statistics {
-    height: 100%;
-    overflow-y: scroll;
-    padding: 0 30px;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-
-    >div {
-        padding-top: 20px;
-        padding-bottom: 22px;
-        border-top: 1px solid @borderColor;
-
-        >.title {
-            margin-bottom: 20px;
-            .font(16px);
-            font-weight: bold;
-        }
-
-        >.content {
-            display: flex;
-
-            >.info {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                margin-right: 20px;
-
-                >div {
-                    display: flex;
-                    width: 85px;
-                    height: 85px;
-
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-
-                    border: 1px solid @themeColor;
-                    border-radius: @border_radius;
-
-                    >span {
-                        color: @normalFontColor;
-
-                        &:first-child {
-                            margin-bottom: 7px;
-                        }
-                    }
-                }
-            }
-
-            >.chart {
-                width: 887px;
-                height: 279px;
-
-                background-color: #f2f3f5;
-                border-radius: @border_radius;
-            }
-        }
-    }
-}
-*/
 
 #tab-statistics {
     height: 100%;

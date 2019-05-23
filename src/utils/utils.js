@@ -193,3 +193,9 @@ const getWeekIndexOfYear = (str) => {
     const d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
     return Math.ceil(d / 7) + 1;
 }
+
+export {
+    getDateByTime,
+    replaceData,
+    getWeekIndexOfYear,
+}
