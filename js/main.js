@@ -1102,7 +1102,8 @@ $(function () {
 
     // ----------------------- 首页机电 -----------------------
     $('#tab-home .equipment-btn').click(function() {
-        $('.equipment-mask').show();
+        $('.equipment-mask').show(); // 显示机电图表
+        $('#container>.air-system').hide(); // 隐藏空调区域
         const seriesData = [
             {
                 name: '111',
@@ -1119,7 +1120,7 @@ $(function () {
         ]
         const chart_1_option = createChartOption1({
             titleText: '耗电占比统计',
-            // seriesName: '用电区域',
+            seriesName: '用电区域',
             seriesData: seriesData,
             unit: 'kw·h',
             titleLeft: '30%',
@@ -1130,7 +1131,16 @@ $(function () {
         });
         chart_equipment_1.resize();
         chart_equipment_1.setOption(chart_1_option);
-    })
+    });
+
+    $('#container>.equipment-mask>.chart-wrap').on('click', '>.shut', function() {
+        if ($(this).parent().hasClass('chart-1')) {
+            $('.equipment-mask').hide(); // 隐藏机电图表
+            $('#container>.air-system').show(); // 显示空调区域
+        } else {
+            $(this).parent().removeClass('active').siblings('.chart-1').addClass('active');
+        }
+    });
 
 
     // ----------------------- 空调新风 -----------------------
