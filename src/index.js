@@ -36,11 +36,6 @@ const {
 } = require('./data/domData');
 
 
-// $('.tab-menu').on('click', '>li>a', function (e) {
-//     e.preventDefault()
-//     $(this).tab('show')
-// })
-
 
 $(function () {
     // ####################### 定义 #######################

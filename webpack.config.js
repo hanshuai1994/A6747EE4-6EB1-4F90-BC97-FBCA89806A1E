@@ -57,7 +57,11 @@ module.exports = {
             {
                 test: /\.(jpg|png|gif)$/,
                 loader: 'url-loader?limit=8192&name=images/[hash:8].[name].[ext]'
-            }
+            },
+            {
+                test: /\.(ttf|eot|woff|woff2|svg)$/,
+                loader: 'file-loader'
+            },
         ]
     }, // 模块配置
     plugins: [
@@ -90,11 +94,15 @@ module.exports = {
         new webpack.ProgressPlugin(),
         new CleanWebpackPlugin(), // 清空之前打包生成的文件
 
-        // 补全缺失的jquery引用
+        // 补全缺失的引用
         new webpack.ProvidePlugin({
             "$": "jquery",
             "jQuery": "jquery",
             "window.jQuery": "jquery",
+            "THREE": "three",
+            "Zlib": "inflate",
+            "inflate": "inflate",
+            "Zlib.inflate": "inflate",
         }),
 
         // 打包成到单个html
