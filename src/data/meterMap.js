@@ -305,3 +305,8 @@ const waterMeter = [ //
         detail: '北楼垂直绿化',
     },
 ]
+
+export {
+    electricMeter,
+    waterMeter
+}
