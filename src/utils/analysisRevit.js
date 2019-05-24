@@ -1,8 +1,7 @@
 
 import * as THREE from "three";
-import FBXLoader from 'threejs-fbxloader';
-
-FBXLoader(THREE);
+import FBXLoader from '../loaders/FBXLoader';
+import { correctUv } from './utils'
 
 /**
  * @name 以mesh的name作为材质的name
@@ -243,7 +242,7 @@ const analysisRevit = (paths, callback) => {
     let builds = {};
 
     // const loader = new THREE.ObjectLoader();
-    const loader = new THREE.FBXLoader();
+    const loader = new FBXLoader();
     const promises = [];
 
     let total = 0;
@@ -280,6 +279,9 @@ const analysisRevit = (paths, callback) => {
                     } else {
                         total += xhr.total;
                     }
+                },
+                (error) => { // onError
+                    console.log('error', error);
                 }
             )
         })
@@ -324,59 +326,59 @@ const analysisRevit = (paths, callback) => {
 }
 
 // 下载模型
-function downloadGLTF(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
+// function downloadGLTF(model, fileName) {
+//     var link = document.createElement('a');
+//     link.style.display = 'none';
+//     document.body.appendChild(link);
 
 
-    const exporter = new THREE.GLTFExporter();
+//     const exporter = new THREE.GLTFExporter();
 
-    exporter.parse(model, (result) => {
+//     exporter.parse(model, (result) => {
 
-        let blob;
+//         let blob;
 
-        if (result instanceof ArrayBuffer) {
-            blob = new Blob([result], {
-                type: 'application/octet-stream'
-            })
-            link.download = fileName + '.glb';
-        } else {
-            const text = JSON.stringify(result);
+//         if (result instanceof ArrayBuffer) {
+//             blob = new Blob([result], {
+//                 type: 'application/octet-stream'
+//             })
+//             link.download = fileName + '.glb';
+//         } else {
+//             const text = JSON.stringify(result);
 
-            blob = new Blob([text], {
-                type: 'text/plain'
-            })
+//             blob = new Blob([text], {
+//                 type: 'text/plain'
+//             })
 
-            link.download = fileName + '.gltf';
-        }
+//             link.download = fileName + '.gltf';
+//         }
 
-        link.href = URL.createObjectURL(blob);
+//         link.href = URL.createObjectURL(blob);
 
-        link.click();
-    }, {
-        binary: true
-    })
-}
+//         link.click();
+//     }, {
+//         binary: true
+//     })
+// }
 
-function downloadOBJ(model, fileName) {
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.download = fileName + '.obj';
+// function downloadOBJ(model, fileName) {
+//     var link = document.createElement('a');
+//     link.style.display = 'none';
+//     document.body.appendChild(link);
+//     link.download = fileName + '.obj';
 
-    const exporter = new THREE.OBJExporter();
+//     const exporter = new THREE.OBJExporter();
 
-    const result = exporter.parse(model);
-    const text = JSON.stringify(result);
+//     const result = exporter.parse(model);
+//     const text = JSON.stringify(result);
 
-    const blob = new Blob([text], {
-        type: 'text/plain'
-    })
+//     const blob = new Blob([text], {
+//         type: 'text/plain'
+//     })
 
-    link.href = URL.createObjectURL(blob);
+//     link.href = URL.createObjectURL(blob);
 
-    link.click();
-}
+//     link.click();
+// }
 
 export default analysisRevit

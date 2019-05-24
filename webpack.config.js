@@ -30,7 +30,7 @@ module.exports = {
         port: 3000, // 配置端口
         compress: true, // 服务器压缩
         open: true, // 自动打开浏览器
-        hot: true, // 热更新
+        // hot: true, // 热更新
     }, // 开发服务器
     module: {
         rules: [ // 从右往左写
@@ -92,7 +92,6 @@ module.exports = {
         LessExtract, // less 文本抽离
 
         new webpack.ProgressPlugin(),
-        new CleanWebpackPlugin(), // 清空之前打包生成的文件
 
         // 补全缺失的引用
         new webpack.ProvidePlugin({
@@ -100,9 +99,6 @@ module.exports = {
             "jQuery": "jquery",
             "window.jQuery": "jquery",
             "THREE": "three",
-            "Zlib": "inflate",
-            "inflate": "inflate",
-            "Zlib.inflate": "inflate",
         }),
 
         // 打包成到单个html
@@ -113,10 +109,16 @@ module.exports = {
             minify: { // 对生成的html文件进行压缩
                 collapseWhitespace: true, // 折叠空行
                 removeAttributeQuotes: true, // 删除属性引号
+                removeComments: true, // 删除注释
+                minifyCSS: true, // 压缩html内的样式
+                minifyJS: true, // 压缩html内的js
             }
-        })
+        }),
+
+        new CleanWebpackPlugin(), // 清空之前打包生成的文件
     ], // 插件的配置
     mode: 'development', // 可以更改模式
+    // mode: 'production', // 可以更改模式
     resolve: {}, // 配置解析
 }
 

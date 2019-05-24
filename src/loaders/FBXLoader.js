@@ -1,3 +1,7 @@
+// /* three-FBXLoader addendum */ const THREE = require('three');
+/* three-FBXLoader addendum */ import * as THREE from 'three';
+/* three-FBXLoader addendum */ import { Zlib } from './inflate.min.js';
+
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
  * @author Takahiro https://github.com/takahirox
@@ -4134,3 +4138,4 @@ THREE.FBXLoader = ( function () {
 	return FBXLoader;
 
 } )();
+/* three-FBXLoader addendum */  export default THREE.FBXLoader;

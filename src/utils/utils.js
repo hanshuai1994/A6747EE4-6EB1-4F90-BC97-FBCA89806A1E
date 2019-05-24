@@ -198,4 +198,5 @@ export {
     getDateByTime,
     replaceData,
     getWeekIndexOfYear,
+    correctUv,
 }

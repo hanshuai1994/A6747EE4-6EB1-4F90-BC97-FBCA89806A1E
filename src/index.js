@@ -41,6 +41,7 @@ const {
     build_data
 } = require('./data/domData');
 
+import FBXLoader from './loaders/FBXLoader';
 
 
 $(function () {
@@ -1431,7 +1432,7 @@ $(function () {
         camera = new THREE.PerspectiveCamera(60, width / height, 1, 20000000);
         camera.position.set(-80000.0, 40000.0, 75000.0);
 
-        ambient = new THREE.AmbientLight(0xffffff);
+        ambient = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambient);
         // directional = new THREE.DirectionalLight(0xffffff, 0.5);
         // directional.position.set(0, 1, 0);
@@ -1454,7 +1455,7 @@ $(function () {
 
         // scene.add( helper );
         let lightFar = 200000
-        pointLight = new THREE.PointLight(0xffffff, 0.1, lightFar);
+        pointLight = new THREE.PointLight(0xffffff, 0.3, lightFar);
         pointLight.position.set(-10000, 100000, 10000);
         pointLight.castShadow = false; // default false
         scene.add(pointLight);
@@ -1490,11 +1491,21 @@ $(function () {
         // 待解析的 revit 文件路径数组
         // const paths = ['./models/land.js'];
         const paths = [
-            // './models/north.toolkipBIM',
-            // './models/south.toolkipBIM',
-            // './models/west.toolkipBIM',
+            './models/north.toolkipBIM',
+            './models/south.toolkipBIM',
+            './models/west.toolkipBIM',
             './models/land.toolkipBIM',
         ];
+
+        // const loader = new FBXLoader();
+        // loader.load('./models/南楼1F.FBX', function (obj) {
+        //     console.log('obj', obj);
+        //     scene.add(obj)
+        // })
+        // loader.load('./models/window.FBX', function (obj) {
+        //     console.log('obj', obj);
+        //     scene.add(obj)
+        // })
 
         // 解析 revit 文件
         analysisRevit(paths, function (group, material_lib_box, material_lib_clip) {
