@@ -3,45 +3,25 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 
 import './less/index.less';
 
-import * as THREE from "three";
+// 基础构件
 import echarts from 'echarts';
-
+import * as THREE from "three";
+import TWEEN from '@tweenjs/tween.js';
 import laydate from './laydate/laydate';
-import {
-    selectAllYunweiData,
-    updateYunweiData,
-    deleteYunweiData,
-    addYunweiData,
-} from "./api/yunweiData";
-
-import {
-    electricMeter,
-    waterMeter
-} from "./data/meterMap";
-
-import importDom from './api/importDom';
+import FBXLoader from './loaders/FBXLoader';
 import OrbitControls from 'three-orbitcontrols';
 
+// 数据信息
+import { build_data } from './data/domData';
+import { electricMeter, waterMeter } from "./data/meterMap";
+import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData } from "./api/yunweiData";
+
+// 补充方法
+import importDom from './api/importDom';
 import analysisRevit from './utils/analysisRevit';
+import { getDateByTime, getWeekIndexOfYear, replaceData } from './utils/utils';
+import { createFloorList, createRoomList, createOperList, createOperItem } from './component/domTemplate';
 
-import TWEEN from '@tweenjs/tween.js';
-
-const {
-    createFloorList,
-    createRoomList,
-    createOperList,
-} = require('./component/domTemplate');
-
-const {
-    getDateByTime,
-    getWeekIndexOfYear
-} = require('./utils/utils');
-
-const {
-    build_data
-} = require('./data/domData');
-
-import FBXLoader from './loaders/FBXLoader';
 
 
 $(function () {
@@ -586,7 +566,7 @@ $(function () {
             content,
         } = data
 
-        $view_area.find('>.room>.text').text(`${build}-${floor+1}楼-${room}`); // 更新房间
+        $view_area.find('>.room>.text').text(`${build}-${floor + 1}楼-${room}`); // 更新房间
         $view_area.find('>.title>.text').text(title); // 更新标题
         $view_area.find('>.time>.text').text(getDateByTime(time)); // 更新时间
         $view_area.find(`>.state>.text`).attr('data-state', state); // 更新状态
@@ -1137,7 +1117,7 @@ $(function () {
         const room = $room_switch.find('>.room-text').attr('data-index');
 
         const $room_path = $operate_wrap.find('>.wrap-right>.top-area>.room-path');
-        $room_path.text(`${build}-${floor+1}-${room}`);
+        $room_path.text(`${build}-${floor + 1}-${room}`);
 
         update_oper_list($operate_wrap, false, 'all', build, floor, room);
     })
@@ -1151,7 +1131,8 @@ $(function () {
     $('#tab-home .equipment-btn').click(function () {
         $('.equipment-mask').show(); // 显示机电图表
         $('#container>.air-system').hide(); // 隐藏空调区域
-        const seriesData = [{
+        const seriesData = [
+            {
                 name: '111',
                 value: 111,
             },
@@ -1491,9 +1472,9 @@ $(function () {
         // 待解析的 revit 文件路径数组
         // const paths = ['./models/land.js'];
         const paths = [
-            './models/north.toolkipBIM',
-            './models/south.toolkipBIM',
-            './models/west.toolkipBIM',
+            // './models/north.toolkipBIM',
+            // './models/south.toolkipBIM',
+            // './models/west.toolkipBIM',
             './models/land.toolkipBIM',
         ];
 

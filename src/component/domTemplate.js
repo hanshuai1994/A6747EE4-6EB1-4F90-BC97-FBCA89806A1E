@@ -1,6 +1,5 @@
 
-const {getDateByTime} = require('../utils/utils');
-
+import { getDateByTime } from "../utils/utils";
 
 /**
  * @name 根据单个数据创建空气系统标签
