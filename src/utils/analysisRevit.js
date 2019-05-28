@@ -107,7 +107,7 @@ const divideGroup = (group, meshes, line_material, material_lib) => {
 const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip) => {
     // 用于区分楼层的预设高度
     const preHeight = {
-        '亭廊': [-0.45, 4.5, 7.8],
+        '西楼': [-0.45, 4.5, 7.8],
         '北楼': [-0.45, 4.2, 7.8, 11.4, 15, 18.6, 22.2],
         '南楼': [-0.45, 3.82, 7.02, 10.22, 13.42, 16.62, 19.82, 23.02, 26.62],
     }
@@ -170,7 +170,7 @@ const getDividedFloor = (build, build_name, material_lib_box, material_lib_clip)
                 const next_height = build_heights[i + 1] * 1000 - 120;
 
                 if (center.y >= floor_height && center.y < next_height) {
-                    if (build_name == '亭廊' && i == 1) {
+                    if (build_name == '西楼' && i == 1) {
                         if (
                             mesh.name.includes('矩形钢管柱_600_') ||
                             mesh.name.includes('矩形钢管柱_400_') ||
@@ -304,7 +304,7 @@ const analysisRevit = (paths, callback) => {
                 if (key.includes("north")) {
                     build_name = "北楼";
                 } else if (key.includes("west")) {
-                    build_name = "亭廊";
+                    build_name = "西楼";
                 } else if (key.includes("south")) {
                     build_name = "南楼";
                 }
