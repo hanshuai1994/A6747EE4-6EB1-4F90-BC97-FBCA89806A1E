@@ -60,7 +60,10 @@ module.exports = {
             },
             {
                 test: /\.(ttf|eot|woff|woff2|svg)$/,
-                loader: 'file-loader'
+                loader: 'file-loader',
+                options: {
+                    outputPath: 'file',
+                },
             },
         ]
     }, // 模块配置
