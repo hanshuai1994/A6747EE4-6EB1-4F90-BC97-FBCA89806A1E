@@ -97,7 +97,7 @@ function selectAllYunweiData(callback) {
 		dataType: "json",
 		success: function (res) {
 			// resp = eval(data);
-			console.log('所有运维数据', res);
+			// console.log('所有运维数据', res);
 			callback(res);
 		}
 	})

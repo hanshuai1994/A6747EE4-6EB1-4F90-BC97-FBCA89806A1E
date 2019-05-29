@@ -18,7 +18,7 @@ import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData 
 
 // 补充方法
 import importDom from './api/importDom';
-import analysisRevit from './utils/analysisRevit';
+// import analysisRevit from './utils/analysisRevit';
 import analysisFBX from './utils/analysisFBX';
 import { getDateByTime, getWeekIndexOfYear, replaceData } from './utils/utils';
 import { createFloorList, createRoomList, createOperList, createOperItem } from './component/domTemplate';
@@ -1442,7 +1442,7 @@ $(function () {
         // scene.add( helper );
         let lightFar = 200000
         pointLight = new THREE.PointLight(0xffffff, 0.3, lightFar);
-        pointLight.position.set(-10000, 100000, 10000);
+        pointLight.position.set(0, 100000, 0);
         pointLight.castShadow = false; // default false
         scene.add(pointLight);
 
@@ -1465,6 +1465,13 @@ $(function () {
         const path = './models/land.toolkipBIM';
         const loader = new FBXLoader();
         loader.load(path, function (obj) {
+            obj.name == '地面';
+
+            obj.traverse(function(mesh) {
+                if (mesh instanceof THREE.Mesh) {
+                    mesh.receiveShadow = true;
+                }
+            })
             const box = new THREE.Box3();
             box.expandByObject(obj);
             const size = box.getSize(new THREE.Vector3());
@@ -1494,27 +1501,26 @@ $(function () {
         }
 
         const new_paths = [
-            './models/南楼1F.fbx',
-            './models/南楼2F.fbx',
-            './models/南楼3F.fbx',
-            './models/南楼4F.fbx',
-            './models/南楼5F.fbx',
-            './models/南楼6F.fbx',
-            './models/南楼7F.fbx',
-            './models/南楼顶.fbx',
-            './models/西楼1F.fbx',
-            './models/西楼2F.fbx',
-            './models/西楼顶.fbx',
-            './models/北楼1F.fbx',
-            './models/北楼2F.fbx',
-            './models/北楼3F.fbx',
-            './models/北楼4F.fbx',
-            './models/北楼5F.fbx',
-            './models/北楼6F.fbx',
-            './models/北楼顶.fbx',
+            './models/南楼1F.toolkipBIM',
+            './models/南楼2F.toolkipBIM',
+            './models/南楼3F.toolkipBIM',
+            './models/南楼4F.toolkipBIM',
+            './models/南楼5F.toolkipBIM',
+            './models/南楼6F.toolkipBIM',
+            './models/南楼7F.toolkipBIM',
+            './models/南楼顶.toolkipBIM',
+            './models/西楼1F.toolkipBIM',
+            './models/西楼2F.toolkipBIM',
+            './models/西楼顶.toolkipBIM',
+            './models/北楼1F.toolkipBIM',
+            './models/北楼2F.toolkipBIM',
+            './models/北楼3F.toolkipBIM',
+            './models/北楼4F.toolkipBIM',
+            './models/北楼5F.toolkipBIM',
+            './models/北楼6F.toolkipBIM',
+            './models/北楼顶.toolkipBIM',
         ]
         analysisFBX(new_paths, builds_map, function () {
-            console.log('builds_map', builds_map);
 
             $('#loading').removeClass("active");
 
