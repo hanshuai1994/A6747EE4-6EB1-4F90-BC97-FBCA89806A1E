@@ -1,4 +1,3 @@
-/* three-FBXLoader addendum */ import * as THREE from 'three';
 /* three-FBXLoader addendum */ import { Zlib } from './inflate.min.js';
 
 /**
