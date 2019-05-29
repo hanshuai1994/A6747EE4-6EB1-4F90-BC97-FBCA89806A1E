@@ -1457,10 +1457,10 @@ $(function () {
         controls.target.set(26, 13.5, -24.5);
 
         // clip平面
-        // const clipPlanes = [
-        //     new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
-        //     new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
-        // ]
+        const clipPlanes = [
+            new THREE.Plane(new THREE.Vector3(0, -1, 0), 50000), // 向下
+            new THREE.Plane(new THREE.Vector3(0, 1, 0), 10000), // 向上
+        ]
 
 
         // const helpers = new THREE.Group();
@@ -1474,9 +1474,9 @@ $(function () {
         // 待解析的 revit 文件路径数组
         // const paths = ['./models/land.js'];
         const paths = [
-            // './models/north.toolkipBIM',
-            // './models/south.toolkipBIM',
-            // './models/west.toolkipBIM',
+            './models/north.toolkipBIM',
+            './models/south.toolkipBIM',
+            './models/west.toolkipBIM',
             './models/land.toolkipBIM',
         ];
 
@@ -1507,117 +1507,117 @@ $(function () {
             builds_map[build_name] = group;
         }
 
-        const new_paths = [
-            './models/北楼1F.fbx',
-            './models/北楼2F.fbx',
-            './models/北楼3F.fbx',
-            './models/北楼4F.fbx',
-            './models/北楼5F.fbx',
-            './models/北楼6F.fbx',
-            './models/北楼顶.fbx',
-            './models/南楼1F.fbx',
-            './models/南楼2F.fbx',
-            './models/南楼3F.fbx',
-            './models/南楼4F.fbx',
-            './models/南楼5F.fbx',
-            './models/南楼6F.fbx',
-            './models/南楼7F.fbx',
-            './models/南楼顶.fbx',
-            './models/西楼1F.fbx',
-            './models/西楼2F.fbx',
-            './models/西楼顶.fbx',
-        ]
-        analysisFBX(new_paths, builds_map, function () {
+        // const new_paths = [
+        //     './models/南楼1F.fbx',
+        //     './models/南楼2F.fbx',
+        //     './models/南楼3F.fbx',
+        //     './models/南楼4F.fbx',
+        //     './models/南楼5F.fbx',
+        //     './models/南楼6F.fbx',
+        //     './models/南楼7F.fbx',
+        //     './models/南楼顶.fbx',
+        //     './models/西楼1F.fbx',
+        //     './models/西楼2F.fbx',
+        //     './models/西楼顶.fbx',
+        //     './models/北楼1F.fbx',
+        //     './models/北楼2F.fbx',
+        //     './models/北楼3F.fbx',
+        //     './models/北楼4F.fbx',
+        //     './models/北楼5F.fbx',
+        //     './models/北楼6F.fbx',
+        //     './models/北楼顶.fbx',
+        // ]
+        // analysisFBX(new_paths, builds_map, function () {
 
-            $('#loading').removeClass("active");
+        //     $('#loading').removeClass("active");
 
-            // 绑定三栋楼的显示/隐藏按钮
-            $('#container').on('click', '.select-wrap>.build-tab>span', function () {
-                $(this).toggleClass('active');
-                const key = $(this).attr('data-name');
+        //     // 绑定三栋楼的显示/隐藏按钮
+        //     $('#container').on('click', '.select-wrap>.build-tab>span', function () {
+        //         $(this).toggleClass('active');
+        //         const key = $(this).attr('data-name');
 
-                const $build_tab = $(this).parent();
-                const $floor_switch = $build_tab.siblings('.floor-switch');
+        //         const $build_tab = $(this).parent();
+        //         const $floor_switch = $build_tab.siblings('.floor-switch');
 
-                const $active_build = $build_tab.find('>span.active');
+        //         const $active_build = $build_tab.find('>span.active');
 
-                const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
+        //         const active_floor_index = $floor_switch.find('>.floor-text').attr('data-index');
 
-                update_home_floor_dom(); // 更新楼层切换下拉菜单
+        //         update_home_floor_dom(); // 更新楼层切换下拉菜单
 
-                if ($active_build.length == 1 && active_floor_index != 'all') {
-                    show_home_room_dom(); // 出现房间选择下拉界面
-                } else {
-                    dom_room_clear(); // 收起房间下拉等多个界面
-                }
+        //         if ($active_build.length == 1 && active_floor_index != 'all') {
+        //             show_home_room_dom(); // 出现房间选择下拉界面
+        //         } else {
+        //             dom_room_clear(); // 收起房间下拉等多个界面
+        //         }
 
-                if ($active_build.length > 0) {
-                    const target = [];
-                    for (const active_build of $active_build) {
-                        const active_build_name = $(active_build).attr('data-name');
-                        const build = builds_map[active_build_name];
-                        target.push(build);
-                    }
-                    walkToObjects(target);
-                }
+        //         if ($active_build.length > 0) {
+        //             const target = [];
+        //             for (const active_build of $active_build) {
+        //                 const active_build_name = $(active_build).attr('data-name');
+        //                 const build = builds_map[active_build_name];
+        //                 target.push(build);
+        //             }
+        //             walkToObjects(target);
+        //         }
 
-                builds_map[key].visible = $(this).hasClass('active');
-            });
+        //         builds_map[key].visible = $(this).hasClass('active');
+        //     });
 
-            // 绑定楼层切换按钮
-            $('#container>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
-                // $(this).addClass('active').siblings().removeClass('active');
-                let index = $(this).attr('data-index');
+        //     // 绑定楼层切换按钮
+        //     $('#container>.select-wrap>.floor-switch>.dropdown-menu').on('click', '>li>a', function () {
+        //         // $(this).addClass('active').siblings().removeClass('active');
+        //         let index = $(this).attr('data-index');
 
-                const $floor_text = $(this).parents('.floor-switch').find('>.floor-text');
+        //         const $floor_text = $(this).parents('.floor-switch').find('>.floor-text');
 
-                $floor_text.attr('data-index', index);
-                $floor_text.text($(this).text());
+        //         $floor_text.attr('data-index', index);
+        //         $floor_text.text($(this).text());
 
-                dom_room_clear();
+        //         dom_room_clear();
 
-                const $active_build = $('#tab-home .select-wrap .build-tab>span.active');
+        //         const $active_build = $('#tab-home .select-wrap .build-tab>span.active');
 
-                if ($active_build.length == 1) {
-                    const active_build_name = $active_build.attr('data-name');
-                    const build = builds_map[active_build_name];
+        //         if ($active_build.length == 1) {
+        //             const active_build_name = $active_build.attr('data-name');
+        //             const build = builds_map[active_build_name];
 
-                    if (index == 'all') {
-                        walkToObjects(build);
-                    } else {
-                        index = Number(index);
+        //             if (index == 'all') {
+        //                 walkToObjects(build);
+        //             } else {
+        //                 index = Number(index);
 
-                        if ($active_build.length == 1) {
-                            show_home_room_dom(); // 出现房间选择下拉界面
-                        }
+        //                 if ($active_build.length == 1) {
+        //                     show_home_room_dom(); // 出现房间选择下拉界面
+        //                 }
 
 
-                        const floor_index = index + 1;
-                        // 遍历获取每栋楼的楼层组
-                        for (const child of build.children) {
-                            if (child.name == '楼层组') {
+        //                 const floor_index = index + 1;
+        //                 // 遍历获取每栋楼的楼层组
+        //                 for (const child of build.children) {
+        //                     if (child.name == '楼层组') {
 
-                                const floors = child.children;
-                                for (const floor of floors) { // 遍历获取每层楼
-                                    if (floor.name && floor.name == floor_index + '楼') { // 显示目标楼层
-                                        floor.visible = true;
-                                        walkToObjects(floor);
-                                    } else {
-                                        floor.visible = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-        })
+        //                         const floors = child.children;
+        //                         for (const floor of floors) { // 遍历获取每层楼
+        //                             if (floor.name && floor.name == floor_index + '楼') { // 显示目标楼层
+        //                                 floor.visible = true;
+        //                                 walkToObjects(floor);
+        //                             } else {
+        //                                 floor.visible = false;
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     })
+        // })
 
         // 解析 revit 文件
         analysisRevit(paths, function (group, material_lib_box, material_lib_clip) {
             scene.add(group);
 
-            return
+            // return
             for (const material of material_lib_clip) {
                 material.clippingPlanes = clipPlanes;
                 material.clipIntersection = false;
