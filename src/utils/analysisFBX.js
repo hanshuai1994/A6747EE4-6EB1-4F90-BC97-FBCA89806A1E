@@ -3,15 +3,21 @@ import FBXLoader from '../loaders/FBXLoader';
 
 const loader = new FBXLoader();
 
-const loadModel = (path, builds_map) => {
+const loadModel = (path, builds_map, length, index) => {
     const key = path.substr(9, 2);
-    const name = path.split('.')[1].split('/')[2].slice(2);
+    const name = path.split('.')[1].split('/')[2];
+    const floor = name.slice(2);
 
     return new Promise(function (resolve, reject) {
+        $('#loading>.text').text(`正在加载 ${name}`);
+
         loader.load(
             path, // path
             object => { // onLoad
-                object.name = name;
+                const range = `${parseInt((index / length * 100))}%`
+                $('#loading>.progress-range').text(range);
+                $('#loading>.progress-wrap>.progress-box').eq(index).addClass('active');
+                object.name = floor;
                 builds_map[key].add(object);
                 resolve(object);
 
@@ -46,7 +52,10 @@ const loadModel = (path, builds_map) => {
                 })
                 
             },
-            xhr => { },// onProgress
+            xhr => {
+                // const range = `${parseInt((xhr.loaded / xhr.total * 100))}%`
+                // $('#loading>.progress-wrap>.progress-box').eq(index).find('>.range').text(range);
+            },// onProgress
             error => { // onError
                 console.log('error', error);
                 reject(error);
@@ -61,10 +70,13 @@ const analysisFBX = (paths, builds_map, callback) => {
 
     let length = paths.length;
     for (let i = 0; i < length; i++) {
+        const box = `<span class="progress-box"></span>`
+        $('#loading>.progress-wrap').append(box);
+
         const path = paths[i];
         
         promise = promise.then(function () {
-            return loadModel(path, builds_map);
+            return loadModel(path, builds_map, length, i);
         })
 
     }
