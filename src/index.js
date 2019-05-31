@@ -12,7 +12,7 @@ import FBXLoader from './loaders/FBXLoader';
 import OrbitControls from 'three-orbitcontrols';
 
 // 数据信息
-import { build_data } from './data/domData';
+// import { build_data } from './data/domData';
 import { electricMeter, waterMeter } from "./data/meterMap";
 import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData } from "./api/yunweiData";
 
@@ -46,25 +46,36 @@ $(function () {
 
     const scale_rate = 0.001;
 
-    // merge 后的建筑组索引
-    const merge_builds = {
-        '北楼': undefined,
-        '西楼': undefined,
-        '南楼': undefined,
-    };
+    // 楼栋名称
+    const builds = ['北楼', '西楼', '南楼'];
 
     // 建筑索引
-    const builds_map = {
-        '北楼': undefined,
-        '西楼': undefined,
-        '南楼': undefined,
-    }
+    const builds_map = {};
+
+    // merge 后的建筑组索引
+    const merge_builds = {};
 
     // 房间划分
-    const room_mesh_map = {
-        '北楼': [],
-        '西楼': [],
-        '南楼': [],
+    const room_mesh_map = {};
+
+    // 建筑楼层、房间信息
+    const build_data = {};
+
+    // 楼栋切换栏
+    const $home_build_tab = $('#tab-home .build-tab');
+    const $mana_build_tab = $('#tab-manage .build-tab')
+
+    // 对应赋值
+    for (let i = 0; i < builds.length; i++) {
+        const buildName = builds[i];
+        builds_map[buildName] = undefined;
+        merge_builds[buildName] = undefined;
+
+        room_mesh_map[buildName] = [];
+        build_data[buildName] = [];
+
+        $home_build_tab.append(`<span class="active" data-name=${buildName}>${buildName}</span>`)
+        $mana_build_tab.append(`<span ${i == 0 ? "class=active" : ''} data-name=${buildName}>${buildName}</span>`)
     }
 
     // 所有运维数据
@@ -217,16 +228,22 @@ $(function () {
             max_distance = distance_t
         }
 
+        // 计算移动时间
+        let time = max_distance / 40 / scale_rate;
+        if (time > 2000) {
+            time = 2000;
+        }
+
         if (instant) {
             position.copy(new_position);
             target.copy(new_target);
         } else {
             const tween_p = new TWEEN.Tween(position);
-            tween_p.to(new_position, max_distance / 40 / scale_rate).start();
+            tween_p.to(new_position, time).start();
 
             // 更新控制器target
             const tween_t = new TWEEN.Tween(target);
-            tween_t.to(new_target, max_distance / 40 / scale_rate).start();
+            tween_t.to(new_target, time).start();
         }
     };
 
@@ -289,6 +306,12 @@ $(function () {
         const end = {
             new_position,
             new_target,
+        }
+
+        // 记录相机位置和 target
+        if (!position_m) {
+            position_m = new_position.clone();
+            target_m = new_target.clone();
         }
 
         walkToTarget(start, end, instant)
@@ -1467,7 +1490,7 @@ $(function () {
         loader.load(path, function (obj) {
             obj.name == '地面';
 
-            obj.traverse(function(mesh) {
+            obj.traverse(function (mesh) {
                 if (mesh instanceof THREE.Mesh) {
                     mesh.receiveShadow = true;
                 }
@@ -1491,7 +1514,6 @@ $(function () {
         build_whole.name = '建筑整体';
         scene.add(build_whole);
 
-        const builds = ['南楼', '北楼', '西楼'];
         for (const build_name of builds) {
             const group = new THREE.Group();;
             group.name = build_name;
@@ -1521,6 +1543,7 @@ $(function () {
             './models/北楼顶.toolkipBIM',
         ]
         analysisFBX(new_paths, builds_map, function () {
+            console.log('renderer', renderer);
 
             $('#loading').removeClass("active");
 
