@@ -39,15 +39,15 @@ const loadModel = (path, builds_map, length, index) => {
                             obj.receiveShadow = true;
                         }
 
-                        const line_material = new THREE.LineBasicMaterial({
-                            color: 0x0d0d0d,
-                            transparent: true,
-                            opacity: 0.2,
-                        });
-                        line_material.name = '附加线框材质_box';
-                        const geometry = new THREE.EdgesGeometry(obj.geometry, 30);
-                        const wireframe = new THREE.LineSegments(geometry, line_material);
-                        obj.add(wireframe);
+                        // const line_material = new THREE.LineBasicMaterial({
+                        //     color: 0x0d0d0d,
+                        //     transparent: true,
+                        //     opacity: 0.2,
+                        // });
+                        // line_material.name = '附加线框材质_box';
+                        // const geometry = new THREE.EdgesGeometry(obj.geometry, 30);
+                        // const wireframe = new THREE.LineSegments(geometry, line_material);
+                        // obj.add(wireframe);
                     }
                 })
                 
