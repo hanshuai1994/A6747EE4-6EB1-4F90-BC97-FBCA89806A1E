@@ -20,7 +20,7 @@ import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData 
 import importDom from './api/importDom';
 // import analysisRevit from './utils/analysisRevit';
 import analysisFBX from './utils/analysisFBX';
-import { getDateByTime, getWeekIndexOfYear, replaceData } from './utils/utils';
+import { getDateByTime, getWeekIndexOfYear, replaceData, setOpacity } from './utils/utils';
 import { createFloorList, createRoomList, createOperList, createOperItem } from './component/domTemplate';
 
 
@@ -1545,6 +1545,8 @@ $(function () {
         analysisFBX(new_paths, builds_map, function () {
             console.log('renderer', renderer);
 
+            // setOpacity(build_whole, 0.15);
+
             $('#loading').removeClass("active");
 
             // 绑定三栋楼的显示/隐藏按钮
@@ -1749,7 +1751,7 @@ $(function () {
             //     const intersects = raycaster.intersectObjects([scene], true);
 
             //     if (intersects.length > 0) {
-            //         mesh = intersects[0].object;
+            //         const mesh = intersects[0].object;
             //         console.log('mesh', mesh);
             //     }
             // })

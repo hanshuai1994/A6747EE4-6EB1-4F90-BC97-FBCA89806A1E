@@ -194,9 +194,43 @@ const getWeekIndexOfYear = (str) => {
     return Math.ceil(d / 7) + 1;
 }
 
+/**
+ * @name 设置目标透明度
+ * @param {*} group 设置的目标
+ * @param {number} opacity 设置的透明度
+ */
+const setOpacity = (group, opacity) => {
+
+    /**
+     * @name 设置材质透明度
+     * @param {*} material 
+     * @param {number} opacity 透明度
+     */
+    const setMaterial = (material, opacity) => {
+        if (!material.name.includes('玻璃') && !material.name.includes('boli')) {
+            material.transparent = true;
+            material.opacity = opacity;
+        }
+    }
+
+    group.traverse(function(obj) {
+        if (obj instanceof THREE.Mesh && obj.material) {
+
+            if (Array.isArray(obj.material)) {
+                for (const material of obj.material) {
+                    setMaterial(material, opacity);
+                }
+            } else {
+                setMaterial(obj.material, opacity);
+            }
+        }
+    })
+}
+
 export {
     getDateByTime,
     replaceData,
     getWeekIndexOfYear,
     correctUv,
+    setOpacity,
 }
