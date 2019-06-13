@@ -545,6 +545,15 @@ $(function () {
         $room_switch.show();
     }
 
+    // 显示首页水电能耗
+    const show_consume_area = () => {
+        $('#container>.consume-area').show();
+    }
+    // 隐藏首页水电能耗
+    const hide_consume_area = () => {
+        $('#container>.consume-area').hide();
+    }
+
     // 选择运维单项时
     const dom_oper_item_select = (element) => {
         const id = $(element).attr('data-id');
@@ -1565,8 +1574,10 @@ $(function () {
 
                 if ($active_build.length == 1 && active_floor_index != 'all') {
                     show_home_room_dom(); // 出现房间选择下拉界面
+                    hide_consume_area();
                 } else {
                     dom_room_clear(); // 收起房间下拉等多个界面
+                    show_consume_area();
                     // 显示所有楼层
                     for (const key in builds_map) {
                         if (builds_map.hasOwnProperty(key)) {
@@ -1601,6 +1612,7 @@ $(function () {
                 $floor_text.text($(this).text());
 
                 dom_room_clear();
+                show_consume_area();
 
                 const $active_build = $('#tab-home .select-wrap .build-tab>span.active');
 
@@ -1619,6 +1631,7 @@ $(function () {
 
                         if ($active_build.length == 1) {
                             show_home_room_dom(); // 出现房间选择下拉界面
+                            hide_consume_area();
                         }
 
                         const floor_index = index + 1;
@@ -2142,6 +2155,286 @@ const createChartOption3 = (config) => {
     return option
 }
 
+/**
+ * @name 获取首页电耗折线图配置
+ * @param {array} seriesData 数据信息
+ */
+const getHomeLineChartOption = (seriesData) => {
+    const xAxisData = [];
+    for (let i = 0; i < 24; i++) {
+        xAxisData[i] = `${i + 1}:00`
+    }
+
+    return {
+        title: {
+            text: '电耗',
+            top: '10',
+            left: '10',
+            textStyle: {
+                color: '#484848',
+                fontSize: 14,
+                fontWeight: 'bold',
+            }
+        },
+        graphic: [
+            {
+                type: 'text',
+                id: 'water',
+                top: '12',
+                right: '25',
+                style: {
+                    text: `更多`,
+                    fill: '#484848',
+                },
+                onclick: (event) => {
+                    $('#top-menu .statistics>a').tab('show');
+                    $('#tab-statistics>.tab-menu>.electric>a').tab('show');
+                    chart_electric_1.resize();
+                }
+            },
+            {
+                type: 'text',
+                left: '15',
+                top: '40',
+                cursor: 'auto',
+                style: {
+                    text: `昨日用电量 2300kwh`,
+                }
+            }
+        ],
+        grid: {
+            left: 'center',
+            top: '22%',
+            height: '65%',
+            width: '88%',
+        },
+        xAxis: {
+            type: 'category',
+            axisLine: {
+                show: false,
+            },
+            axisTick: {
+                show: false,
+            },
+            axisLabel: {
+                color: '#999999',
+                margin: 20,
+            },
+            data: xAxisData,
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: {
+                show: false,
+            },
+            axisTick: {
+                show: false,
+            },
+            axisLabel: {
+                color: '#999999',
+            },
+        },
+        series: [{
+            data: seriesData,
+            type: 'line',
+            lineStyle: {
+                color: '#aaaaaa',
+            },
+            symbol: 'emptyCircle',
+            symbolSize: 8,
+            itemStyle: {
+                color: params => {
+                    let color = '#1f2d3d';
+                    const { dataIndex, value } = params
+                    const preValue = seriesData[dataIndex - 1];
+                    if (preValue) {
+                        if (preValue - value > 0) {
+                            color = '#59e2cd';
+                        } else if (preValue - value < 0) {
+                            color = '#DE5B5B';
+                        }
+                    }
+                    return color
+                },
+            },
+            // itemStyle: {
+            //     color: '#1f2d3d',
+            // },
+            emphasis: {
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#ffff',
+                    distance: 4,
+                    fontSize: 12,
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    // width: '69',
+                    // height: '67',
+                    // lineHeight: '80',
+                    formatter: params => {
+                        // console.log('params', params);
+                        let trend = 'ping';
+                        const { dataIndex, value } = params
+                        const preValue = seriesData[dataIndex - 1];
+                        if (preValue) {
+                            if (preValue - value > 0) {
+                                trend = 'down';
+                            } else if (preValue - value < 0) {
+                                trend = 'up';
+                            }
+                        }
+                        return `{${trend}|${value}kwh}`
+                    },
+                    rich: {
+                        ping: {
+                            backgroundColor: {
+                                image: './img/icon/pic_ping.png',
+                            },
+                            width: '7',
+                            height: '69',
+                        },
+                        up: {
+                            backgroundColor: {
+                                image: './img/icon/pic_up.png',
+                            },
+                            width: '7',
+                            height: '69',
+                        },
+                        down: {
+                            backgroundColor: {
+                                image: './img/icon/pic_down.png',
+                            },
+                            width: '7',
+                            height: '69',
+                        },
+                    }
+                }
+            }
+        }],
+    };
+}
+
+/**
+ * @name 获取首页水耗柱状图配置
+ * @param {*} config 配置信息 xAxisData-x轴标注 seriesData-数据
+ */
+const getHomeBarChartOption = (config) => {
+    const { xAxisData, seriesData } = config;
+
+    const option = {
+        title: {
+            text: '水耗',
+            top: '10',
+            left: '10',
+            textStyle: {
+                color: '#484848',
+                fontSize: 14,
+                fontWeight: 'bold',
+            }
+        },
+        graphic: [
+            {
+                type: 'text',
+                id: 'water',
+                top: '12',
+                right: '25',
+                style: {
+                    text: `更多`,
+                    fill: '#484848',
+                },
+                onclick: (event) => {
+                    $('#top-menu .statistics>a').tab('show');
+                    $('#tab-statistics>.tab-menu>.water>a').tab('show');
+                    chart_water_1.resize();
+                }
+            },
+            {
+                type: 'text',
+                left: '15',
+                top: '40',
+                cursor: 'auto',
+                style: {
+                    text: `昨日用水量 230t`,
+                }
+            },
+            {
+                type: 'text',
+                top: '40',
+                right: '25',
+                cursor: 'auto',
+                style: {
+                    text: `最近读数（15:00 2019/06/12） 23t`,
+                }
+            }
+        ],
+        grid: {
+            left: 'center',
+            top: '22%',
+            height: '65%',
+            width: '88%',
+        },
+        xAxis: {
+            type: 'category',
+            axisLine: {
+                show: false,
+            },
+            axisTick: {
+                show: false,
+            },
+            axisLabel: {
+                color: '#999999',
+                lineHeight: 14,
+                margin: 15,
+            },
+            data: xAxisData,
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: {
+                show: false,
+            },
+            axisTick: {
+                show: false,
+            },
+            axisLabel: {
+                color: '#999999',
+            },
+        },
+        series: [{
+            data: seriesData,
+            type: 'bar',
+            barCategoryGap: '50%',
+            itemStyle: {
+                color: '#1f2d3d'
+            },
+            barMaxWidth: 40,
+            emphasis: {
+                itemStyle: {
+                    color: '#ffc742',
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#ffff',
+                    distance: 4,
+                    fontSize: 12,
+                    width: '68',
+                    height: '67',
+                    align: 'center',
+                    lineHeight: '60',
+                    backgroundColor: {
+                        image: './img/icon/pic_normal.png',
+                    },
+                    rich: {}
+                }
+            }
+        }],
+    };
+
+    return option
+}
+
 // 柱状图x轴标签原型
 const xAxisFloors = [
     '北楼一层',
@@ -2429,6 +2722,9 @@ const update_chart_3 = (opts) => {
 }
 
 // 初始化echarts图表
+const chart_home_electric = echarts.init(document.querySelector('#container .consume-box>.chart-electric'));
+const chart_home_water = echarts.init(document.querySelector('#container .consume-box>.chart-water'));
+
 const chart_electric_1 = echarts.init(document.querySelector('#tab-electric>.chart-1'));
 const chart_electric_2 = echarts.init(document.querySelector('#tab-electric>.chart-2'));
 const chart_electric_3 = echarts.init(document.querySelector('#tab-electric>.chart-3'));
@@ -2560,6 +2856,19 @@ $.ajax({
     }
 })
 
+const HomeLineData = [];
+for (let i = 0; i < 24; i++) {
+    HomeLineData[i] = i + 1;
+    if (i % 2 == 0) HomeLineData[i] = -HomeLineData[i];
+    if (i % 5 == 0) HomeLineData[i - 1] = HomeLineData[i];
+}
+chart_home_electric.setOption(getHomeLineChartOption(HomeLineData));
+
+const home_water_chart_options = {
+    xAxisData: ['6月12日', '6月13日', '6月14日', '6月15日', '6月16日'], 
+    seriesData: [20, 18, 26, 22, 17]
+}
+chart_home_water.setOption(getHomeBarChartOption(home_water_chart_options));
 
 // 绑定水表饼图点击
 chart_water_1.on('click', function (event) {
