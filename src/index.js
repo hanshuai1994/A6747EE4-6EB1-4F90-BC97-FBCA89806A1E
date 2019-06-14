@@ -1931,7 +1931,7 @@ const createChartOption1 = (config) => {
             },
             data: seriesData
         }],
-        color: ['#985ef9', '#ffc742', '#ff6e42', '#ff5886', '#00c4aa', '#00a3fb'],
+        color: ['#324157', '#ff4242', '#f06449', '#ffc742', '#3abeaa', '#3a8ebe'],
     };
 
     return option
@@ -2007,30 +2007,22 @@ const createChartOption2 = (config) => {
             barMaxWidth: 80,
             emphasis: {
                 itemStyle: {
-                    color: {
-                        type: 'linear',
-                        x: 0,
-                        y: 0,
-                        x2: 0,
-                        y2: 1,
-                        colorStops: [{
-                            offset: 1,
-                            color: '#ffc742' // 0% 处的颜色
-                        }, {
-                            offset: 0,
-                            color: '#fbe072' // 100% 处的颜色
-                        }],
-                    }
+                    color: '#ffc742',
                 },
                 label: {
                     show: true,
                     position: 'top',
-                    backgroundColor: '#324157',
                     color: '#ffff',
-                    padding: [10, 20],
-                    distance: 10,
-                    borderRadius: 5,
-                    fontSize: 14,
+                    distance: 4,
+                    fontSize: 12,
+                    width: '68',
+                    height: '67',
+                    align: 'center',
+                    lineHeight: '60',
+                    backgroundColor: {
+                        image: './img/icon/pic_normal.png',
+                    },
+                    rich: {}
                 }
             }
         }],
@@ -2113,40 +2105,84 @@ const createChartOption3 = (config) => {
         series: [{
             data: seriesData,
             type: 'line',
-            areaStyle: {
-                color: {
-                    type: 'linear',
-                    x: 0,
-                    y: 0,
-                    x2: 0,
-                    y2: 1,
-                    colorStops: [{
-                        offset: 1,
-                        color: '#ffffff' // 0% 处的颜色
-                    }, {
-                        offset: 0,
-                        color: '#babfc4' // 100% 处的颜色
-                    }],
-                }
-            },
             lineStyle: {
-                color: '#4b5054',
+                color: '#aaaaaa',
             },
-            symbol: 'circle',
-            symbolSize: 6,
+            symbol: 'emptyCircle',
+            symbolSize: 8,
             itemStyle: {
-                color: '#1f2d3d',
+                color: params => {
+                    let color = '#1f2d3d';
+                    const { dataIndex, value } = params
+                    const preValue = seriesData[dataIndex - 1];
+                    if (preValue) {
+                        if (preValue - value > 0) {
+                            color = '#59e2cd';
+                        } else if (preValue - value < 0) {
+                            color = '#DE5B5B';
+                        }
+                    }
+                    return color
+                },
             },
             emphasis: {
                 label: {
                     show: true,
                     position: 'top',
-                    backgroundColor: '#324157',
                     color: '#ffff',
-                    padding: [10, 20],
-                    distance: 10,
-                    borderRadius: 5,
-                    fontSize: 14,
+                    distance: 4,
+                    fontSize: 12,
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    // width: '69',
+                    // height: '67',
+                    // lineHeight: '80',
+                    formatter: params => {
+                        // console.log('params', params);
+                        let trend = 'ping';
+                        
+                        const { dataIndex, value } = params
+                        const preValue = seriesData[dataIndex - 1];
+                        let percent = Math.round(Math.abs((preValue - value) / preValue) * 100);
+                        
+                        if (percent > 200 || percent == 0 || percent == Infinity || isNaN(percent)) {
+                            percent = '-'
+                        } else {
+                            percent = percent + '%';
+                        }
+
+                        if (preValue) {
+                            if (preValue - value > 0) {
+                                trend = 'down';
+                            } else if (preValue - value < 0) {
+                                trend = 'up';
+                            }
+                        }
+                        return `{${trend}|${value}kwh ${percent}}`
+                    },
+                    rich: {
+                        ping: {
+                            backgroundColor: {
+                                image: './img/icon/pic_ping.png',
+                            },
+                            width: '9',
+                            height: '69',
+                        },
+                        up: {
+                            backgroundColor: {
+                                image: './img/icon/pic_up.png',
+                            },
+                            width: '9',
+                            height: '69',
+                        },
+                        down: {
+                            backgroundColor: {
+                                image: './img/icon/pic_down.png',
+                            },
+                            width: '9',
+                            height: '69',
+                        },
+                    }
                 }
             }
         }],
@@ -2168,8 +2204,8 @@ const getHomeLineChartOption = (seriesData) => {
     return {
         title: {
             text: '电耗',
-            top: '10',
-            left: '10',
+            top: '5',
+            left: '5',
             textStyle: {
                 color: '#484848',
                 fontSize: 14,
@@ -2180,8 +2216,8 @@ const getHomeLineChartOption = (seriesData) => {
             {
                 type: 'text',
                 id: 'water',
-                top: '12',
-                right: '25',
+                top: '10',
+                right: '15',
                 style: {
                     text: `更多`,
                     fill: '#484848',
@@ -2194,8 +2230,8 @@ const getHomeLineChartOption = (seriesData) => {
             },
             {
                 type: 'text',
-                left: '15',
-                top: '40',
+                left: '10',
+                top: '32',
                 cursor: 'auto',
                 style: {
                     text: `昨日用电量 2300kwh`,
@@ -2203,10 +2239,10 @@ const getHomeLineChartOption = (seriesData) => {
             }
         ],
         grid: {
-            left: 'center',
-            top: '22%',
+            left: 'right',
+            top: '21%',
             height: '65%',
-            width: '88%',
+            width: '92%',
         },
         xAxis: {
             type: 'category',
@@ -2257,9 +2293,6 @@ const getHomeLineChartOption = (seriesData) => {
                     return color
                 },
             },
-            // itemStyle: {
-            //     color: '#1f2d3d',
-            // },
             emphasis: {
                 label: {
                     show: true,
@@ -2275,8 +2308,17 @@ const getHomeLineChartOption = (seriesData) => {
                     formatter: params => {
                         // console.log('params', params);
                         let trend = 'ping';
+                        
                         const { dataIndex, value } = params
                         const preValue = seriesData[dataIndex - 1];
+                        let percent = Math.round(Math.abs((preValue - value) / preValue) * 100);
+                        
+                        if (percent > 200 || percent == 0 || percent == Infinity || isNaN(percent)) {
+                            percent = '-'
+                        } else {
+                            percent = percent + '%';
+                        }
+
                         if (preValue) {
                             if (preValue - value > 0) {
                                 trend = 'down';
@@ -2284,28 +2326,28 @@ const getHomeLineChartOption = (seriesData) => {
                                 trend = 'up';
                             }
                         }
-                        return `{${trend}|${value}kwh}`
+                        return `{${trend}|${value}kwh ${percent}}`
                     },
                     rich: {
                         ping: {
                             backgroundColor: {
                                 image: './img/icon/pic_ping.png',
                             },
-                            width: '7',
+                            width: '9',
                             height: '69',
                         },
                         up: {
                             backgroundColor: {
                                 image: './img/icon/pic_up.png',
                             },
-                            width: '7',
+                            width: '9',
                             height: '69',
                         },
                         down: {
                             backgroundColor: {
                                 image: './img/icon/pic_down.png',
                             },
-                            width: '7',
+                            width: '9',
                             height: '69',
                         },
                     }
@@ -2325,8 +2367,8 @@ const getHomeBarChartOption = (config) => {
     const option = {
         title: {
             text: '水耗',
-            top: '10',
-            left: '10',
+            top: '5',
+            left: '5',
             textStyle: {
                 color: '#484848',
                 fontSize: 14,
@@ -2337,8 +2379,8 @@ const getHomeBarChartOption = (config) => {
             {
                 type: 'text',
                 id: 'water',
-                top: '12',
-                right: '25',
+                top: '10',
+                right: '15',
                 style: {
                     text: `更多`,
                     fill: '#484848',
@@ -2351,8 +2393,8 @@ const getHomeBarChartOption = (config) => {
             },
             {
                 type: 'text',
-                left: '15',
-                top: '40',
+                left: '10',
+                top: '30',
                 cursor: 'auto',
                 style: {
                     text: `昨日用水量 230t`,
@@ -2360,8 +2402,8 @@ const getHomeBarChartOption = (config) => {
             },
             {
                 type: 'text',
-                top: '40',
-                right: '25',
+                top: '30',
+                right: '15',
                 cursor: 'auto',
                 style: {
                     text: `最近读数（15:00 2019/06/12） 23t`,
@@ -2369,10 +2411,10 @@ const getHomeBarChartOption = (config) => {
             }
         ],
         grid: {
-            left: 'center',
+            left: 'right',
             top: '22%',
             height: '65%',
-            width: '88%',
+            width: '92%',
         },
         xAxis: {
             type: 'category',
@@ -2683,6 +2725,19 @@ const update_chart_3 = (opts) => {
             if (data.Data.length == 0) {
                 return
             }
+
+            if (interval == 'daily') {
+                const Data = data.Data;
+
+                const date = new Date(Data[1].FreezeDate);
+                const preDate = new Date(Data[0].FreezeDate);
+                const interval = date.getTime() - preDate.getTime();
+                // console.log('Data', Data);
+                if (interval > 86400000) { // 剔除第一个非连续值
+                    Data.splice(0, 1);
+                }  
+            }
+
             const result = get_chart_3_data(data.Data, interval);
             // console.log('result', result);
             let xAxisData;
