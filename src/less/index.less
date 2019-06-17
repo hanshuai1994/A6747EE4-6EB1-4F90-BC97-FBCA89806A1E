@@ -1165,7 +1165,8 @@ canvas {
     }
 
     >.init-btn,
-    >.shadow-btn {
+    >.shadow-btn,
+    >.equipment-btns {
         position: absolute;
         left: 20px;
         bottom: 20px;
@@ -1182,11 +1183,40 @@ canvas {
         border-radius: @border_radius;
 
         &.shadow-btn {
-            bottom: 64px;
+            bottom: 60px;
 
             &.active {
                 background-color: @themeColor;
                 color: #ffffff;
+            }
+        }
+
+        &.equipment-btns {
+            bottom: 101px;
+            
+            >div {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+            }
+
+            >.dropdown-menu {
+                min-width: 100%;
+
+                >li {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    padding: 6px 0;
+
+                    &.active {
+                        background-color: @themeColor;
+                        color: #fff;
+                    }
+                }
             }
         }
     }

@@ -49,8 +49,14 @@ $(function () {
     // 楼栋名称
     const builds = ['北楼', '西楼', '南楼'];
 
+    // 系统名称
+    const systems = ['电气系统', '管道系统', '机械系统']
+
     // 建筑索引
     const builds_map = {};
+
+    // 系统索引
+    const systems_map = {};
 
     // merge 后的建筑组索引
     const merge_builds = {};
@@ -1523,6 +1529,7 @@ $(function () {
         build_whole.name = '建筑整体';
         scene.add(build_whole);
 
+        // 初始化建筑 group 与映射表
         for (const build_name of builds) {
             const group = new THREE.Group();;
             group.name = build_name;
@@ -1530,6 +1537,41 @@ $(function () {
 
             builds_map[build_name] = group;
         }
+    
+        // 初始化机电系统 group 与映射表
+        for (const system of systems) {
+            const group = new THREE.Group();;
+            group.name = system;
+            group.visible = false;
+            build_whole.add(group);
+
+            systems_map[system] = group;
+        }
+
+        // 绑定机电系统显示隐藏按钮
+        $('#tab-home .equipment-btns .dropdown-menu>li').on('click', function (event) {
+            const system = $(this).attr('data-system');
+            $(this).toggleClass('active');
+            event.stopPropagation();
+
+            systems_map[system].visible = $(this).hasClass('active') ? true : false;
+
+            // if ($(this).hasClass('active')) {
+            //     for (const key in builds_map) {
+            //         if (builds_map.hasOwnProperty(key)) {
+            //             const build = builds_map[key];
+            //             setOpacity(build, 0.15);
+            //         }
+            //     }
+            // } else {
+            //     for (const key in builds_map) {
+            //         if (builds_map.hasOwnProperty(key)) {
+            //             const build = builds_map[key];
+            //             setOpacity(build, 1);
+            //         }
+            //     }
+            // }
+        })
 
         const new_paths = [
             './models/南楼1F.toolkipBIM',
@@ -1550,8 +1592,11 @@ $(function () {
             './models/北楼5F.toolkipBIM',
             './models/北楼6F.toolkipBIM',
             './models/北楼顶.toolkipBIM',
+            './models/电气系统.toolkipBIM',
+            './models/管道系统.toolkipBIM',
+            './models/机械系统.toolkipBIM',
         ]
-        analysisFBX(new_paths, builds_map, function () {
+        analysisFBX(new_paths, builds_map, systems_map, function () {
             console.log('renderer', renderer);
 
             // setOpacity(build_whole, 0.15);
