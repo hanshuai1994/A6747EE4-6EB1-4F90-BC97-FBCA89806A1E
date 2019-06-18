@@ -1548,29 +1548,44 @@ $(function () {
             systems_map[system] = group;
         }
 
+        $('#tab-home .equipment-btns>div').click(function() {
+            $(this).toggleClass('active');
+            const $ul = $(this).siblings('ul');
+            $ul.toggle();
+
+            if ($(this).hasClass('active')) {
+                for (const key in builds_map) {
+                    if (builds_map.hasOwnProperty(key)) {
+                        const build = builds_map[key];
+                        setOpacity(build, 0.15);
+                    }
+                }
+            } else {
+                // 取消透明
+                for (const key in builds_map) {
+                    if (builds_map.hasOwnProperty(key)) {
+                        const build = builds_map[key];
+                        setOpacity(build, 1);
+                    }
+                }
+
+                // 隐藏机电系统
+                for (const key in systems_map) {
+                    if (systems_map.hasOwnProperty(key)) {
+                        const system = systems_map[key];
+                        system.visible = false;
+                    }
+                }
+                $ul.find(`>li`).removeClass('active');
+            }
+        })
+
         // 绑定机电系统显示隐藏按钮
-        $('#tab-home .equipment-btns .dropdown-menu>li').on('click', function (event) {
+        $('#tab-home .equipment-btns ul>li').on('click', function (event) {
             const system = $(this).attr('data-system');
             $(this).toggleClass('active');
-            event.stopPropagation();
 
             systems_map[system].visible = $(this).hasClass('active') ? true : false;
-
-            // if ($(this).hasClass('active')) {
-            //     for (const key in builds_map) {
-            //         if (builds_map.hasOwnProperty(key)) {
-            //             const build = builds_map[key];
-            //             setOpacity(build, 0.15);
-            //         }
-            //     }
-            // } else {
-            //     for (const key in builds_map) {
-            //         if (builds_map.hasOwnProperty(key)) {
-            //             const build = builds_map[key];
-            //             setOpacity(build, 1);
-            //         }
-            //     }
-            // }
         })
 
         const new_paths = [
