@@ -1548,35 +1548,48 @@ $(function () {
             systems_map[system] = group;
         }
 
+        // 初始化机电系统
+        const initEquipment = () => {
+            const $div = $('#container>.equipment-btns>div');
+            const $ul = $div.siblings('ul');
+
+            $div.removeClass('active');
+            $ul.hide();
+            
+            // 取消透明
+            for (const key in builds_map) {
+                if (builds_map.hasOwnProperty(key)) {
+                    const build = builds_map[key];
+                    setOpacity(build, 1);
+                }
+            }
+
+            // 隐藏机电系统
+            for (const key in systems_map) {
+                if (systems_map.hasOwnProperty(key)) {
+                    const system = systems_map[key];
+                    system.visible = false;
+                }
+            }
+            $ul.find(`>li`).removeClass('active');
+        }
+
         $('#tab-home .equipment-btns>div').click(function() {
-            $(this).toggleClass('active');
-            const $ul = $(this).siblings('ul');
-            $ul.toggle();
-
-            if ($(this).hasClass('active')) {
-                for (const key in builds_map) {
-                    if (builds_map.hasOwnProperty(key)) {
-                        const build = builds_map[key];
-                        setOpacity(build, 0.15);
+            if ($('#container>.select-wrap>.floor-switch>div').attr('data-index') == 'all') { // 未切换至单个楼层之前才可以使用
+                $(this).toggleClass('active');
+                const $ul = $(this).siblings('ul');
+                $ul.toggle();
+    
+                if ($(this).hasClass('active')) {
+                    for (const key in builds_map) {
+                        if (builds_map.hasOwnProperty(key)) {
+                            const build = builds_map[key];
+                            setOpacity(build, 0.15);
+                        }
                     }
+                } else {
+                    initEquipment();
                 }
-            } else {
-                // 取消透明
-                for (const key in builds_map) {
-                    if (builds_map.hasOwnProperty(key)) {
-                        const build = builds_map[key];
-                        setOpacity(build, 1);
-                    }
-                }
-
-                // 隐藏机电系统
-                for (const key in systems_map) {
-                    if (systems_map.hasOwnProperty(key)) {
-                        const system = systems_map[key];
-                        system.visible = false;
-                    }
-                }
-                $ul.find(`>li`).removeClass('active');
             }
         })
 
@@ -1635,6 +1648,7 @@ $(function () {
                 if ($active_build.length == 1 && active_floor_index != 'all') {
                     show_home_room_dom(); // 出现房间选择下拉界面
                     hide_consume_area();
+                    initEquipment();
                 } else {
                     dom_room_clear(); // 收起房间下拉等多个界面
                     show_consume_area();
@@ -1692,6 +1706,7 @@ $(function () {
                         if ($active_build.length == 1) {
                             show_home_room_dom(); // 出现房间选择下拉界面
                             hide_consume_area();
+                            initEquipment();
                         }
 
                         const floor_index = index + 1;
