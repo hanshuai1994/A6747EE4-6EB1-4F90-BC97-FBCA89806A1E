@@ -102,9 +102,9 @@ canvas {
     max-height: 270px;
     overflow-y: scroll;
 
-    &::-webkit-scrollbar {
-        display: none;
-    }
+    // &::-webkit-scrollbar {
+    //     display: none;
+    // }
 }
 
 #loading {
@@ -543,9 +543,9 @@ canvas {
                         overflow-x: scroll;
                         line-height: 24px;
 
-                        &::-webkit-scrollbar {
-                            display: none;
-                        }
+                        // &::-webkit-scrollbar {
+                        //     display: none;
+                        // }
                     }
                 }
             }
@@ -1248,13 +1248,17 @@ canvas {
         top: 10px;
         right: 10px;
 
-        max-width: 423px;
-        max-height: 736px;
+        width: 419px;
+        height: 597px;
 
-        width: 25%;
-        height: 60%;
+        // max-width: 423px;
+        // max-height: 601px;
+
+        // width: 25%;
+        // height: 60%;
         
-        padding: 5px 2px 2px 5px;
+        // padding: 5px 2px 2px 5px;
+        padding: 5px;
 
         background-color: #ffffff;
         box-shadow: 0px 5px 8px 0px rgba(19, 36, 55, 0.08);
@@ -1266,11 +1270,12 @@ canvas {
             width: 100%;
             height: 100%;
 
-            padding: 0 2px 2px 0;
+            // padding: 0 2px 2px 0;
 
-            overflow: scroll;
+            // overflow: scroll;
     
             >.chart-wrap {
+                position: relative;
                 width: 408px;
                 height: 288px;
                 background-color: #f5f5f5;
@@ -1278,6 +1283,34 @@ canvas {
 
                 &:not(:first-child) {
                     margin-top: 10px;
+                }
+
+                >.yesterday {
+                    position: absolute;
+                    top: 32px;
+                    left: 10px;
+
+                    >span.bold {
+                        font-weight: bold;
+                    }
+                }
+
+                >.more {
+                    position: absolute;
+                    top: 10px;
+                    right: 15px;
+                    text-decoration: underline;
+                    cursor: pointer;
+                }
+
+                >.lately {
+                    position: absolute;
+                    top: 30px;
+                    right: 15px;
+
+                    >span.bold {
+                        font-weight: bold;
+                    }
                 }
             }
         }
@@ -1595,9 +1628,9 @@ canvas {
     margin: 0 auto;
     border-top: 1px solid @borderColor;
 
-    &::-webkit-scrollbar {
-        display: none;
-    }
+    // &::-webkit-scrollbar {
+    //     display: none;
+    // }
 
     >.tab-menu {
         height: 62px;

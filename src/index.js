@@ -1911,6 +1911,15 @@ let token;
 let waterPosts;
 let electricPosts;
 
+const updateYesterday = (chart, value, unit) => {
+    $(chart._dom).find('>.yesterday>.bold').text(value + unit);
+}
+
+const updateLately = (chart, time, value, unit) => {
+    $(chart._dom).find('>.lately>.time').text(time);
+    $(chart._dom).find('>.lately>.bold').text(value + unit);
+}
+
 /**
  * @name 创建饼状图配置
  * @param {*} config 
@@ -2175,7 +2184,7 @@ const createChartOption3 = (config) => {
                     let color = '#1f2d3d';
                     const { dataIndex, value } = params
                     const preValue = seriesData[dataIndex - 1];
-                    if (preValue) {
+                    if (dataIndex != 0) {
                         if (preValue - value > 0) {
                             color = '#59e2cd';
                         } else if (preValue - value < 0) {
@@ -2198,12 +2207,14 @@ const createChartOption3 = (config) => {
                     // height: '67',
                     // lineHeight: '80',
                     formatter: params => {
-                        // console.log('params', params);
                         let trend = 'ping';
                         
-                        const { dataIndex, value } = params
+                        const { dataIndex, value } = params;
+                        if (dataIndex == 0) return
+                        
                         const preValue = seriesData[dataIndex - 1];
-                        let percent = Math.round(Math.abs((preValue - value) / preValue) * 100);
+                        const change = Number((value - preValue).toFixed(2));
+                        let percent = Math.round(Math.abs(change / preValue) * 100);
                         
                         if (percent > 200 || percent == 0 || percent == Infinity || isNaN(percent)) {
                             percent = '-'
@@ -2211,14 +2222,14 @@ const createChartOption3 = (config) => {
                             percent = percent + '%';
                         }
 
-                        if (preValue) {
-                            if (preValue - value > 0) {
-                                trend = 'down';
-                            } else if (preValue - value < 0) {
+                        if (change) {
+                            if (change > 0) {
                                 trend = 'up';
+                            } else if (change < 0) {
+                                trend = 'down';
                             }
                         }
-                        return `{${trend}|${value}kwh ${percent}}`
+                        return `{${trend}|${change}kwh ${percent}}`
                     },
                     rich: {
                         ping: {
@@ -2272,32 +2283,6 @@ const getHomeLineChartOption = (seriesData) => {
                 fontWeight: 'bold',
             }
         },
-        graphic: [
-            {
-                type: 'text',
-                id: 'water',
-                top: '10',
-                right: '15',
-                style: {
-                    text: `更多`,
-                    fill: '#484848',
-                },
-                onclick: (event) => {
-                    $('#top-menu .statistics>a').tab('show');
-                    $('#tab-statistics>.tab-menu>.electric>a').tab('show');
-                    chart_electric_1.resize();
-                }
-            },
-            {
-                type: 'text',
-                left: '10',
-                top: '32',
-                cursor: 'auto',
-                style: {
-                    text: `昨日用电量 2300kwh`,
-                }
-            }
-        ],
         grid: {
             left: 'right',
             top: '21%',
@@ -2344,10 +2329,10 @@ const getHomeLineChartOption = (seriesData) => {
                     const { dataIndex, value } = params
                     const preValue = seriesData[dataIndex - 1];
                     if (preValue) {
-                        if (preValue - value > 0) {
-                            color = '#59e2cd';
-                        } else if (preValue - value < 0) {
+                        if (value - preValue > 0) {
                             color = '#DE5B5B';
+                        } else if (value - preValue < 0) {
+                            color = '#59e2cd';
                         }
                     }
                     return color
@@ -2366,12 +2351,14 @@ const getHomeLineChartOption = (seriesData) => {
                     // height: '67',
                     // lineHeight: '80',
                     formatter: params => {
-                        // console.log('params', params);
                         let trend = 'ping';
                         
-                        const { dataIndex, value } = params
+                        const { dataIndex, value } = params;
+                        if (dataIndex == 0) return
+                        
                         const preValue = seriesData[dataIndex - 1];
-                        let percent = Math.round(Math.abs((preValue - value) / preValue) * 100);
+                        const change = Number((value - preValue).toFixed(2));
+                        let percent = Math.round(Math.abs(change / preValue) * 100);
                         
                         if (percent > 200 || percent == 0 || percent == Infinity || isNaN(percent)) {
                             percent = '-'
@@ -2379,14 +2366,14 @@ const getHomeLineChartOption = (seriesData) => {
                             percent = percent + '%';
                         }
 
-                        if (preValue) {
-                            if (preValue - value > 0) {
-                                trend = 'down';
-                            } else if (preValue - value < 0) {
+                        if (change) {
+                            if (change > 0) {
                                 trend = 'up';
+                            } else if (change < 0) {
+                                trend = 'down';
                             }
                         }
-                        return `{${trend}|${value}kwh ${percent}}`
+                        return `{${trend}|${change}kwh ${percent}}`
                     },
                     rich: {
                         ping: {
@@ -2435,41 +2422,6 @@ const getHomeBarChartOption = (config) => {
                 fontWeight: 'bold',
             }
         },
-        graphic: [
-            {
-                type: 'text',
-                id: 'water',
-                top: '10',
-                right: '15',
-                style: {
-                    text: `更多`,
-                    fill: '#484848',
-                },
-                onclick: (event) => {
-                    $('#top-menu .statistics>a').tab('show');
-                    $('#tab-statistics>.tab-menu>.water>a').tab('show');
-                    chart_water_1.resize();
-                }
-            },
-            {
-                type: 'text',
-                left: '10',
-                top: '30',
-                cursor: 'auto',
-                style: {
-                    text: `昨日用水量 230t`,
-                }
-            },
-            {
-                type: 'text',
-                top: '30',
-                right: '15',
-                cursor: 'auto',
-                style: {
-                    text: `最近读数（15:00 2019/06/12） 23t`,
-                }
-            }
-        ],
         grid: {
             left: 'right',
             top: '22%',
@@ -2851,6 +2803,41 @@ const chart_equipment_1 = echarts.init(document.querySelector('#container>.equip
 const chart_equipment_2 = echarts.init(document.querySelector('#container>.equipment-mask>.chart-2'));
 
 // 在图表中插入dom与绑定事件
+const createLabel = (type) => {
+    return `<div class="yesterday"><span class="normal">昨日用${type}量</span> <span class="bold">230<span></div>`
+}
+$(chart_home_electric._dom).append(createLabel('电'));
+$(chart_home_water._dom).append(createLabel('水'));
+updateYesterday(chart_home_electric, 230, 'kwh');
+updateYesterday(chart_home_water, 23, 't');
+
+// 最近读数dom
+const lately_dom = `<span class="lately">
+                        <span class="normal">最近读数（</span>
+                        <span class="time"></span>
+                        <span class="normal">）</span>
+                        <span class="bold"></span>
+                    </span>`;
+$(chart_home_water._dom).append(lately_dom);
+updateLately(chart_home_water, '15:00 2019/06/12', 5, 't');
+
+// 插入"更多"dom
+const more_dom = `<span class="more">更多</span>`;
+$(chart_home_electric._dom).append(more_dom);
+$(chart_home_water._dom).append(more_dom);
+
+// 绑定"更多"按钮的点击事件
+$(chart_home_electric._dom).find('>.more').click(function() {
+    $('#top-menu .statistics>a').tab('show');
+    $('#tab-statistics>.tab-menu>.electric>a').tab('show');
+    chart_electric_1.resize();
+})
+$(chart_home_water._dom).find('>.more').click(function() {
+    $('#top-menu .statistics>a').tab('show');
+    $('#tab-statistics>.tab-menu>.water>a').tab('show');
+    chart_water_1.resize();
+})
+
 const shut_dom = `<span class="shut"></span>`;
 $('#container>.equipment-mask>.chart-1').append(shut_dom);
 $('#container>.equipment-mask>.chart-2').append(shut_dom);
