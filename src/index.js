@@ -255,14 +255,16 @@ $(function () {
 
     // 添加高亮
     const addHightLight = (mesh) => {
-        mesh.material.opacity = 1;
+        // mesh.material.opacity = 1;
+        mesh.visible = true;
         selected_room = mesh;
     }
 
     // 清除高亮
     const clearHightLight = () => {
         if (selected_room) {
-            selected_room.material.opacity = 0;
+            // selected_room.material.opacity = 0;
+            selected_room.visible = false;
             selected_room = undefined;
         }
     }
@@ -407,13 +409,14 @@ $(function () {
 
             const material = new THREE.MeshPhongMaterial({
                 color: '#324157',
-                transparent: true,
-                opacity: 0,
+                // transparent: true,
+                // opacity: 0,
             });
             const geometry = new THREE.ShapeGeometry(shape);
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.rotation.x = -Math.PI / 2;
+            mesh.visible = false;
 
             // mesh.position.y = firstPoint.Z * scale + 5;
             mesh.position.y = floor_heights[buildName][floorIndex] * 1000 + 250;
