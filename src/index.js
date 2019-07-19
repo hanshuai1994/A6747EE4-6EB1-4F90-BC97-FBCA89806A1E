@@ -2286,7 +2286,7 @@ const createChartOption3 = (config) => {
  */
 const getHomeLineChartOption = (seriesData) => {
     const xAxisData = [];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < seriesData.length; i++) {
         xAxisData[i] = `${i + 1}:00`
     }
 
@@ -2570,6 +2570,7 @@ const createPromisesByMeter = (meterArray, token) => {
                             type,
                             value,
                             detail,
+                            readDate: data.Data[0].ReadDate,
                         };
 
                         resolve(result);
@@ -2976,13 +2977,13 @@ $.ajax({
     }
 })
 
-const HomeLineData = [];
+const homeLineData = [];
 for (let i = 0; i < 24; i++) {
-    HomeLineData[i] = i + 1;
-    if (i % 2 == 0) HomeLineData[i] = -HomeLineData[i];
-    if (i % 5 == 0) HomeLineData[i - 1] = HomeLineData[i];
+    homeLineData[i] = i + 1;
+    if (i % 2 == 0) homeLineData[i] = -homeLineData[i];
+    if (i % 5 == 0) homeLineData[i - 1] = homeLineData[i];
 }
-chart_home_electric.setOption(getHomeLineChartOption(HomeLineData));
+chart_home_electric.setOption(getHomeLineChartOption(homeLineData));
 
 const home_water_chart_options = {
     xAxisData: ['6月12日', '6月13日', '6月14日', '6月15日', '6月16日'], 
@@ -3212,6 +3213,128 @@ $('#tab-statistics>.tab-menu>.water>a').one('click', function () {
         chart_water_1.resize();
     })
 })
+
+const aliHttp = "http://121.40.174.117:8080/";
+
+// 更新首页电表数据
+const update_chart_home_electric = () => {
+    $.ajax({
+        type: 'POST',
+        url: aliHttp + 'buildingManagement/getElectricDatas.do',
+        data: {},
+        async: true,
+        success: function (res) {
+            const data = JSON.parse(res)[0];
+            console.log('data', data);
+
+            const { hourData, yesterdayData } = data;
+
+            // 更新昨日用电量
+            updateYesterday(chart_home_electric, yesterdayData[0].kwh, 'kwh');
+
+            const homeLineData = [];
+            for (const data of hourData) {
+                homeLineData.push(data.kWh);
+            }
+            // 更新每小时用电量
+            chart_home_electric.setOption(getHomeLineChartOption(homeLineData));
+        },
+        error: function (err) {
+            console.log('err', err);
+        }
+    });
+}
+update_chart_home_electric();
+
+// 更新首页水表数据
+const update_chart_home_water = () => {
+    //获取水表数据
+    $.ajax({
+        type: 'POST',
+        url: aliHttp + 'buildingManagement/getWaterDatas.do',
+        data: {},
+        async: true,
+        success: function (res) {
+            const data = JSON.parse(res)[0];
+            console.log('data', data);
+
+            const { halfDayData, yesterdayData } = data;
+
+            // 更新昨日用水量
+            updateYesterday(chart_home_water, yesterdayData[0].value, 't');
+
+            // 更新最近七次读数
+            const xAxisData = [];
+            const seriesData = [];
+
+            const length = halfDayData.length;
+            const five_data = halfDayData.slice(length - 5);
+
+            for (const data of five_data) {
+                const time = new Date(data.readTime)
+                const month = time.getMonth() + 1;
+                const date = time.getDate();
+                const hour = time.getHours();
+                
+                xAxisData.push(`${month}/${date} ${hour}时`) 
+                seriesData.push(data.value)
+            }
+
+            chart_home_water.setOption(getHomeBarChartOption({
+                xAxisData: xAxisData,
+                seriesData: seriesData,
+            }));
+        },
+        error: function (err) {
+            console.log('err', err);
+        }
+    });
+}
+update_chart_home_water();
+
+// 更新首页水表最新度数
+const update_home_water_lately = () => {
+    $.ajax({
+        type: 'POST',
+        url: 'http://39.108.12.65:5713/DefaultAPI.asmx/Login',
+        data: {
+            LoginInfo: '{"Code":"admin","Pwd":"6F92A645713538DD97BE"}',
+            ParamList: ''
+        },
+        success: function (res) {
+            const text = $(res).find('string').text();
+            const data = JSON.parse(text);
+            token = data.Data[0].Token;
+    
+            const water_promises = createPromisesByMeter(waterMeter, token);
+    
+            Promise.all(water_promises).then(function (posts) {
+                // console.log('water posts', posts);
+
+                let value = 0;
+                let time = posts[0].readDate;
+
+                for (const water_data of posts) {
+                    if (water_data.value) {
+                        value += water_data.value;
+                    }
+                }
+
+                value = Number(value.toFixed(2));
+                
+                updateLately(chart_home_water, time, value, 't');
+            }).catch(function (reason) {
+                console.log('reason', reason);
+            });
+        },
+        error: function (err) {
+            console.log('err', err);
+        }
+    })
+}
+
+update_home_water_lately();
+
 
 if (module.hot) {
     module.hot.accept();
