@@ -24,6 +24,12 @@ import { getDateByTime, getWeekIndexOfYear, replaceData, setOpacity } from './ut
 import { createFloorList, createRoomList, createOperList, createOperItem } from './component/domTemplate';
 
 
+let token;
+
+let waterPosts;
+let electricPosts;
+
+let exportType;
 
 $(function () {
     // ####################### 定义 #######################
@@ -1304,6 +1310,35 @@ $(function () {
         }
     })
 
+    // 导出表数据按钮
+    $('#tab-home .export-btn').click(function() {
+        $('#export-mask').addClass('active');
+
+        exportType = $(this).parent().attr('data-type');
+    })
+
+    // 导出表统计间隔切换
+    $('#export-mask').on('click', '.radio-box>div', function() {
+        if (!$(this).hasClass('active')) {
+            $(this).addClass('active').siblings().removeClass('active');
+        }
+    })
+
+    // 导出表弹窗
+    $('#export-mask').on('click', '.btn-box>.ensure', function() {
+        // 向后端请求一个Excel表格，成功后用户可选择下载地点
+        const interval = $('#export-mask .radio-box>div.active').attr('data-type');
+
+        console.log('exportType', exportType);
+        console.log('interval', interval);
+    })
+
+    // 
+    $('#export-mask').on('click', '.btn-box>.cancel', function() {
+        $('#export-mask').removeClass('active');
+    })
+
+
     // +++++++++++++++++++++++ 管理页面 +++++++++++++++++++++++
     // ----------------------- 上部切换 -----------------------
     // 楼栋切换
@@ -1605,27 +1640,27 @@ $(function () {
         })
 
         const new_paths = [
-            './models/南楼1F.toolkipBIM',
-            './models/南楼2F.toolkipBIM',
-            './models/南楼3F.toolkipBIM',
-            './models/南楼4F.toolkipBIM',
-            './models/南楼5F.toolkipBIM',
-            './models/南楼6F.toolkipBIM',
-            './models/南楼7F.toolkipBIM',
-            './models/南楼顶.toolkipBIM',
-            './models/西楼1F.toolkipBIM',
-            './models/西楼2F.toolkipBIM',
-            './models/西楼顶.toolkipBIM',
-            './models/北楼1F.toolkipBIM',
-            './models/北楼2F.toolkipBIM',
-            './models/北楼3F.toolkipBIM',
-            './models/北楼4F.toolkipBIM',
-            './models/北楼5F.toolkipBIM',
-            './models/北楼6F.toolkipBIM',
-            './models/北楼顶.toolkipBIM',
-            './models/电气系统.toolkipBIM',
-            './models/管道系统.toolkipBIM',
-            './models/机械系统.toolkipBIM',
+            // './models/南楼1F.toolkipBIM',
+            // './models/南楼2F.toolkipBIM',
+            // './models/南楼3F.toolkipBIM',
+            // './models/南楼4F.toolkipBIM',
+            // './models/南楼5F.toolkipBIM',
+            // './models/南楼6F.toolkipBIM',
+            // './models/南楼7F.toolkipBIM',
+            // './models/南楼顶.toolkipBIM',
+            // './models/西楼1F.toolkipBIM',
+            // './models/西楼2F.toolkipBIM',
+            // './models/西楼顶.toolkipBIM',
+            // './models/北楼1F.toolkipBIM',
+            // './models/北楼2F.toolkipBIM',
+            // './models/北楼3F.toolkipBIM',
+            // './models/北楼4F.toolkipBIM',
+            // './models/北楼5F.toolkipBIM',
+            // './models/北楼6F.toolkipBIM',
+            // './models/北楼顶.toolkipBIM',
+            // './models/电气系统.toolkipBIM',
+            // './models/管道系统.toolkipBIM',
+            // './models/机械系统.toolkipBIM',
         ]
         analysisFBX(new_paths, builds_map, systems_map, function () {
             console.log('renderer', renderer);
@@ -1924,10 +1959,6 @@ $(function () {
 })
 
 // ===================================== echarts =====================================
-let token;
-
-let waterPosts;
-let electricPosts;
 
 const updateYesterday = (chart, value, unit) => {
     $(chart._dom).find('>.yesterday>.bold').text(value + unit);
@@ -2856,6 +2887,11 @@ $(chart_home_water._dom).find('>.more').click(function() {
     $('#tab-statistics>.tab-menu>.water>a').tab('show');
     chart_water_1.resize();
 })
+
+//导出表数据
+const export_btn = `<span class="export-btn">导出表数据</span>`;
+$(chart_home_electric._dom).append(export_btn);
+$(chart_home_water._dom).append(export_btn);
 
 const shut_dom = `<span class="shut"></span>`;
 $('#container>.equipment-mask>.chart-1').append(shut_dom);
