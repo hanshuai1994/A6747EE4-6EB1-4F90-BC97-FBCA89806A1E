@@ -14,7 +14,7 @@ import OrbitControls from 'three-orbitcontrols';
 // 数据信息
 // import { build_data } from './data/domData';
 import { electricMeter, waterMeter } from "./data/meterMap";
-import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData } from "./api/yunweiData";
+import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData, Http} from "./api/yunweiData";
 
 // 补充方法
 import importDom from './api/importDom';
@@ -1324,13 +1324,19 @@ $(function () {
         }
     })
 
+    function getExcel(meterType,timeType){
+        location.href=Http+"gnrtExcl.do"+"?sheetStyleNm="+meterType+"&timeType="+timeType;
+    }
+
     // 导出表弹窗
     $('#export-mask').on('click', '.btn-box>.ensure', function() {
         // 向后端请求一个Excel表格，成功后用户可选择下载地点
         const interval = $('#export-mask .radio-box>div.active').attr('data-type');
 
-        console.log('exportType', exportType);
-        console.log('interval', interval);
+        // console.log('exportType', exportType);
+        // console.log('interval', interval);
+
+        getExcel(exportType, interval);
     })
 
     // 
@@ -1640,27 +1646,27 @@ $(function () {
         })
 
         const new_paths = [
-            // './models/南楼1F.toolkipBIM',
-            // './models/南楼2F.toolkipBIM',
-            // './models/南楼3F.toolkipBIM',
-            // './models/南楼4F.toolkipBIM',
-            // './models/南楼5F.toolkipBIM',
-            // './models/南楼6F.toolkipBIM',
-            // './models/南楼7F.toolkipBIM',
-            // './models/南楼顶.toolkipBIM',
-            // './models/西楼1F.toolkipBIM',
-            // './models/西楼2F.toolkipBIM',
-            // './models/西楼顶.toolkipBIM',
-            // './models/北楼1F.toolkipBIM',
-            // './models/北楼2F.toolkipBIM',
-            // './models/北楼3F.toolkipBIM',
-            // './models/北楼4F.toolkipBIM',
-            // './models/北楼5F.toolkipBIM',
-            // './models/北楼6F.toolkipBIM',
-            // './models/北楼顶.toolkipBIM',
-            // './models/电气系统.toolkipBIM',
-            // './models/管道系统.toolkipBIM',
-            // './models/机械系统.toolkipBIM',
+            './models/南楼1F.toolkipBIM',
+            './models/南楼2F.toolkipBIM',
+            './models/南楼3F.toolkipBIM',
+            './models/南楼4F.toolkipBIM',
+            './models/南楼5F.toolkipBIM',
+            './models/南楼6F.toolkipBIM',
+            './models/南楼7F.toolkipBIM',
+            './models/南楼顶.toolkipBIM',
+            './models/西楼1F.toolkipBIM',
+            './models/西楼2F.toolkipBIM',
+            './models/西楼顶.toolkipBIM',
+            './models/北楼1F.toolkipBIM',
+            './models/北楼2F.toolkipBIM',
+            './models/北楼3F.toolkipBIM',
+            './models/北楼4F.toolkipBIM',
+            './models/北楼5F.toolkipBIM',
+            './models/北楼6F.toolkipBIM',
+            './models/北楼顶.toolkipBIM',
+            './models/电气系统.toolkipBIM',
+            './models/管道系统.toolkipBIM',
+            './models/机械系统.toolkipBIM',
         ]
         analysisFBX(new_paths, builds_map, systems_map, function () {
             console.log('renderer', renderer);
@@ -3250,13 +3256,13 @@ $('#tab-statistics>.tab-menu>.water>a').one('click', function () {
     })
 })
 
-const aliHttp = "http://121.40.174.117:8080/";
+// const aliHttp = "http://121.40.174.117:8080/";
 
 // 更新首页电表数据
 const update_chart_home_electric = () => {
     $.ajax({
         type: 'POST',
-        url: aliHttp + 'buildingManagement/getElectricDatas.do',
+        url: Http + 'getElectricDatas.do',
         data: {},
         async: true,
         success: function (res) {
@@ -3287,7 +3293,7 @@ const update_chart_home_water = () => {
     //获取水表数据
     $.ajax({
         type: 'POST',
-        url: aliHttp + 'buildingManagement/getWaterDatas.do',
+        url: Http + 'getWaterDatas.do',
         data: {},
         async: true,
         success: function (res) {

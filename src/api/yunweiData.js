@@ -1,5 +1,6 @@
 let Http;
 const server = "aliyun_win";
+// const server = "client";
 
 switch (server) {
 	case "localhost":
@@ -8,6 +9,8 @@ switch (server) {
 	case "aliyun_win":
 		Http = "http://121.40.174.117:8080/buildingManagement/"; //aliyun win
 		break;
+	case "client":
+		Http = "http://218.18.137.245:8081/zhujianju/"; //客户服务器
 	default:
 		break;
 }
@@ -108,4 +111,5 @@ export {
 	updateYunweiData,
 	deleteYunweiData,
 	addYunweiData,
+	Http,
 };
