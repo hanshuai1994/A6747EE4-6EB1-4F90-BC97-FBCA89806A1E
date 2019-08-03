@@ -111,5 +111,4 @@ export {
 	updateYunweiData,
 	deleteYunweiData,
 	addYunweiData,
-	Http,
 };

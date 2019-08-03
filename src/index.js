@@ -14,7 +14,7 @@ import OrbitControls from 'three-orbitcontrols';
 // 数据信息
 // import { build_data } from './data/domData';
 import { electricMeter, waterMeter } from "./data/meterMap";
-import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData, Http} from "./api/yunweiData";
+import { selectAllYunweiData, updateYunweiData, deleteYunweiData, addYunweiData } from "./api/yunweiData";
 
 // 补充方法
 import importDom from './api/importDom';
@@ -30,6 +30,8 @@ let waterPosts;
 let electricPosts;
 
 let exportType;
+
+const aliHttp = "http://121.40.174.117:8080/buildingManagement/";
 
 $(function () {
     // ####################### 定义 #######################
@@ -1325,10 +1327,10 @@ $(function () {
     })
 
     function getExcel(meterType,timeType){
-        location.href=Http+"gnrtExcl.do"+"?sheetStyleNm="+meterType+"&timeType="+timeType;
+        location.href=aliHttp+"gnrtExcl.do"+"?sheetStyleNm="+meterType+"&timeType="+timeType;
     }
 
-    // 导出表弹窗
+    // 绑定确定按钮
     $('#export-mask').on('click', '.btn-box>.ensure', function() {
         // 向后端请求一个Excel表格，成功后用户可选择下载地点
         const interval = $('#export-mask .radio-box>div.active').attr('data-type');
@@ -1337,9 +1339,10 @@ $(function () {
         // console.log('interval', interval);
 
         getExcel(exportType, interval);
+        $('#export-mask').removeClass('active');
     })
 
-    // 
+    // 绑定取消按钮
     $('#export-mask').on('click', '.btn-box>.cancel', function() {
         $('#export-mask').removeClass('active');
     })
@@ -3256,13 +3259,12 @@ $('#tab-statistics>.tab-menu>.water>a').one('click', function () {
     })
 })
 
-// const aliHttp = "http://121.40.174.117:8080/";
 
 // 更新首页电表数据
 const update_chart_home_electric = () => {
     $.ajax({
         type: 'POST',
-        url: Http + 'getElectricDatas.do',
+        url: aliHttp + 'getElectricDatas.do',
         data: {},
         async: true,
         success: function (res) {
@@ -3293,7 +3295,7 @@ const update_chart_home_water = () => {
     //获取水表数据
     $.ajax({
         type: 'POST',
-        url: Http + 'getWaterDatas.do',
+        url: aliHttp + 'getWaterDatas.do',
         data: {},
         async: true,
         success: function (res) {
